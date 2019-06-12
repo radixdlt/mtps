@@ -37,12 +37,25 @@ else:
     gcp.create_ingress_rules(gce)
 
 
+# create test prepper
+if '--create-test-prepper' in sys.argv:
+    if not gcp.test_prepper_exists(gce):
+        logging.info("Creating dataset preparator...")
+        
+        rendered_file = gcp.render_template(config.TEST_PREPPER_CLOUD_INIT)
+        test_prepper_rendered_file = open(rendered_file, 'r')
+        gcp.create_test_prepper(gce, test_prepper_rendered_file)
+# destroy test prepper
+elif '--destroy-test-prepper' in sys.argv:
+    if gcp.test_prepper_exists(gce):
+        logging.info("Destroying dataset preparator...")
+        gcp.destroy_node(gce, config.TEST_PREPPER_MACHINE_INSTANCE_NAME)
 
-# Destroy explorer
+# destroy explorer
 if '--destroy-explorer' in sys.argv:
     if gcp.explorer_exists(gce):
         logging.info("Destroying explorer node...")
-        gcp.destroy_explorer(gce, config.EXPLORER_MACHINE_INSTANCE_NAME)
+        gcp.destroy_node(gce, config.EXPLORER_MACHINE_INSTANCE_NAME)
 
 # create explorer
 else:
@@ -65,9 +78,9 @@ else:
     else:
         logging.info("An explorer node seems to be up and running.")
 
-# delete cores
+# destroy cores
 if '--destroy-cores' in sys.argv:
-    # delete core nodes
+    # destroy core nodes
     logging.info("Destroying core nodes...")
     gcp.destroy_all_core_groups(gce)
 

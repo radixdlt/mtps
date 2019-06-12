@@ -191,15 +191,6 @@ def wait_boot_node(gce):
     raise RuntimeError("boot node did not start in 600 seconds")
 
 
-def wait_explorer_node(gce):
-    for i in range(60):
-        node = get_explorer(gce)
-        if node:
-            return node
-        time.sleep(10)
-    raise RuntimeError("boot node did not start in 600 seconds")
-
-
 def count_core_nodes(gce, region):
     nodes = gce.list_nodes()
     count = 0
@@ -236,12 +227,12 @@ def create_explorer(gce, cloud_init):
     return node
 
 
-def destroy_explorer(gce, name):
+def destroy_node(gce, name):
     try:
         node = gce.ex_get_node(name)
         gce.destroy_node(node, True)
     except ResourceNotFoundError:
-        logging.info("- Explorer node not found in GCP.")
+        logging.info("- Node %s not found in GCP.", name)
 
 
 def explorer_exists(gce):
@@ -255,6 +246,40 @@ def explorer_exists(gce):
 def get_explorer(gce):
     node = gce.ex_get_node(config.EXPLORER_MACHINE_INSTANCE_NAME)
     gce.wait_until_running([node], 5, 600) # 5 second loops | 10 minute timeout
+    return node
+
+
+def test_prepper_exists(gce):
+    try:
+        gce.ex_get_node(config.TEST_PREPPER_MACHINE_INSTANCE_NAME)
+        return True
+    except ResourceNotFoundError:
+        return False
+
+
+def create_test_prepper(gce, cloud_init):
+    node = gce.create_node(
+        name = config.TEST_PREPPER_MACHINE_INSTANCE_NAME,
+        image = config.TEST_PREPPER_MACHINE_IMAGE,
+        size = config.TEST_PREPPER_MACHINE_SIZE,
+        location = config.TEST_PREPPER_MACHINE_ZONE,
+        ex_tags = config.TEST_PREPPER_MACHINE_INSTANCE_NAME,
+        ex_metadata = {"user-data":cloud_init.read()},
+        ex_labels = "type={0}".format(config.TEST_PREPPER_MACHINE_INSTANCE_NAME),
+        ex_disks_gce_struct=[
+            {
+                'autoDelete': True,
+                'boot': True,
+                'type': 'PERSISTENT',
+                'mode': 'READ_WRITE',
+                'deviceName': config.TEST_PREPPER_MACHINE_INSTANCE_NAME,
+                'initializeParams': {
+                    'diskName': config.TEST_PREPPER_MACHINE_INSTANCE_NAME,
+                    'sourceImage': config.TEST_PREPPER_MACHINE_IMAGE
+                }
+            },
+        ]
+    )
     return node
 
 
