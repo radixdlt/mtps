@@ -1,0 +1,9 @@
+{
+    "experimental" : true,
+    "metrics-addr" : "127.0.0.1:9100",
+    "log-driver": "json-file",
+    "log-opts": {
+        "max-size": "10m",
+        "max-file": "30"            
+    }
+}

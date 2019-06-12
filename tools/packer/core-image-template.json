@@ -1,0 +1,45 @@
+{
+    "builders": [
+      {
+        "type": "googlecompute",
+        "project_id": "{{user `BUILDER_PROJECT`}}",
+        "source_image_family": "ubuntu-1604-lts",
+        "ssh_username": "planter",
+        "zone": "europe-west1-b",
+	"image_name": "ubuntu-1604-lts-radix-1mtps",
+        "image_description": "Base image for Radix 1M TPS test run"
+      }
+    ],
+    "provisioners": [
+        {
+            "type": "file",
+            "source": "./core_files/daemon.json",
+            "destination": "/tmp/daemon.json"
+        },
+        {
+            "type": "shell",
+            "inline":[
+                "sudo mkdir -p /etc/docker/ /etc/radixdlt/", 
+                "sudo mv /tmp/daemon.json /etc/docker/"
+            ]
+        },
+        {
+            "type": "shell",
+            "inline":[
+                "curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -",
+                "sudo apt-key fingerprint 0EBFCD88",
+                "sudo add-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable\"",
+                "sudo apt update && sudo apt upgrade -y",
+                "sudo apt install docker-ce docker-ce-cli containerd.io python rng-tools zstd -y"
+            ]
+        },
+        {
+            "type": "shell",
+            "inline":[
+                "sudo curl -sS1fL https://github.com/docker/compose/releases/download/1.21.2/docker-compose-Linux-x86_64 -o /usr/local/bin/docker-compose",
+                "sudo echo \"8a11713e11ed73abcb3feb88cd8b5674b3320ba33b22b2ba37915b4ecffdf042 /usr/local/bin/docker-compose\" | sha256sum -c",
+                "sudo chmod +x /usr/local/bin/docker-compose"
+            ]
+        }
+    ]
+  }
