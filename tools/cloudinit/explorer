@@ -1,0 +1,109 @@
+#cloud-config
+users:
+  - name: radix
+    gecos: Radix Adminstrator
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: users, admin, docker
+    ssh_import_id: None
+    lock_passwd: true
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDRcrvwfrr9OfzlkXznBQ0ckyjCzWRyQDhQpFP7u4+m0OQggug0ZDKe4UzmKn9rzrW+9Toku/cQgRuNZPUV8kYM3ou/fv2nE0xqUA/jlPfqdtW1o/O/tSAfqzC1zAi4KVHhMASUdD98q/fWMyvHFawXCovXMx/JeLq31tse1tSeJmW7BnQMXAp+StTZi35b9MyaVI8Ajw0+Goievcy5wzOHhrjZVFc9FoTtmI4G5F3sXL/jtoplPL80rE1uBIF5TJnZmEi+dZ1r1Ej1YP4tqfyv8Y0KbbxHgMTisizSGclkle9BXHKsjArQddTO4lmDZfzDMUMb1vxQ042nDUbAaRo/mLS0e7UaBtSqUEngU6N1upkW6NTBCXrBelyMW4gsVVpRc34ReY1fKj5+8sHDB4i1SoijF4kf3hiWyr7ar95mhTPcP8sXLm8pcqmrtRv9p+MAFkgFVk9yR5RQWanaoJhxk1KHzHOpFxbF1Vd/MYHQhOPyYPsid/Yp0+rR0B9LJhYyt2XJwrQHVjxFyepH1SyIF/AwOAOpdN0vcPGD3Da8WgQbsTVTpPIqUpAyIZlKovLr2M2UQtzhB7iECYAhOkEWhvfEWFNyfLHZ02OASc7I09ofo31PsOfcKNAgNH22OGfZ0jqfp5my4OLVkoIkWKBVS+HnCkBnE5g2jpi6d3FINw== ors
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDGY8hcEfiX3WX4V+PJBf6QT+dKUE6cjjTCUqbW23wbd5HYXDLRYqYbAWfOeaIdjkzCIliaCRXRaZ/o6frvPMPvAyt37TYDtCVhWnjpvFEk8DVPNl43oMqPnhMPNtx6aBU9u0x1ByPWtXIXFCshB3HM+eieP8y50QiCGRxGg1RwfCra5A13+Uy29ALi01IBq+wPmG+TIHHsOBdJ3dDe2SBIyW43kfOkOSUmoGsKCaI2cNBuoJrD7SoRgXOsU8nAz3ssaPs1plvF6xFeHr2s0yoLPWHf+7eR2nHh+A3BfR6kdM2VnTea9hPBaLZos9GyU3HgDXZTTovl2asmX0to0WNw9mmXz0LyqOts+AIDG2r84BR5V5Mzj5IS+15UzHwJCMcjciG+48bJmPPUMNrPkaU+bH7k497kSg4BZR8bievSMLNcMcYEu8LLmX8NX7dQOyEyZ9OXl7fVr8gm6l97zNdrK7gwZj37Yc0lzumh4VM7a7GS+ngyWRReRn3TUP7HllNtMr+q68uSA+wZWOpeUJ4fZ9/1Ny6EiQc3rG0pGOKZAdglCT1yBIaDEv7KeJUmbo+ovjlcek9X8VJikZvqvEs3mkryewB2SSeYNVdoY2MKfB50I8zq4PZ3jMwN3lN7XSGQQGhkwAxW18HOEcfyWrEmHzvsek5F6WbqjLNgZrqiPQ== james
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCn4IoPa6vmhuk2GVCKy66lUSwl8AprjfjKn6iZ/jRW5TxrRsv/3tKlTt5MAjjviSKCXVKiRC1kqNXfOYl1PiCyVt3pwMfl6uCDJG4f6SK8a4N1Wa1fX4l2jRfrqXOSy1aUyNlxcdO03Yx6EtTcuxPbFDvzWBkmWO+y5Mc+TtxGAV6iH90jBxdMEGc/cfVWi7DR1Er+ptw4lKKxnO00t7iF2kSoReLYbBd4u6HAD3/LUSKYM/aW4GnCsvrd3X6nIpeu4B+OPHGSGVf+V3IHI3HbqHwX+BuCqvDay9zfDn+Nxt2vGCih4AbmKJdpq8fYnzxN30zLHShX6YBT3KRs53CwYu4qXGHxgcdLn2zXeRLm+QhroyIbp62GBzzYUQmQkT6GKl88gG8e8SljMJvFDY03Y/6ppomhsgt9xGJcaiQEgrCA9OkdnDzxYMqlPd+P8prhJUgp7Mkh+b35RGGxA1WCLPvn6/YZfxbHNkCeZQB54vpCTP//b18eHgFwOAWILacbTLERgJTnTRBqeFDMDnmcC/jj0P1hTL/hg5hgTOmiLQ1tZGPPfhshrP3skfafuIaUqVo8Wj6W0j8Z3my8Vojl+yuUQNyPSGEMuu6TTt21TUA9WXVReA8pcUeQIPrKmnKwrRv8XmISnemAPjCPWwQYT9CYyBw8mi2py0xLaym3YQ== zalan
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDAqVNuhBCRtLlSPnpfXRcz+ouGShumSbsmk2u7HEUDPaEkpvdjmiKlRtUImbFm63kFSpeOex7dOCncqux4jwZh6eIYxFefDy7Bs5Vga+iXBDaXvugPAxhYB3x9k4fP1kGHDSOkvi8UkXQEM+AFeVfPRJMmmkvmVqK3nlF7jr3DLv58icGHGbWQf+JexYyrOU+EJ8ejNUGhf54sEQ8b9jyG9rlio8+yApt36tSI/xNYwjCVUbTmyufIYU0riilKvmUzaqlZ1ynJrExqBgyPhUUuOhgXdSyP6D8eZ+xHPMzmUYQEazqCxEqslgnv/yfaT7mIV3/4vPAvDXnJyj0y+JTJAEZDKnrb2BuLfQ5KUJy83musmxVN+kG4btUFdaUGpRNvkPql+3B2oqaknySI6nKBGXggWN0flhDqcqj1y1jboIcSHUEQVeacXh3roJaCiM7o6uhkHsbFDUQEZAuqWZXrC3xcMSeT2vxV1Eh15XR7l75BURjpeoJ1ZZ3d1mOi0yOkDkqKp/aDu00uWqm5pybCBuyAb2rongpnpMCw6ms3ehYRffnP3B7anBuhzeY8AzzqPLhC2oG0Ama6Mf0hk7hR94J9P8bYYAcXFofylVIbyar7D3lybXhu5SLh5Vc52RbKaLCKbIvuQBJvogIE8E/1Kox0CFQOA6rBKEefs3uWtw== edgars
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC8ahvq09KQCXAUsbHk8AUUHU2nQ/wXaskeAYYii5umz6mxE/csu/K6uRbV3pgQW8o8QGfKXPpCngG7FL1v99U+z17xdih2pmuOET1P0Xnp+jZFggpuF5+BxEds64tl9iyMN0LPaiXvDbW4vEl7IFoS0YRr8/OH9/AQE3khCG8MfFk1X+hWLeuaWBVOSKeiKnQlqxSPKQEWAfaA9shncjHR11xTSpW5i5l9Au6qZf/1rVmjVDDd38AywMlTOeOGuM528bUJK09YuulKMRhETlGJlStg7LResGYvoGPi5wpChGwPnInPWIJLWFNZQhVt4zF7Mbf8+EmMNNv9BkvYJoLElyZgsE+yQC+VQJXF2NukVOcmlmVhakOHQqAUx2SjOaky/Xb0ULoigpwige1TQ1ddvQ0Zmq8QAEPJFkxW4wdYjjJkmQbMJU+Cuw/ga5GjN+gNpC1zqYhpZwqQHxHTVYEhE7gSrXC7b/OjAo02jXlJEdjNL9Q6KEaceFzBNEXEAUmcZ3HnqCZs5QusRwDgQINAL1mXKFZ3JXp2FszmtUSoJsoNwJyqmqrXVCh1/NzAstdn9GtggB8owOyEEK2wt8mzMGkmXdB1sEQYagnz/B2/rKEmsrNOxHcSKTLlpW8jEEkfMwHuV+NYgC48w5iZFIOPtRSjZ6hlqG9+N3Vb8dWIIQ== florian
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDQf3aFR/4RWcYilcQhRFvZ48BL4on8ViHXV2Bn/Y9rabMVxAfroyseR29Qyj6g8fdyjQttsDr6gK7Mk3GzL4zoRZRUnQgZgbYL+w/jNtC+qr7Ef25U10Cvi5vU+zqnqXKRArqWc2Z1IzMun+3Kx57R5m8qJnem0fGytiaHlFe2gOfornsOZ2BFTFp+kSwGRR3aODgD8ldbNF6AZ0V5hT3vU8rr1EKI99vNHtLD8Tv4ylRUfxdrvtaJassRX22v66HnVZncXJ08u0MC+vaKQZ6RWDql/AxNQHOGIFAdjw2pghq25LfI84VpT6R08apkTBm1eZYs/tpJQiH7OhCTCvI2z+s2HVub+qCJt/agJk+qvO9zWA26ms/n7LdxTNgiPuXvjk3IcJbDMADEeVRw0qJVQGxGPhQ2huCPcC3gwnHsEzGo+HK8W/ceisewRPA3PEUV7tjB1ddNAWd7dmSGPs356aANOQk6hQCSXoXKAaqAbF7s+BrpWEe9nGkcEY/6odwnPatoqtrNuO5Q+RnycdB+TG5OXCqZf/AtLexNmfc6wvCGvF95zLgG/utXVOLF7dqD0FWMgN3guRBnBu9ZUfCtimVAb0F4HfQaWlFHGTjVEZPeD1ZxC8y3BG9gGtGJaysmfq13dCGHVzYjPSSntU7zsWxr/Ls1fNQJrN3sM5yyxQ== laszlo
+write_files:
+  - path: /etc/docker/daemon.json
+    content: |
+        {
+            "experimental" : true,
+            "metrics-addr" : "127.0.0.1:9100",
+            "log-driver": "json-file",
+            "log-opts": {
+                "max-size": "10m",
+                "max-file": "30"            
+            }
+        }
+  - path: /etc/radixdlt/docker-compose.yml
+    content: | 
+        version: '3.6'
+        services:   
+            explorer:
+              image: radixdlt/explorer:mtps-latest
+              restart: unless-stopped
+              environment:
+                ADMIN_PASSWORD: "$RADIX_MTPS_NETWORK_PASSWORD"
+                METRICS_PASSWORD: "$RADIX_MTPS_NETWORK_PASSWORD"
+            node_finder:
+              image: radixdlt/node-finder:latest
+              restart: unless-stopped
+              environment:
+                BOOT_NODES: ""
+                NODES_LIST: /data/nodes.lst
+              volumes:
+                - "nodes_lst:/data"
+              ports:
+                - 8081:8080
+            shard_allocator:
+              image: radixdlt/radixdlt-shard-allocator:latest
+              restart: unless-stopped
+              environment:
+                SHARD_COUNT: "$RADIX_MTPS_NETWORK_SHARD_COUNT" # Do not manually edit this value. It is overwritten by the same value from config.sh
+                SHARD_OVERLAP: "$RADIX_MTPS_NETWORK_SHARD_OVERLAP" # Do not manually edit this value. It is overwritten by the same value from config.sh
+              ports:
+                - 8080:8080
+              volumes:
+                - "shard_allocator_seeds:/data"
+            prometheus:
+              image: radixdlt/explorer-prometheus:latest
+              restart: unless-stopped
+              volumes:
+                - "prometheus_tsdb:/prometheus"
+                - "nodes_lst:/nodes"
+              logging:
+                options:
+                  max-size: "1m"
+                  max-file: "30"
+            nginx:
+              image: radixdlt/explorer-nginx:mtps-latest
+              restart: unless-stopped
+              environment:
+                NGINX_DEFAULT_ACCESS: "$RADIX_MTPS_NGINX_ACCESS"
+                ADMIN_PASSWORD: "$RADIX_MTPS_NETWORK_PASSWORD"
+                METRICS_PASSWORD: "$RADIX_MTPS_NETWORK_PASSWORD"
+                WIPE_ADMIN_PASSWORD: "no"
+                WIPE_METRICS_PASSWORD: "no"
+              ports:
+                - "443:443"
+              volumes:
+                - "nginx_secrets:/etc/nginx/secrets"
+              logging:
+                options:
+                  max-size: "1m"
+                  max-file: "30"
+
+        volumes:
+            shard_allocator_seeds:
+            nginx_secrets:
+            nodes_lst:
+            prometheus_tsdb:
+            nginx_secrets:
+package_upgrade: true
+apt:
+  preserve_sources_list: true
+  sources:
+    docker-ce.list:
+      source: "deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable"
+      keyid: 0EBFCD88
+packages:
+  - rng-tools
+  - python
+  - docker-ce
+runcmd:
+  - set -e
+  - curl -sS1fL https://github.com/docker/compose/releases/download/1.21.2/docker-compose-Linux-x86_64 -o /usr/local/bin/docker-compose
+  - echo "8a11713e11ed73abcb3feb88cd8b5674b3320ba33b22b2ba37915b4ecffdf042 /usr/local/bin/docker-compose" | sha256sum -c
+  - chmod +x /usr/local/bin/docker-compose
+  - cd /etc/radixdlt/ && docker-compose up -d 

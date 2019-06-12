@@ -1,0 +1,72 @@
+#cloud-config
+users:
+  - name: radix
+    gecos: Radix Adminstrator
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: users, admin, docker
+    ssh_import_id: None
+    lock_passwd: true
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDRcrvwfrr9OfzlkXznBQ0ckyjCzWRyQDhQpFP7u4+m0OQggug0ZDKe4UzmKn9rzrW+9Toku/cQgRuNZPUV8kYM3ou/fv2nE0xqUA/jlPfqdtW1o/O/tSAfqzC1zAi4KVHhMASUdD98q/fWMyvHFawXCovXMx/JeLq31tse1tSeJmW7BnQMXAp+StTZi35b9MyaVI8Ajw0+Goievcy5wzOHhrjZVFc9FoTtmI4G5F3sXL/jtoplPL80rE1uBIF5TJnZmEi+dZ1r1Ej1YP4tqfyv8Y0KbbxHgMTisizSGclkle9BXHKsjArQddTO4lmDZfzDMUMb1vxQ042nDUbAaRo/mLS0e7UaBtSqUEngU6N1upkW6NTBCXrBelyMW4gsVVpRc34ReY1fKj5+8sHDB4i1SoijF4kf3hiWyr7ar95mhTPcP8sXLm8pcqmrtRv9p+MAFkgFVk9yR5RQWanaoJhxk1KHzHOpFxbF1Vd/MYHQhOPyYPsid/Yp0+rR0B9LJhYyt2XJwrQHVjxFyepH1SyIF/AwOAOpdN0vcPGD3Da8WgQbsTVTpPIqUpAyIZlKovLr2M2UQtzhB7iECYAhOkEWhvfEWFNyfLHZ02OASc7I09ofo31PsOfcKNAgNH22OGfZ0jqfp5my4OLVkoIkWKBVS+HnCkBnE5g2jpi6d3FINw== ors
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDGY8hcEfiX3WX4V+PJBf6QT+dKUE6cjjTCUqbW23wbd5HYXDLRYqYbAWfOeaIdjkzCIliaCRXRaZ/o6frvPMPvAyt37TYDtCVhWnjpvFEk8DVPNl43oMqPnhMPNtx6aBU9u0x1ByPWtXIXFCshB3HM+eieP8y50QiCGRxGg1RwfCra5A13+Uy29ALi01IBq+wPmG+TIHHsOBdJ3dDe2SBIyW43kfOkOSUmoGsKCaI2cNBuoJrD7SoRgXOsU8nAz3ssaPs1plvF6xFeHr2s0yoLPWHf+7eR2nHh+A3BfR6kdM2VnTea9hPBaLZos9GyU3HgDXZTTovl2asmX0to0WNw9mmXz0LyqOts+AIDG2r84BR5V5Mzj5IS+15UzHwJCMcjciG+48bJmPPUMNrPkaU+bH7k497kSg4BZR8bievSMLNcMcYEu8LLmX8NX7dQOyEyZ9OXl7fVr8gm6l97zNdrK7gwZj37Yc0lzumh4VM7a7GS+ngyWRReRn3TUP7HllNtMr+q68uSA+wZWOpeUJ4fZ9/1Ny6EiQc3rG0pGOKZAdglCT1yBIaDEv7KeJUmbo+ovjlcek9X8VJikZvqvEs3mkryewB2SSeYNVdoY2MKfB50I8zq4PZ3jMwN3lN7XSGQQGhkwAxW18HOEcfyWrEmHzvsek5F6WbqjLNgZrqiPQ== james
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCn4IoPa6vmhuk2GVCKy66lUSwl8AprjfjKn6iZ/jRW5TxrRsv/3tKlTt5MAjjviSKCXVKiRC1kqNXfOYl1PiCyVt3pwMfl6uCDJG4f6SK8a4N1Wa1fX4l2jRfrqXOSy1aUyNlxcdO03Yx6EtTcuxPbFDvzWBkmWO+y5Mc+TtxGAV6iH90jBxdMEGc/cfVWi7DR1Er+ptw4lKKxnO00t7iF2kSoReLYbBd4u6HAD3/LUSKYM/aW4GnCsvrd3X6nIpeu4B+OPHGSGVf+V3IHI3HbqHwX+BuCqvDay9zfDn+Nxt2vGCih4AbmKJdpq8fYnzxN30zLHShX6YBT3KRs53CwYu4qXGHxgcdLn2zXeRLm+QhroyIbp62GBzzYUQmQkT6GKl88gG8e8SljMJvFDY03Y/6ppomhsgt9xGJcaiQEgrCA9OkdnDzxYMqlPd+P8prhJUgp7Mkh+b35RGGxA1WCLPvn6/YZfxbHNkCeZQB54vpCTP//b18eHgFwOAWILacbTLERgJTnTRBqeFDMDnmcC/jj0P1hTL/hg5hgTOmiLQ1tZGPPfhshrP3skfafuIaUqVo8Wj6W0j8Z3my8Vojl+yuUQNyPSGEMuu6TTt21TUA9WXVReA8pcUeQIPrKmnKwrRv8XmISnemAPjCPWwQYT9CYyBw8mi2py0xLaym3YQ== zalan
+write_files:
+  - path: /etc/docker/daemon.json
+    content: |
+        {
+            "experimental" : true,
+            "metrics-addr" : "127.0.0.1:9100",
+            "log-driver": "json-file",
+            "log-opts": {
+                "max-size": "10m",
+                "max-file": "30"            
+            }
+        }
+  - path: /etc/radixdlt/docker-compose.yml
+    content: |
+        version: '3.6'
+        services:
+          bitcoind:
+            image: radixdlt/bitcoind:latest
+            volumes:
+              - /btc_blockchain/:/btc_blockchain/
+              - /radix_data/:/radix_data
+            ports:
+              - 8332:8332
+            logging:
+              options:
+                max-size: "1m"
+                max-file: "10"
+          millionaire-dataset-preparator:
+            image: radixdlt/millionaire-dataset-preparator:latest
+            init: true
+            ports:
+              - 127.0.0.1:9009:9009
+              - 127.0.0.1:9010:9010
+            volumes:
+              - /btc_blockchain/:/btc_blockchain
+              - /radix_data/:/radix_data
+            environment:
+              - JAVA_OPTS="-server -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9009 -XX:+HeapDumpOnOutOfMemoryError -Dcom.sun.management.jmxremote.port=9010 -Dcom.sun.management.jmxremote.rmi.port=9010 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost"
+            logging:
+              options:
+                max-size: "1m"
+                max-file: "10" 
+package_upgrade: true
+apt:
+  preserve_sources_list: true
+  sources:
+    docker-ce.list:
+      source: "deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable"
+      keyid: 0EBFCD88
+packages:
+  - rng-tools
+  - python
+  - docker-ce
+runcmd:
+  - set -e
+  - curl -sS1fL https://github.com/docker/compose/releases/download/1.21.2/docker-compose-Linux-x86_64 -o /usr/local/bin/docker-compose
+  - echo "8a11713e11ed73abcb3feb88cd8b5674b3320ba33b22b2ba37915b4ecffdf042 /usr/local/bin/docker-compose" | sha256sum -c
+  - chmod +x /usr/local/bin/docker-compose
+  - cd /etc/radixdlt/ && docker-compose up -d 

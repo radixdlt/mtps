@@ -1,0 +1,3 @@
+paramiko
+cryptography
+apache-libcloud
