@@ -1,0 +1,13 @@
+.DS_Store
+out/
+millionaire-dataset-preparator/logs/
+*.jar
+.idea/
+millionaire-dataset-preparator/atoms
+packer/packer
+.classpath
+.project
+.settings/
+bin/
+libcloud/.venv
+*.pyc
