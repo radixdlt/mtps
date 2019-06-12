@@ -1,0 +1,29 @@
+@startuml
+
+node core3 as "Core Node Data Flow" {
+    boundary api as "API"
+
+    note bottom of api
+        Out of scope!
+    end note
+
+    control pump as "Atom Pump"
+    boundary atomos as "AtomOS"
+    control cm as "Constraint Machine"
+    control tempo as "Tempo"
+    database ledger as "Ledger"
+    file atoms as "atoms.zst"
+    pump -- atoms : " loads "
+    pump -> atomos
+    atomos --> cm: uses
+    atomos -> tempo
+    tempo --> cm: uses
+    tempo -> ledger
+}
+
+node core2 as "Other Core Node"
+
+core2 <--> tempo: gossips
+
+
+@enduml

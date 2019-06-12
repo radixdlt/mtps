@@ -1,0 +1,30 @@
+@startuml
+note over ShardAllocator, Core1
+    Max Chunk Size: M = 2⁴⁴
+    Number of Shards: N = 100
+    Optimal Chunk Range: 2⁴⁴/N
+    Chunk Range with 10% overlap: R = 1.1 x (2⁴⁴/N)
+    NodeKey Generation Coeff for 10% overlap: C = 0.1 x R
+end note
+
+Core1 -> ShardAllocator : GET /shard seed=randomTextHere1
+Core1 <- ShardAllocator: [87960930222, 19351404648]
+note over Core1: generate_node_key 87960930222 19351404648
+
+Core2 -> ShardAllocator : GET /shard seed=randomTextHere2
+Core2 <- ShardAllocator: [263882790666, 19351404648]
+note over Core2: generate_node_key 263882790666 19351404648
+
+Core3 -> ShardAllocator : GET /shard seed=randomTextHere3
+Core3 <- ShardAllocator: [439804651110, 19351404648]
+note over Core2: generate_node_key 439804651110 19351404648
+
+Core101 -> ShardAllocator : GET /shard seed=randomTextHere101
+Core101 <- ShardAllocator: [87960930222, 19351404648]
+note over Core2: generate_node_key 87960930222 19351404648
+
+Core1 -> ShardAllocator : GET /shard seed=randomTextHere1
+Core1 <- ShardAllocator: [87960930222, 19351404648]
+note over Core2: generate_node_key 87960930222 19351404648
+
+@enduml

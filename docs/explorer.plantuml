@@ -1,0 +1,56 @@
+@startuml
+
+node CoreNode1 as "Core Node #1" {
+    rectangle core1 as "Radix Core"
+    rectangle nginx1 as "NGINX" 
+    file atoms1 as "atoms.zst" 
+    database ledger1 as "Ledger" 
+    nginx1 ..> core1: protects
+    core1 ..> atoms1: reads
+    core1 ..> ledger1: persists
+}
+
+node CoreNode2 as "Core Node #2" {
+    rectangle core2 as "Radix Core"
+    rectangle nginx2 as "NGINX" 
+    file atoms2 as "atoms.zst" 
+    database ledger2 as "Ledger" 
+    nginx2 ..> core2: protects
+    core2 ..> atoms2: reads
+    core2 ..> ledger2: persists
+}
+
+node CoreNodeN as "Core Node #N" {
+    rectangle coren as "Radix Core"
+    rectangle nginxn as "NGINX" 
+    file atomsn as "atoms.zst" 
+    database ledgern as "Ledger" 
+    nginxn ..> coren : protects
+    coren ..> atomsn: uses
+    coren ..> ledgern: persists
+}
+
+core1 <.> core2 : gossips
+core2 <.> coren : gossips
+core1 <.> coren : gossips
+
+node Explorer as "Explorer Node" {
+    rectangle explorer_nginx as "NGINX"
+    rectangle explorer_app as "Explorer" 
+    rectangle node_finder as "Node Finder" 
+    explorer_nginx ..> explorer_app: protects
+    explorer_app .> node_finder : queries
+    explorer_app ..> nginx1 : aggregates
+    explorer_app ..> nginx2 : aggregates
+    explorer_app ..> nginxn : aggregates
+    node_finder ..> nginx1 : health checks
+    node_finder ..> nginx2 : health checks
+    node_finder ..> nginxn : health checks
+}
+
+node CloudFlare
+
+:User: ..> CloudFlare : " https://www.radixdlt.com/1m"
+CloudFlare ..> explorer_nginx : protects
+
+@enduml
