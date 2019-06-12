@@ -1,0 +1,32 @@
+FROM alpine:3.9
+USER root
+
+# add jdk
+RUN apk add --no-cache openjdk8
+
+# copy service
+ADD build/distributions/millionaire-dataset-preparator-*.tar /opt/radixdlt/
+
+# rename folder from service-0.0.1 to service
+RUN mv /opt/radixdlt/millionaire-dataset-preparator-* /opt/radixdlt/millionaire-dataset-preparator/
+
+# create folder
+RUN mkdir -p /btc_blockchain /radix_data /raddata
+
+# add user
+RUN addgroup -S radix && adduser -S radix -G radix
+
+# set permissions
+RUN chown -R radix:radix /btc_blockchain /radix_data /opt/radixdlt/ /raddata
+
+# set working dir
+WORKDIR /radix_data
+
+# static libs
+ENV LD_LIBRARY_PATH /opt/radixdlt/millionaire-dataset-preparator/lib:${LD_LIBRARY_PATH}
+
+# set user
+USER radix
+
+# set cmd
+CMD ["/opt/radixdlt/millionaire-dataset-preparator/bin/millionaire-dataset-preparator", "/btc_blockchain/blocks"]

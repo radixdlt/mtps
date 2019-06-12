@@ -1,0 +1,31 @@
+group 'org.radixdlt'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'application'
+
+sourceCompatibility = 1.8
+mainClassName = 'org.radixdlt.millionaire.Main'
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+//    compile 'org.bitcoinj:bitcoinj-core:0.15'
+//    compile 'com.github.bitcoinj:bitcoinj:v0.15.1'
+    implementation 'com.github.MuncleUscles:bitcoinj:master-SNAPSHOT'
+    implementation 'com.github.radixdlt:radixdlt-java:mtps-1'
+    compile 'org.mapdb:mapdb:3.0.7'
+    compile group: 'org.iq80.leveldb', name: 'leveldb', version: '0.11'
+    compile group: 'org.fusesource.leveldbjni', name: 'leveldbjni-all', version: '1.8'
+    compile group: 'com.sleepycat', name: 'je', version: '18.3.12'
+
+    compile files('libsecp256k1.dylib')
+    compile files('libsecp256k1.so')
+    compile files('libsecp256k1.so.0')
+    compile files('libsecp256k1.so.0.0.0')
+    compile files('libsecp256k1.dll')
+}
