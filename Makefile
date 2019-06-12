@@ -32,7 +32,7 @@ explorer-push:
 
 .PHONY: explorer-nginx
 explorer-nginx:
-	cd explorer-nginx && \
+	cd explorer/nginx && \
 	docker build -t $(REGISTRY_PREFIX)explorer-nginx:mtps-$(TAG) -f ./Dockerfile .
 
 .PHONY: explorer-nginx-push

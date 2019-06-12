@@ -9,5 +9,6 @@ packer/packer
 .project
 .settings/
 bin/
-libcloud/.venv
+.venv/
 *.pyc
+.gradle/
