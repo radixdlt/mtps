@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="34px" height="34px" viewBox="0 0 34 34" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 54.1 (76490) - https://sketchapp.com -->
+    <title>facebook@1,5x</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <polygon id="path-1" points="0.689 0.5 8.6682 0.5 8.6682 15.2398 0.689 15.2398"></polygon>
+    </defs>
+    <g id="Dizajn" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="01-01-00-V2" transform="translate(-934.000000, -2677.000000)">
+            <g id="footer" transform="translate(0.000000, 1817.000000)">
+                <g id="Footer">
+                    <g id="Right" transform="translate(882.000000, 622.000000)">
+                        <g id="Icon" transform="translate(3.000000, 237.000000)">
+                            <g id="facebook" transform="translate(48.536100, 0.396500)">
+                                <g id="Group-1714" transform="translate(12.281300, 10.120700)">
+                                    <mask id="mask-2" fill="white">
+                                        <use xlink:href="#path-1"></use>
+                                    </mask>
+                                    <g id="Clip-1713"></g>
+                                    <path d="M8.3682,0.4828 L6.4542,0.4798 C4.3042,0.4798 2.9142,1.9058 2.9142,4.1128 L2.9142,5.7878 L0.9892,5.7878 C0.8232,5.7878 0.6882,5.9208 0.6882,6.0878 L0.6882,8.5148 C0.6882,8.6808 0.8232,8.8158 0.9892,8.8158 L2.9142,8.8158 L2.9142,14.9388 C2.9142,15.1048 3.0492,15.2398 3.2152,15.2398 L5.7252,15.2398 C5.8912,15.2398 6.0262,15.1048 6.0262,14.9388 L6.0262,8.8158 L8.2762,8.8158 C8.4432,8.8158 8.5772,8.6808 8.5772,8.5148 L8.5792,6.0878 C8.5792,6.0078 8.5472,5.9318 8.4902,5.8758 C8.4332,5.8188 8.3572,5.7878 8.2772,5.7878 L6.0262,5.7878 L6.0262,4.3678 C6.0262,3.6848 6.1892,3.3388 7.0782,3.3388 L8.3672,3.3378 C8.5342,3.3378 8.6682,3.2038 8.6682,3.0378 L8.6682,0.7848 C8.6682,0.6178 8.5342,0.4838 8.3682,0.4828" id="Fill-1712" fill="#24B47E" mask="url(#mask-2)"></path>
+                                </g>
+                                <path d="M33,18 C33,26.836 25.837,34 17,34 C8.164,34 1,26.836 1,18 C1,9.163 8.164,2 17,2 C25.837,2 33,9.163 33,18 Z" id="Stroke-1715" stroke="#24B47E"></path>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

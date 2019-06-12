@@ -1,0 +1,90 @@
+user nginx;
+worker_processes 1;
+
+error_log /dev/stderr notice;
+pid /var/run/nginx.pid;
+
+events {
+    worker_connections 8096;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+    access_log /dev/stdout combined;
+
+    sendfile on;
+    #tcp_nopush on;
+
+    # https://www.digitalocean.com/community/tutorials/how-to-optimize-nginx-configuration
+    # https://gist.github.com/v0lkan/90fcb83c86918732b894
+    client_body_timeout 12;
+    client_header_timeout 12;
+    keepalive_timeout 15;
+    send_timeout 10;
+    # allow the server to close connection on non responding client, this will free up memory
+    reset_timedout_connection on;
+
+    gzip             on;
+    gzip_comp_level  2;
+    gzip_min_length  1000;
+    gzip_proxied     expired no-cache no-store private auth;
+    gzip_types       text/plain application/x-javascript text/xml text/css application/xml;
+
+    resolver "$NGINX_RESOLVER";
+    resolver_timeout 600s; 
+
+    # Limit the request body size
+    client_max_body_size 10k;
+
+    include conf.d/enable-tls.conf;
+    ssl_client_certificate /etc/nginx/certs/origin-pull-ca.pem;
+    ssl_verify_client optional;
+
+    # allow only cloudflare or docker IPs 
+    geo ${DOLLAR}auth_status {
+        default $NGINX_DEFAULT_ACCESS;
+        10.0.0.0/8 SUCCESS;
+        172.16.0.0/12 SUCCESS;
+        192.168.0.0/16 SUCCESS;
+    }
+
+    server {
+        listen 443 ssl default_server;
+
+        if (${DOLLAR}auth_status != SUCCESS) { set ${DOLLAR}auth_status "${DOLLAR}ssl_client_verify"; }
+        if (${DOLLAR}auth_status != SUCCESS) { return 403 "auth_status: ${DOLLAR}auth_status"; }
+
+        # Basic Auth
+        auth_basic_user_file /etc/nginx/secrets/htpasswd.admin;
+        auth_basic on;
+
+        location / {
+            auth_basic off;
+            limit_except GET {
+                deny all;
+            }
+            set ${DOLLAR}backend http://explorer:5050;
+            proxy_pass ${DOLLAR}backend;
+            include conf.d/enable-proxy.conf;
+            add_header Cache-Control "public, max-age=1";
+            include conf.d/enable-cors.conf;
+        }
+        # prometheus graph, queries, etc is password protected
+        location /prometheus {
+            auth_basic_user_file /etc/nginx/secrets/htpasswd.metrics;
+            limit_except GET {
+                deny all;
+            }
+            # https://www.nadeau.tv/nginx-proxy_pass-dns-cache/
+            set ${DOLLAR}backend http://prometheus:9090;
+            proxy_pass ${DOLLAR}backend;
+            include conf.d/enable-proxy.conf;
+            add_header Cache-Control "public, max-age=1";
+            include conf.d/enable-cors.conf;
+        }
+
+        include conf.d/error-location.conf;
+        include conf.d/nginx-status-location.conf;
+    }
+}

@@ -1,0 +1,21 @@
+
+# Gradle stuff
+.gradle/*
+/build/
+
+# Java stuff
+*.class
+*.war
+*.ear
+
+# IDE stuff
+*.iml
+.idea/*
+/out/
+
+# Other stuff
+*.log
+*.lck
+*.properties
+/www/
+

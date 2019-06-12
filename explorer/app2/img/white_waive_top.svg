@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="912px" height="457px" viewBox="0 0 912 457" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 54.1 (76490) - https://sketchapp.com -->
+    <title>Mask@3x</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="46.1052621%" y1="48.8880443%" x2="38.88265%" y2="32.2841596%" id="linearGradient-1">
+            <stop stop-color="#F7F7F9" offset="0%"></stop>
+            <stop stop-color="#E7E7EE" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Welcome" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="01-01-00-V2" transform="translate(-584.000000, -333.000000)" fill="url(#linearGradient-1)">
+            <g id="Head" transform="translate(-17.000000, -722.000000)">
+                <path d="M786.757307,1120 C889.674181,1118.5 857.328564,1213.01172 978.111375,1213.01172 C1098.89419,1213.01172 1141.53231,1055 1231.15203,1055 C1315.76368,1055 1304.12741,1115.5 1442.9331,1115.5 C1535.47022,1115.5 1535.47022,1224.55711 1442.9331,1442.67132 C881.644365,1534.4522 601,1534.4522 601,1442.67132 C601,1305 683.840434,1121.5 786.757307,1120 Z" id="Mask" transform="translate(1056.667969, 1283.253491) scale(-1, 1) translate(-1056.667969, -1283.253491) "></path>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,125 @@
+.flip-clock-divider .flip-clock-label {
+    color: rgba(255,255,255,0.6);	
+    font-family: "Open Sans";	
+    font-size: 12px;	
+    font-weight: 600;	
+    line-height: 17px;
+    top: 94px;
+    right: -63px !important;
+}
+.flip-clock-wrapper {
+    margin: 1em 0em;
+}
+.flip-clock-wrapper ul li a div div.inn {
+    color: #FFFFFF;	
+    font-family: Roboto;	
+    font-size: 42px;	
+    line-height: 84px;
+    text-shadow: none;
+    border-radius: 3px;
+}
+.flip-clock-wrapper ul li a div.up div.inn {
+    background: linear-gradient(180deg, #46D796 0%, #3ECF8E 100%);
+}
+.flip-clock-wrapper ul li a div.down div.inn {
+    background: linear-gradient(180deg, #46D796 0%, #3ECF8E 100%);
+}
+.flip-clock-wrapper ul {
+    height: 84px;	
+    width: 56px;	
+    border-radius: 3px;	
+    background-color: #3ECF8E;
+    margin-left: 0px;
+}
+.flip-clock-wrapper ul li a div.up:after {
+    display: none;
+}
+.flip-clock-wrapper .flip {
+    box-shadow: none;
+}
+.flip-clock-wrapper ul.play li.flip-clock-before .up .shadow {
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(0,0,0,0.1)), color-stop(100%, rgba(0, 0, 0, 0.1)));
+    background: -moz-linear-gradient(top, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.1) 100%);
+    background: linear, top, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.1) 100%;
+    background: -o-linear-gradient(top, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.1) 100%);
+    background: -ms-linear-gradient(top, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.1) 100%);
+    background: linear, to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.1) 100%;
+}
+.flip-clock-wrapper ul.play li.flip-clock-active .up .shadow {
+    background: -moz-linear-gradient(top, #46D796 0%, #3ECF8E 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #46D796), color-stop(100%, #3ECF8E));
+    background: linear, top, #46D796 0%, #3ECF8E 100%;
+    background: -o-linear-gradient(top, #46D796 0%, #3ECF8E 100%);
+    background: -ms-linear-gradient(top, #46D796 0%, #3ECF8E 100%);
+    background: linear, to bottom, #46D796 0%, #3ECF8E 100%;
+}
+.flip-clock-wrapper ul.play li.flip-clock-before .down .shadow {
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, rgba(0,0,0,0.1)), color-stop(100%, rgba(0, 0, 0, 0.1)));
+    background: -moz-linear-gradient(top, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.1) 100%);
+    background: linear, top, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.1) 100%;
+    background: -o-linear-gradient(top, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.1) 100%);
+    background: -ms-linear-gradient(top, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.1) 100%);
+    background: linear, to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.1) 100%;
+}
+.flip-clock-wrapper ul.play li.flip-clock-active .down .shadow {
+    background: -moz-linear-gradient(top, #3ECF8E 0%, #46D796 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #3ECF8E), color-stop(100%, #46D796));
+    background: linear, top, #3ECF8E 0%, #46D796 100%;
+    background: -o-linear-gradient(top, #3ECF8E 0%, #46D796 100%);
+    background: -ms-linear-gradient(top, #3ECF8E 0%, #46D796 100%);
+    background: linear, to bottom, #3ECF8E 0%, #46D796 100%;
+}
+.flip-clock-dot {
+    box-shadow: none;
+    background-color: #FFFFFF;
+    width: 7px;
+    height: 7px;
+}
+.flip-clock-dot.top {
+    top: 35px;
+}
+.flip-clock-dot.bottom {
+    bottom: 37px;
+}
+.btn.btn-success {
+    background-color: #24B47E !important;
+    border-color: #24B47E !important;
+}
+.btn.btn-outline-success {
+    border-color: #24B47E !important;
+    border-width: 1.6px;
+    color: #24B47E !important;
+}
+.btn.btn-outline-success:hover {
+    background-color:#FFFFFF !important;
+}
+.btn.btn-purple {
+    background-color: #565BB9 !important;
+    border-color: #565BB9 !important;
+    color: #FFFFFF;
+}
+.card.card-with-highlight {
+    border: 10px solid rgba(219,221,224,0.5);	
+    border-radius: 3px;	
+    background-color: transparent;
+    z-index: 5;
+}
+.card .card-header {
+    padding: 18px;
+    background-color: #FFFFFF;
+    border-bottom: 3px solid rgba(219,221,224,0.5);
+    box-shadow: 0 2px 0 0 rgba(219,221,224,0.25);
+}
+.card .card-header .title {
+    padding: 15px 12px;
+    color: #2F3349;	
+    font-family: "Open Sans";	
+    font-size: 18px;
+}
+.card .card-inner {
+    background-color: #FFFFFF;
+    padding: 18px 20px;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #FAFAFC;
+}

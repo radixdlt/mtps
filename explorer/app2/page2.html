@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Radix - landing page</title>
+        <link rel="stylesheet" href="css/fonts.css">
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/flipclock.css">
+        <link rel="stylesheet" href="css/overrides.css">
+        <link rel="stylesheet" href="css/main.css">
+        <script src="js/jquery.min.js"></script>
+        <script src="js/popper.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/flipclock.min.js"></script>
+        <script src="js/main.js"></script>
+    </head>
+    <body>
+        <div class="background">
+            <div class="background1"></div>
+            <div class="background2-2"></div>
+            <div class="background3"></div>
+            <div class="background4-2"></div>
+            <div class="background-oval background-oval1"></div>
+            <div class="background-oval background-oval2"></div>
+            <div class="background-oval background-oval3-2"></div>
+            <div class="background-oval background-oval5"></div>
+        </div>
+        <div class="container-radix">
+            <div class="row first-row">
+                <div class="col">
+                    <div class="float-left">
+                        <img src="img/Logo@1x.png" class="logo">
+                    </div>
+                    <div class="float-right">
+                        <input type="button" class="btn btn-success" value="HOW WE DID IT" />
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding-top: 32px;">
+                <div class="col-radix-2">
+                    <div class="header1">
+                        Test Complete in 6 minutes and 30 seconds
+                    </div>
+                    <div class="header2">
+                        The next test will be: 13 June, 13:30 (GMT+1) Time in London, UK
+                        <form action="http://www.google.com/calendar/event?action=TEMPLATE&dates=20190613T123000Z%2F20190613T133000Z&text=Radix%20DLT%20-%20Live%20Scalability%20Test&location=&details=At%2013%3A30%20London%20time%2C%20Radix%20DLT%20will%20be%20performing%20our%20first%20live%20scalability%20test%2C%20allowing%20everyone%20to%20see%2010%20years%20of%20BTC%20history%20being%20replayed%20in%20under%201%20hour!%20Join%20us%20at%20https%3A%2F%2Fwww.radixdlt.com%2Ftest%20and%20verify%20your%20own%20BTC%20address!">
+                            <input> type="button" class="btn btn-purple" value="ADD TO DIARY" />
+                        </form>
+                    </div>
+                    <div class="header3">
+                        That concludes the last 10 years of Bitcoin transaction history
+                        until now - replayed across the Radix ledger with full signature 
+                        and transaction validation. The results of this test will be available 
+                        to search on this page for the next [<a href="#" class="text-green">x</a>] minutes.
+                    </div>
+                    <div class="header-buttons">
+                        <input type="button" class="btn btn-success" value="GET OUR TOKEN" />
+                        <input type="button" class="btn btn-outline-success" value="RUN OUR TEST" />
+                    </div>
+                </div>
+                <div class="col-radix-2" style="position: relative; text-align: center">
+                    <canvas id="canvas" class="canvas"></canvas>
+                    <!--<div class="graph-header1">During the last test we peaked at</div>
+                    <div class="graph-header3">transactions per second</div>-->
+                </div>
+            </div>
+            <div class="row card-with-hover-wrapper">
+                <div class="col-radix-3">
+                    <div class="card card-with-hover">
+                        <div class="card-inner">
+                            <div class="background-dots top-right"></div>
+                            <div class="card-header-icon group-7">
+                            </div>
+                            <div class="card-text">
+                                We <span class="text-purple">peaked</span> at <span class="text-purple">1 287 345</span> 
+                                transactions per second
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-radix-3">
+                    <div class="card card-with-hover">
+                        <div class="card-inner">
+                            <div class="background-dots bottom-left"></div>
+                            <div class="card-header-icon group-8">
+                            </div>
+                            <div class="card-text">
+                                We <span class="text-purple">averaged</span> <span class="text-purple">1 029 132</span> 
+                                transactions per second
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-radix-3">
+                    <div class="card card-with-hover">
+                        <div class="card-inner">
+                            <div class="background-dots bottom-right"></div>
+                            <div class="card-header-icon group-9">
+                            </div>
+                            <div class="card-text">
+                                <div class="row">
+                                    <div class="col-7 pr-0">
+                                        <span class="text-purple">Next test</span> will start on <span class="text-purple">13 June</span>
+                                        at <span class="text-purple">13:30 (GMT+1) Time in London, UK</span>
+                                    </div>
+                                    <div class="col-5 text-right">
+                                        <form action="http://www.google.com/calendar/event?action=TEMPLATE&dates=20190613T123000Z%2F20190613T133000Z&text=Radix%20DLT%20-%20Live%20Scalability%20Test&location=&details=At%2013%3A30%20London%20time%2C%20Radix%20DLT%20will%20be%20performing%20our%20first%20live%20scalability%20test%2C%20allowing%20everyone%20to%20see%2010%20years%20of%20BTC%20history%20being%20replayed%20in%20under%201%20hour!%20Join%20us%20at%20https%3A%2F%2Fwww.radixdlt.com%2Ftest%20and%20verify%20your%20own%20BTC%20address!">
+                                            <input> type="button" class="btn btn-purple" value="ADD TO DIARY" />
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row radix-only-on-bigger pt-150-on-bigger">
+                <div class="col-radix-2" style="text-align: center">
+                    <img src="img/Map.png" width="452px" height="417px" />
+                </div>
+                <div class="col-radix-2" style="padding-left: 63px;">
+                    <div class="header-second-part">
+                        <div>
+                            This test is being run across:
+                            <div class="highlighted">887 Nodes </div>
+                            in 11 cities around the world
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row pt-150-on-bigger">
+                <div class="col-radix-2 col-watch-us">
+                    <div class="vertical-align-middle">
+                        <div>
+                            <div class="header-watch-us">
+                                Check your Bitcoin
+                                transaction history up
+                                to <a href="#" class="text-purple">xxx</a> date on Radix
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-radix-2 padding-left-right-on-bigger" style="position: relative;">
+                    <div class="background-dots"></div>
+                    <div class="background-oval background-oval4"></div>
+                    <div class="card card-with-highlight">
+                        <div class="card-header">
+                            <div class="float-left title">add Bitcoin address</div>
+                            <input type="button" class="btn btn-purple float-right btn-watch" value="WATCH" />
+                        </div>
+                        <div class="card-inner">
+                            <table class="table table-hover table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Amount</th>
+                                        <th class="text-right">Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="text-green">+ 12 BTC</td>
+                                        <td class="text-date">2019-04-01 12:37:21</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-red">- 4 BTC</td>
+                                        <td class="text-date">2019-04-01 12:37:21</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-green">+ 12 BTC</td>
+                                        <td class="text-date">2019-04-01 12:37:21</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-green">+ 22 BTC</td>
+                                        <td class="text-date">2019-04-01 12:37:21</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-green">+ 12 BTC</td>
+                                        <td class="text-date">2019-04-01 12:37:21</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-red">- 4 BTC</td>
+                                        <td class="text-date">2019-04-01 12:37:21</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="radix-only-on-smaller col-radix-2">
+                    <div class="text-watch-us">
+                        The test will be over after
+                    </div>
+                    <div id="counter2" data-test-over="2019-06-12T08:08:08">
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding-top: 142px;">
+                <div class="col">
+                    <div class="card card-join-the-conversation">
+                        <div class="card-inner">
+                            <div class="card-title1">Join the conversation</div>
+                            <div class="card-title2">Lorem ipsum dolor, sit amet consectetuer adipi</div>
+                            <div class="card-buttons">
+                                <input type="button" class="btn btn-success" value="TELEGRAM" />
+                                <input type="button" class="btn btn-success" value="JOIN MAILING LIST" />
+                                <input type="button" class="btn btn-success" value="FORUM" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row row-footer">
+                <div class="col-radix-2 radix-only-on-bigger" style="padding-bottom: 80px">
+                    <img src="img/logo-white@1.png" class="logo">
+                    <div class="text">
+                        8 Devonshire Square, City of London <br />
+                        Great Britain, EC2M 4PL <br /><br />
+                        © 2019 RADIX DLT Ltd.
+                    </div>
+                </div>
+                <div class="col-radix-2">
+                    <div class="row">
+                        <div class="col">
+                            <div class="highlighted">Contact us</div>
+                            <a href="#" class="link">General Enquiry</a>
+                            <a href="#" class="link">Press Enquiry</a>
+                            <a href="#" class="link">Investor Enquiry</a>
+                            <a href="#" class="link">Developer Enquiry</a>
+                        </div>
+                        <div class="col">
+                            <div class="highlighted">Useful links</div>
+                            <a href="#" class="link">Terms & Conditions</a>
+                            <a href="#" class="link">Privacy Policy</a>
+                            <a href="#" class="link">Knowledge Base</a>
+                            <a href="#" class="link">White Paper</a>
+                        </div>
+                    </div>
+                    <div class="row" style="padding-top: 50px">
+                        <div class="col">
+                            <a href="#" class="icon"><img src="img/twitter.png" /></a>
+                            <a href="#" class="icon"><img src="img/facebook.png" /></a>
+                            <a href="#" class="icon"><img src="img/icon3.png" /></a>
+                            <a href="#" class="icon"><img src="img/newsllater.png" /></a>
+                            <a href="#" class="icon"><img src="img/Medium.png" /></a>
+                            <a href="#" class="icon"><img src="img/reddit.png" /></a>
+                            <a href="#" class="icon"><img src="img/youtube.png" /></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-radix-2 radix-only-on-smaller text-center" style="padding-top: 50px; padding-bottom: 45px">
+                    <img src="img/logo-white@1.png" class="logo" style="padding-bottom: 30px">
+                    <div class="text">
+                        8 Devonshire Square, City of London <br />
+                        Great Britain, EC2M 4PL <br /><br />
+                        © 2019 RADIX DLT Ltd.
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script type="text/javascript">
+        $(function() {
+            createChart('During the last test we peaked at', 'transactions per second', '');
+        })
+        </script>    
+    </body>
+</html>

@@ -1,0 +1,99 @@
+@charset "utf-8";
+
+// Import Google Fonts
+@import url('https://fonts.googleapis.com/css?family=Roboto:300');
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700');
+
+// Mostly used for CTA's, buttons, links and illustrations
+$purple_1: #565bb9;
+$purple_2: #676ecc;
+$purple_3: #809edc;
+
+$green_1: #24b47e;
+$green_2: #3ecf8e;
+$green_3: #b9f4bc;
+
+// Mostly used for background and text
+$blue_grey_1: #32364e;
+$blue_grey_2: #525f7f;
+$grey_1: #a3adb7;
+$grey_2: #dbdde0;
+$grey_3: #f7f9fc;
+
+// Mostly used for graphs, input fields and icons
+$red: #ff5964;
+$yellow_1: #f4c13f;
+$yellow_2: #f6d059;
+
+// Update Bulma's global variables
+$family-sans-serif: "Open Sans", sans-serif;
+$family-primary: $family-sans-serif;
+$family-secondary: "Roboto", sans-serif;
+$widescreen-enabled: false;
+$fullhd-enabled: false;
+
+$grey-darker: $blue_grey_1;
+$grey-dark: $blue_grey_2;
+$grey-light: $grey_2;
+$white-ter: $grey_3;
+
+$primary: $green_1;
+$info: $purple_3;
+$success: $green_3;
+$warning: $yellow_2;
+$danger: $red;
+
+// Update some of Bulma's component variables
+$footer-background-color: $grey-darker;
+$control-border-width: 1px;
+$input-shadow: none;
+$table-background-color: transparent;
+$table-cell-border-width: 0;
+$table-head-cell-border-width: 0;
+
+// Import only what you need from Bulma
+@import "../node_modules/bulma/sass/utilities/_all.sass";
+@import "../node_modules/bulma/sass/base/_all.sass";
+@import "../node_modules/bulma/sass/components/level.sass";
+@import "../node_modules/bulma/sass/components/pagination.sass";
+@import "../node_modules/bulma/sass/elements/box.sass";
+@import "../node_modules/bulma/sass/elements/button.sass";
+@import "../node_modules/bulma/sass/elements/container.sass";
+@import "../node_modules/bulma/sass/elements/form.sass";
+@import "../node_modules/bulma/sass/elements/icon.sass";
+@import "../node_modules/bulma/sass/elements/progress.sass";
+@import "../node_modules/bulma/sass/elements/table.sass";
+@import "../node_modules/bulma/sass/elements/title.sass";
+@import "../node_modules/bulma/sass/grid/columns.sass";
+@import "../node_modules/bulma/sass/layout/hero.sass";
+@import "../node_modules/bulma/sass/layout/footer.sass";
+@import "../node_modules/bulma/sass/layout/section.sass";
+@import "../node_modules/bulma/sass/utilities/controls.sass";
+
+body {
+  background-image: url("./assets/bg_header.svg");
+  background-size: 250% 100%;
+  background-position: center center;
+  background-repeat: no-repeat;
+  left: 0;
+  top: 0;
+  right: 0;
+}
+
+.box {
+  padding: 8px;
+}
+
+.button {
+  height: 54px;
+  padding: 0 24px;
+  display: flex;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  text-transform: uppercase;
+}
+
+.input {
+  padding: 24px;
+}

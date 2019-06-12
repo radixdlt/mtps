@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="67px" height="67px" viewBox="0 0 67 67" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 54.1 (76490) - https://sketchapp.com -->
+    <title>Group 3</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Dizajn" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="01-02-03-V2:hover" transform="translate(-625.000000, -854.000000)" stroke="#FFFFFF">
+            <g id="Mid" transform="translate(132.000000, 813.000000)">
+                <g id="2" transform="translate(462.000000, 10.000000)">
+                    <g id="Group-3" transform="translate(32.000000, 32.000000)">
+                        <circle id="Oval" stroke-width="1.3" fill-opacity="0.2" fill="#FFFFFF" cx="32.5" cy="32.5" r="32.5"></circle>
+                        <g id="watch" transform="translate(24.000000, 18.000000)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                            <ellipse id="Oval" cx="9" cy="14.5" rx="9" ry="9.22727273"></ellipse>
+                            <polyline id="Path" points="9 10.5454545 9 14.5 10.9285714 16.4772727"></polyline>
+                            <path d="M14.7985714,21.5522727 L14.3485714,26.6009091 C14.2284781,27.9635499 13.1116248,29.0055514 11.7771429,29 L6.21,29 C4.87551807,29.0055514 3.75866481,27.9635499 3.63857143,26.6009091 L3.18857143,21.5522727 M3.20142857,7.44772727 L3.65142857,2.39909091 C3.77108778,1.04149487 4.88044729,0.00128380125 6.21,3.41832004e-16 L11.8028571,3.41832004e-16 C13.1373391,-0.0055514274 14.2541923,1.0364501 14.3742857,2.39909091 L14.8242857,7.44772727" id="Shape"></path>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

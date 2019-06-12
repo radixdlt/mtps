@@ -1,0 +1,27 @@
+FROM alpine:3.9
+USER root
+
+# add jdk
+RUN apk add --no-cache openjdk8
+
+# copy service
+ADD service/build/distributions/service-*.tar /opt/radixdlt/
+
+# rename folder from service-0.0.1 to service
+RUN mv /opt/radixdlt/service-* /opt/radixdlt/service/
+
+# add user
+RUN addgroup -S radix && adduser -S radix -G radix
+
+# set permissions
+RUN chown -R radix:radix /opt/radixdlt/
+
+# set workdir
+WORKDIR /opt/radixdlt/
+
+# set user
+USER radix
+
+# set cmd
+CMD [ "/bin/sh", "./service/bin/service" ]
+
