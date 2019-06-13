@@ -83,7 +83,7 @@ ChartEngine.prototype.draw = function () {
 
     if (this.skipDrawing) return;
 
-    let that = this
+    var that = this
 
     this.inDrawing = true;
     setTimeout(
