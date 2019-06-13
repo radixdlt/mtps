@@ -17,7 +17,7 @@ var page = 0;
 function getMetrics() {
   return new Promise(function(resolve, reject) {
     $.getJSON("https://test.radixdlt.com/api/metrics")
-      .done(json => {
+      .done(function(json) {
         const p = json.data.progress;
         const total = json.meta.progressMax;
         const percentage = Math.min(100, p / total * 100).toFixed();
@@ -107,7 +107,7 @@ function getTransactions(bitcoinAddress, page) {
 
 function buildTransactionRowItems(transactions) {
   const items = [];
-  $.each(transactions, (index, transaction) => {
+  $.each(transactions, function(index, transaction) {
     var amount = transaction.amount;
     var amountClass = amount > 0 ? 'text-green' : 'text-red';
     var amountString = amount > 0 ? ('+ ' + amount + ' BTC') : ('- ' + amount + ' BTC');
