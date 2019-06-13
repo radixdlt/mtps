@@ -11,7 +11,7 @@ You can find more info on each component in their corresponding README files:
 
 # Quick Start
 
-Start by spinning up a test network as described in [tools](libcloud/README.md).
+Start by spinning up a test network as described in [tools](tools/libcloud/README.md).
 
 # Contributions
 
