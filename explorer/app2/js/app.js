@@ -39,10 +39,6 @@ $(function() {
         showPage(newState);
         updateSummary(result.peak, result.average, result.start, result.stop);
 
-        if (newState != state) {
-          ticker = null;
-        }
-
         switch (newState) {
           case STATE_UNKNOWN:
             currentTps = 0;
