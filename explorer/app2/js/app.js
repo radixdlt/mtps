@@ -42,7 +42,7 @@ $(function() {
         switch (newState) {
           case STATE_UNKNOWN:
             currentTps = 0;
-            const future = 1560346200000; // 12 June 14:30 BST
+            const future = 1560429000000; // 13 June 13:30 BST
             const now = new Date().getTime();
             const offset = future - now;
             startTicker(0, now, offset);
@@ -51,7 +51,7 @@ $(function() {
           case STATE_FINISHED:
             $('#top-buttons').show();
             currentTps = result.peak;
-            const f = 1560429000000; // 13 June 13:30 BST
+            const f = 1560960000000; // 19 June 17:00 BST
             const n = new Date().getTime();
             const o = f - n;
             startTicker(3, n, o);

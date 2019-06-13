@@ -158,7 +158,7 @@ class TestStateProvider {
         // validated (storedPerShard). Problem is that systemInfo is not normalised like in
         // MetricsProvide.calculateMetrics.      
         if (currentState == TestState.STARTED) {
-            return (currentState.getStartTimestamp() + 15 * 60 * 1000) > System.currentTimeMillis();
+            return (currentState.getStartTimestamp() + 60 * 60 * 1000) > System.currentTimeMillis();
         }
 
         // sum(radixdlt_core_ledger{key="storing_per_shard"})
