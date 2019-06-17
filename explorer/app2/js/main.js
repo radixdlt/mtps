@@ -48,14 +48,14 @@ function ChartEngine(canvasElement, config, number, percentage) {
     this.config.cx = getPerfectPixel(config.width / 2);
     this.config.cy = getPerfectPixel(config.height / 2);
     this.ctx = this.canvas.getContext("2d");
-    this.ctx.scale(2,2); 
+    this.ctx.scale(2,2);
 
     var gradient = this.ctx.createLinearGradient(0, 0, config.width, 0);
     //  var gradient = this.ctx.createLinearGradient(50, 50,100, 0);
  //   gradient.addColorStop(0, "#565BB9");
-    gradient.addColorStop(1, "rgba(4,201, 136)");
-    gradient.addColorStop(0.5, "rgba(55,155, 200)");
-    gradient.addColorStop(0, "rgba(84,125, 234)");
+    gradient.addColorStop(1, "rgba(4,201, 136, 1.0)");
+    gradient.addColorStop(0.5, "rgba(55,155, 200, 1.0)");
+    gradient.addColorStop(0, "rgba(84,125, 234, 1.0)");
    // gradient.addColorStop(1, "#24B47E");
 
     this.config.outerColor = gradient,
@@ -83,7 +83,7 @@ ChartEngine.prototype.draw = function () {
 
     if (this.skipDrawing) return;
 
-    let that = this
+    var that = this
 
     this.inDrawing = true;
     setTimeout(

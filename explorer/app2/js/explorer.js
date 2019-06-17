@@ -3,6 +3,7 @@ const STATE_UNKNOWN = "UNKNOWN";
 const STATE_STARTED = "STARTED";
 const STATE_FINISHED = "FINISHED";
 const STATE_TERMINATED = "TERMINATED";
+const MONTH_LONG = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
 
 var state = '';
 var page = 0;
@@ -17,7 +18,7 @@ var page = 0;
 function getMetrics() {
   return new Promise(function(resolve, reject) {
     $.getJSON("https://test.radixdlt.com/api/metrics")
-      .done(json => {
+      .done(function(json) {
         const p = json.data.progress;
         const total = json.meta.progressMax;
         const percentage = Math.min(100, p / total * 100).toFixed();
@@ -107,7 +108,7 @@ function getTransactions(bitcoinAddress, page) {
 
 function buildTransactionRowItems(transactions) {
   const items = [];
-  $.each(transactions, (index, transaction) => {
+  $.each(transactions, function(index, transaction) {
     var amount = transaction.amount;
     var amountClass = amount > 0 ? 'text-green' : 'text-red';
     var amountString = amount > 0 ? ('+ ' + amount + ' BTC') : ('- ' + amount + ' BTC');
@@ -128,66 +129,39 @@ function buildTransactionErrorRowItem() {
 function niceDate(timestamp) {
   var date = new Date(timestamp);
   var yyyy = date.getFullYear();
-  var dd = date.getDate();
-  var mm = (date.getMonth() + 1);
-  var HH = date.getHours()
-  var MM = date.getMinutes()
-  var SS = date.getSeconds();
-
-  if (dd < 10)
-    dd = "0" + dd;
-
-  if (mm < 10)
-    mm = "0" + mm;
-
-  if (HH < 10)
-    HH = "0" + HH;
-
-  if (MM < 10)
-    MM = "0" + MM;
-
-  if (SS < 10)
-    SS = "0" + SS;
-
-  return yyyy + '-' + mm + '-' + dd + ' ' + HH + ':' + MM + ':' + SS;
+  var d = date.getDate();
+  var m = (date.getMonth() + 1);
+  var H = date.getHours()
+  var M = date.getMinutes()
+  var S = date.getSeconds();
+  return yyyy + '-' + pad(m) + '-' + pad(d) + ' ' + pad(H) + ':' + pad(M) + ':' + pad(S);
 }
 
 function beautifulDateTime(timestamp) {
   const date = new Date(timestamp);
-  const options = {
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-    timeZone: "UTC",
-    timeZoneName: "short"
-  };
-  const dateTimeFormat = new Intl.DateTimeFormat("default", options).format;
-  return dateTimeFormat(date);
+  const month = MONTH_LONG[date.getUTCMonth()];
+  const d = date.getUTCDate();
+  const h = date.getUTCHours();
+  const m = date.getUTCMinutes();
+  return month + ' ' + d + ', ' + pad(h) + ':' + pad(m) + ' UTC'
 }
 
 function beautifulDate(timestamp) {
   const date = new Date(timestamp);
-  const options = {
-    month: "long",
-    day: "numeric"
-  };
-  const dateTimeFormat = new Intl.DateTimeFormat("default", options).format;
-  return dateTimeFormat(date);
+  const month = MONTH_LONG[date.getMonth()];
+  const d = date.getDate();
+  return month + ' ' + pad(d);
 }
 
 function beautifulTime(timestamp) {
   const date = new Date(timestamp);
-  const options = {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-    timeZone: "UTC",
-    timeZoneName: "short"
-  };
-  const dateTimeFormat = new Intl.DateTimeFormat("default", options).format;
-  return dateTimeFormat(date);
+  const h = date.getUTCHours();
+  const m = date.getUTCMinutes();
+  return pad(h) + ':' + pad(m) + ' UTC'
+}
+
+function pad(n) {
+  return n < 10 ? '0' + n : n;
 }
 
 function beautifulNumber(number, decimals) {

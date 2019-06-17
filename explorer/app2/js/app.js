@@ -29,8 +29,8 @@ $(function() {
   setupTransactions();
   showPage(STATE_UNKNOWN);
 
-  setInterval(() => {
-      getMetrics().then((result) => {
+  setInterval(function() {
+      getMetrics().then(function(result) {
         const newState = result.state;
         showPage(newState);
         updateSummary(result.peak, result.average, result.start, result.stop);
@@ -155,14 +155,14 @@ function setupWatchTextbox(idSuffix) {
 }
 
 function setupWatchButton(idSuffix) {
-  $('#btn-watch-' + idSuffix).click(() => {
+  $('#btn-watch-' + idSuffix).click(function() {
     var address = $('#txt-watch-' + idSuffix).val();
     getTransactions(address, 1)
-        .then((result) => {
+        .then(function(result) {
           const rows = buildTransactionRowItems(result.data);
           $('#lst-watch-' + idSuffix + ' tbody').empty();
           $('#lst-watch-' + idSuffix + ' tbody').append(rows.join('\n'));
-        }, error => {
+        }, function(error) {
           const message= buildTransactionErrorRowItem();
           $('#lst-watch-' + idSuffix + ' tbody').empty();
           $('#lst-watch-' + idSuffix + ' tbody').append(message);
@@ -204,8 +204,7 @@ function showPage(newTestState) {
 
 function updateCharts(tps, progress) {
   const p = Math.min(100, progress);
-  charts.forEach(chart => {
-    console.log(tps + ' ' + p);
+  charts.forEach(function(chart) {
     chart.updateModel(tps, p);
   });
 }
