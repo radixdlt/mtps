@@ -1,10 +1,15 @@
 package org.radixdlt.explorer.metrics.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Holds information about a snapshot of calculated throughput.
  */
 public class Metrics {
     public static final String DATA_HEADLINE = "Timestamp,Spot TPS,Progress,Average TPS,Peak TPS\n";
+    private static final Logger LOGGER = LoggerFactory.getLogger("org.radixdlt.explorer");
+
     private final long spotTps;
     private final long peakTps;
     private final long averageTps;
@@ -21,6 +26,28 @@ public class Metrics {
         this.progress = progress;
         this.averageTps = averageTps;
         this.peakTps = peakTps;
+    }
+
+    public static Metrics fromCSV(String line) {
+        if (line == null) {
+            return null;
+        }
+
+        String[] components = line.split(",", 6);
+        if (components.length < 5) {
+            return null;
+        }
+
+        try {
+            return new Metrics(
+                    Long.valueOf(components[1]),    // spotTps
+                    Long.valueOf(components[2]),    // progress
+                    Long.valueOf(components[3]),    // averageTps
+                    Long.valueOf(components[4]));   // peakTps
+        } catch (NumberFormatException e) {
+            LOGGER.info("Couldn't parse CSV: " + line, e);
+            return null;
+        }
     }
 
     /**
@@ -54,7 +81,8 @@ public class Metrics {
     @Override
     public String toString() {
         // NOTE!!! Don't change the order of data without making the
-        // corresponding changes to the DATA_HEADLINE constant.
+        // corresponding changes to the DATA_HEADLINE constant and the
+        // "fromCSV" method.
         return String.format("%d,%d,%d,%d,%d\n", System.currentTimeMillis(), spotTps, progress, averageTps, peakTps);
     }
 

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -38,16 +39,16 @@ class MetricsProvider {
     private Metrics calculatedMetrics;
     private long peakTps;
     private long averageTps;
-    private long aggregatedAverageTps;
-    private long calculationIterations;
 
 
     /**
      * Creates a new instance of this class, allowing the caller to inject
      * any external dependencies and configurations.
      *
-     * @param maxShards The maximum number of shards served by the entire
-     *                  network.
+     * @param maxShards       The maximum number of shards served by the
+     *                        entire network.
+     * @param metricsDumpPath Optional path to the file where metrics data
+     *                        is persisted.
      */
     MetricsProvider(long maxShards, Path metricsDumpPath) {
         this.subject = PublishSubject.create();
@@ -57,8 +58,6 @@ class MetricsProvider {
         this.isStarted = false;
         this.peakTps = 0L;
         this.averageTps = 0L;
-        this.aggregatedAverageTps = 0L;
-        this.calculationIterations = 0L;
         this.calculatedMetrics = null;
         this.testState = UNKNOWN;
         this.metricsDumpPath = metricsDumpPath;
@@ -90,12 +89,15 @@ class MetricsProvider {
      *
      * @param systemInfoObserver The callback that provides information on
      *                           system info changes.
+     * @param testStateObserver  The callback that provides information on
+     *                           test state changes.
      */
     synchronized void start(Observable<Map<String, SystemInfo>> systemInfoObserver, Observable<TestState> testStateObserver) {
         if (!isStarted) {
             isStarted = true;
             disposables.add(testStateObserver.subscribe(this::maybeResetMetrics));
             disposables.add(systemInfoObserver.subscribe(this::calculateMetrics));
+            restoreMetrics();
         }
     }
 
@@ -119,20 +121,10 @@ class MetricsProvider {
     private void maybeResetMetrics(TestState newTestState) {
         if (testState != STARTED && newTestState == STARTED) {
             synchronized (calculationLock) {
-                this.peakTps = 0L;
-                this.averageTps = 0L;
-                this.aggregatedAverageTps = 0L;
-                this.calculationIterations = 0L;
-                this.calculatedMetrics = null;
-            }
-
-            if (metricsDumpPath != null) {
-                try {
-                    byte[] data = Metrics.DATA_HEADLINE.getBytes(UTF_8);
-                    Files.write(metricsDumpPath, data, CREATE, WRITE);
-                } catch (Exception e) {
-                    LOGGER.info("Couldn't reset metrics dump file: " + metricsDumpPath, e);
-                }
+                peakTps = 0L;
+                averageTps = 0L;
+                calculatedMetrics = null;
+                resetDumpFile();
             }
         }
 
@@ -178,25 +170,62 @@ class MetricsProvider {
         long progress = Math.round(aggregatedProgress / nodeCount);
 
         synchronized (calculationLock) {
-            calculationIterations++;
             long seconds = (System.currentTimeMillis() - testState.getStartTimestamp()) / 1000 + 1;
             assert seconds > 0;
             averageTps = Math.round(progress / seconds);
             peakTps = Math.max(peakTps, tps);
             calculatedMetrics = new Metrics(tps, progress, averageTps, peakTps);
-        }
-
-        if (metricsDumpPath != null) {
-            try {
-                String line = calculatedMetrics.toString();
-                byte[] data = line.getBytes(UTF_8);
-                Files.write(metricsDumpPath, data, CREATE, WRITE, APPEND);
-            } catch (Exception e) {
-                LOGGER.info("Couldn't dump metrics to file: " + metricsDumpPath, e);
-            }
+            dumpCurrentMetrics();
         }
 
         subject.onNext(calculatedMetrics);
+    }
+
+    /**
+     * Resets the metrics dump file to only contain a single header line,
+     * if a path to it has been set.
+     */
+    private void resetDumpFile() {
+        if (metricsDumpPath != null) {
+            try {
+                byte[] data = Metrics.DATA_HEADLINE.getBytes(UTF_8);
+                Files.write(metricsDumpPath, data, CREATE, WRITE);
+            } catch (Exception e) {
+                LOGGER.info("Couldn't reset metrics dump file: " + metricsDumpPath, e);
+            }
+        }
+    }
+
+    /**
+     * Dumps the current metrics to a file, if a path to it has been set.
+     */
+    private void dumpCurrentMetrics() {
+        if (metricsDumpPath != null) {
+            String line = calculatedMetrics.toString();
+            try {
+                byte[] data = line.getBytes(UTF_8);
+                Files.write(metricsDumpPath, data, CREATE, WRITE, APPEND);
+            } catch (Exception e) {
+                LOGGER.info("Couldn't dump metrics to file: " + line, e);
+            }
+        }
+    }
+
+    /**
+     * Restores the current metrics from the last dumped data, if a path
+     * to the dump file has been set.
+     */
+    private void restoreMetrics() {
+        if (metricsDumpPath != null) {
+            try {
+                List<String> lines = Files.readAllLines(metricsDumpPath, UTF_8);
+                String lastLine = lines.get(lines.size() - 1);
+                calculatedMetrics = Metrics.fromCSV(lastLine);
+            } catch (Exception e) {
+                LOGGER.info("Couldn't restore metrics, falling back to default", e);
+                calculatedMetrics = null;
+            }
+        }
     }
 
 }

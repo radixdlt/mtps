@@ -1,142 +1,150 @@
 package org.radixdlt.explorer.metrics;
 
-import io.reactivex.Observable;
 import io.reactivex.Observer;
-import okhttp3.OkHttpClient;
+import io.reactivex.subjects.PublishSubject;
+import org.junit.AfterClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.radixdlt.explorer.metrics.model.Metrics;
-import org.radixdlt.explorer.nodes.model.NodeInfo;
+import org.radixdlt.explorer.system.TestState;
+import org.radixdlt.explorer.system.model.SystemInfo;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.WRITE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.radixdlt.explorer.metrics.Utils.getMockClient;
+import static org.radixdlt.explorer.system.TestState.STARTED;
 
 public class MetricsProviderTest {
+    private static final Path TEST_DUMP_FILE_PATH = Paths.get("metrics_provider_test.csv");
 
-    @Test
-    public void when_processed_1_transaction_over_100_ms__correct_metrics_are_calculated() {
-        OkHttpClient mockClient = getMockClient(
-                "{\"ledger\":{\"stored\":1}}",
-                "{\"data\":[{\"temporalProof\":{\"vertices\":[{\"rclock\":1}]}}]}",
-                "{\"ledger\":{\"stored\":2}}");
-
-        Observer<Metrics> mockObserver = mock(Observer.class);
-        doNothing().when(mockObserver).onNext(any());
-
-        NodeInfo mockNode = new NodeInfo("192.168.0.1", 0L, 1L, 2L, true);
-
-        MetricsProvider metricsProvider = new MetricsProvider(mockClient, "user", "pwd", 100, 1);
-        metricsProvider.start(Observable.just(Collections.singletonList(mockNode)));
-        metricsProvider.getMetricsObserver().subscribe(mockObserver);
-
-        ArgumentCaptor<Metrics> captor = ArgumentCaptor.forClass(Metrics.class);
-        verify(mockObserver, timeout(400L).times(2)).onNext(captor.capture());
-
-        Metrics metrics = captor.getValue();
-        assertThat(metrics.getAge()).isGreaterThan(100L);
-
-        double atoms = (2 - 1);                         // From mock JSON above
-        double shardsServed = ((2 - 1) + 1);            // From mock node info above
-        double shardsTotal = 1;                         // From MetricsProvider constructor above
-        double seconds = metrics.getAge() / 1000.0;     // From common sense
-
-        double expectedTps = (atoms / seconds / shardsServed) * shardsTotal;
-        double actualTps = metrics.getTps();
-
-        // Allow some minimal slack with ±0.1
-        assertThat(actualTps).isBetween(expectedTps - 0.1, expectedTps + 0.1);
-        assertThat(metrics.getProgress()).isEqualTo(2);
+    @AfterClass
+    public static void afterSuite() throws Exception {
+        Files.deleteIfExists(TEST_DUMP_FILE_PATH);
     }
+
 
     @Test
     public void when_calculating_tps__it_is_extrapolated_to_account_for_the_full_network() {
-        OkHttpClient mockClient = getMockClient(
-                "{\"ledger\":{\"stored\":1}}",                                      // api/system for node 1
-                "{\"ledger\":{\"stored\":1}}",                                      // api/system for node 2
-                "{\"data\":[{\"temporalProof\":{\"vertices\":[{\"rclock\":1}]}}]}", // api/atoms?... node1
-                "{\"ledger\":{\"stored\":4}}",                                      // api/system for node 1
-                "{\"ledger\":{\"stored\":7}}");                                     // api/system for node 2
-
+        // State machine transport system
+        PublishSubject<Map<String, SystemInfo>> systemInfo = PublishSubject.create();
+        PublishSubject<TestState> testState = PublishSubject.create();
         Observer<Metrics> mockObserver = mock(Observer.class);
         doNothing().when(mockObserver).onNext(any());
 
-        NodeInfo mockNode1 = new NodeInfo("192.168.0.1", 0L, 1L, 2L, true);
-        NodeInfo mockNode2 = new NodeInfo("192.168.0.2", 0L, 3L, 4L, true);
-        NodeInfo mockNode3 = new NodeInfo("192.168.0.3", 0L, 5L, 6L, false);
+        // This (mock) node is processing 100 atoms per shard,
+        // and it serves 10 shards
+        SystemInfo mockNode = mock(SystemInfo.class);
+        when(mockNode.getStoringPerShard()).thenReturn(100L);
+        when(mockNode.getShardSize()).thenReturn(10L);
+        when(mockNode.getStoredPerShard()).thenReturn(0.0);
 
-        MetricsProvider metricsProvider = new MetricsProvider(mockClient, "user", "pwd", 100, 6);
-        metricsProvider.start(Observable.just(Arrays.asList(mockNode1, mockNode2, mockNode3)));
+        Map<String, SystemInfo> data = new HashMap<>();
+        data.put("0.0.0.1", mockNode);
+
+        // The metrics provider expects the ledger to have a total of 1000 shards
+        MetricsProvider metricsProvider = new MetricsProvider(1000, null);
+        metricsProvider.start(systemInfo, testState);
         metricsProvider.getMetricsObserver().subscribe(mockObserver);
 
+        // Poke the internal state machine of the metrics provider.
+        testState.onNext(STARTED);
+        systemInfo.onNext(data);
+
         ArgumentCaptor<Metrics> captor = ArgumentCaptor.forClass(Metrics.class);
-        verify(mockObserver, timeout(400L).times(2)).onNext(captor.capture());
+        verify(mockObserver).onNext(captor.capture());
 
+        // The (mock) node processes 1% of the total shard space of the ledger (10 / 1000)
+        // at a speed of 100 TPS. Extrapolating that capacity would mean that the network
+        // is expected to work at 100 TPS * 100 % => 10 000 TPS.
         Metrics metrics = captor.getValue();
-        assertThat(metrics.getAge()).isGreaterThan(100L);
-
-        double atoms = (7 - 1) + (4 - 1);                       // From mock JSON above
-        double shardsServed = ((2 - 1) + 1) + ((4 - 3) + 1);    // From mock node info above
-        double shardsTotal = 6;                                 // From MetricsProvider constructor above
-        double seconds = metrics.getAge() / 1000.0;             // From common sense
-
-        double expectedTps = (atoms / seconds / shardsServed) * shardsTotal;
-        double actualTps = metrics.getTps();
-
-        // Allow some minimal slack with ±0.1
-        assertThat(actualTps).isBetween(expectedTps - 0.1, expectedTps + 0.1);
-        assertThat(metrics.getProgress()).isEqualTo(7);
+        assertThat(metrics.getTps()).isEqualTo(10000L);
     }
 
     @Test
     public void when_no_nodes_present__no_metrics_are_calculated() {
-        OkHttpClient mockClient = getMockClient(
-                "{\"ledger\":{\"stored\":1,\"processed\":2}}",
-                "{\"data\":[{\"temporalProof\":{\"vertices\":[{\"rclock\":1,\"clock\":2}]}}]}",
-                "{\"ledger\":{\"stored\":2,\"processed\":3}}");
-
+        // State machine transport system
+        PublishSubject<Map<String, SystemInfo>> systemInfo = PublishSubject.create();
+        PublishSubject<TestState> testState = PublishSubject.create();
         Observer<Metrics> mockObserver = mock(Observer.class);
         doNothing().when(mockObserver).onNext(any());
 
-        MetricsProvider metricsProvider = new MetricsProvider(mockClient, "user", "pwd", 100, 1);
-        metricsProvider.start(Observable.empty());
+        // Empty (mock) nodes map.
+        Map<String, SystemInfo> data = new HashMap<>();
+
+        // The metrics provider expects the ledger to have a total of 1000 shards
+        MetricsProvider metricsProvider = new MetricsProvider(1000, null);
+        metricsProvider.start(systemInfo, testState);
         metricsProvider.getMetricsObserver().subscribe(mockObserver);
-        verify(mockObserver, timeout(400L).times(0)).onNext(any());
+
+        // Poke the internal state machine of the metrics provider.
+        testState.onNext(STARTED);
+        systemInfo.onNext(data);
+
+        verify(mockObserver, times(0)).onNext(any());
     }
 
     @Test
-    public void when_requesting_metrics_synchronously__same_data_is_returned_as_through_observer() {
-        OkHttpClient mockClient = getMockClient(
-                "{\"ledger\":{\"stored\":1,\"processed\":2}}",
-                "{\"data\":[{\"temporalProof\":{\"vertices\":[{\"rclock\":1,\"clock\":2}]}}]}",
-                "{\"ledger\":{\"stored\":12,\"processed\":14}}");
-
+    public void when_requesting_metrics__same_data_is_returned_in_sync_channel_as_in_async_channel() {
+        // State machine transport system
+        PublishSubject<Map<String, SystemInfo>> systemInfo = PublishSubject.create();
+        PublishSubject<TestState> testState = PublishSubject.create();
         Observer<Metrics> mockObserver = mock(Observer.class);
         doNothing().when(mockObserver).onNext(any());
 
-        NodeInfo mockNode = mock(NodeInfo.class);
-        when(mockNode.getAddress()).thenReturn("192.168.0.1");
+        // This (mock) node is processing 100 atoms per shard,
+        // and it serves 10 shards
+        SystemInfo mockNode = mock(SystemInfo.class);
+        when(mockNode.getStoringPerShard()).thenReturn(100L);
+        when(mockNode.getShardSize()).thenReturn(10L);
+        when(mockNode.getStoredPerShard()).thenReturn(0.0);
 
-        MetricsProvider metricsProvider = new MetricsProvider(mockClient, "user", "pwd", 100, 1);
-        metricsProvider.start(Observable.just(Collections.singletonList(mockNode)));
+        Map<String, SystemInfo> data = new HashMap<>();
+        data.put("0.0.0.1", mockNode);
+
+        // The metrics provider expects the ledger to have a total of 1000 shards
+        MetricsProvider metricsProvider = new MetricsProvider(1000, null);
+        metricsProvider.start(systemInfo, testState);
         metricsProvider.getMetricsObserver().subscribe(mockObserver);
 
-        ArgumentCaptor<Metrics> captor = ArgumentCaptor.forClass(Metrics.class);
-        verify(mockObserver, timeout(400L).times(2)).onNext(captor.capture());
+        // Poke the internal state machine of the metrics provider.
+        testState.onNext(STARTED);
+        systemInfo.onNext(data);
 
+        ArgumentCaptor<Metrics> captor = ArgumentCaptor.forClass(Metrics.class);
+        verify(mockObserver).onNext(captor.capture());
         Metrics metrics1 = captor.getValue();
         Metrics metrics2 = metricsProvider.getMetrics();
-        assertThat(metrics1.getAge()).isEqualTo(metrics2.getAge());
-        assertThat(metrics1.getTps()).isEqualTo(metrics2.getTps());
-        assertThat(metrics1.getProgress()).isEqualTo(metrics2.getProgress());
+
+        assertThat(metrics1).isEqualTo(metrics2);
+    }
+
+    @Test
+    public void when_starting_metrics_provider__previous_metrics_value_is_restored() throws Exception {
+        String line = String.format("%d,%d,%d,%d,%d\n", 0, 100, 50, 80, 120); // timestamp, spotTps, progress, averageTps, peakTps
+        byte[] data = line.getBytes(UTF_8);
+        Files.write(TEST_DUMP_FILE_PATH, data, CREATE, WRITE);
+
+        MetricsProvider metricsProvider = new MetricsProvider(1000, TEST_DUMP_FILE_PATH);
+        metricsProvider.start(PublishSubject.create(), PublishSubject.create());
+        Metrics metrics = metricsProvider.getMetrics();
+
+        assertThat(metrics.getTps()).isEqualTo(100);
+        assertThat(metrics.getProgress()).isEqualTo(50);
+        assertThat(metrics.getAverageTps()).isEqualTo(80);
+        assertThat(metrics.getPeakTps()).isEqualTo(120);
     }
 
 }
