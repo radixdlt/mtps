@@ -1,8 +1,9 @@
 package org.radixdlt.explorer.system;
 
-import io.reactivex.Emitter;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.subjects.PublishSubject;
+import org.radixdlt.explorer.config.Configuration;
 import org.radixdlt.explorer.nodes.model.NodeInfo;
 import org.radixdlt.explorer.system.model.SystemInfo;
 import org.slf4j.Logger;
@@ -26,6 +27,8 @@ import static org.radixdlt.explorer.system.TestState.UNKNOWN;
 class TestStateProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger("org.radixdlt.explorer");
 
+    private final PublishSubject<TestState> subject;
+    private final CompositeDisposable disposables;
     private final Map<String, SystemInfo> systemInfo;
     private final Collection<NodeInfo> nodeInfo;
     private final Object systemInfoLock;
@@ -33,9 +36,6 @@ class TestStateProvider {
     private final Path stateDumpPath;
     private final int measuringThreshold;
 
-    private CompositeDisposable disposables;
-    private Observable<TestState> observable;
-    private Emitter<TestState> emitter;
 
     private TestState currentState;
     private boolean isStarted;
@@ -50,6 +50,7 @@ class TestStateProvider {
      *                              in order to consider the test RUNNING.
      */
     TestStateProvider(int measuringTpsThreshold, Path stateDumpPath) {
+        this.subject = PublishSubject.create();
         this.disposables = new CompositeDisposable();
         this.stateDumpPath = stateDumpPath;
         this.systemInfoLock = new Object();
@@ -79,7 +80,7 @@ class TestStateProvider {
      * @return The observable or null.
      */
     Observable<TestState> getStateObserver() {
-        return observable;
+        return subject;
     }
 
     /**
@@ -95,7 +96,6 @@ class TestStateProvider {
             isStarted = true;
             disposables.add(systemInfoObserver.subscribe(this::updateSystemInfo));
             disposables.add(nodesObserver.subscribe(this::updateNodeInfo));
-            observable = Observable.create(source -> emitter = source);
             restoreTestState();
         }
     }
@@ -107,8 +107,7 @@ class TestStateProvider {
         if (isStarted) {
             isStarted = false;
             disposables.clear();
-            emitter = null;
-            observable = null;
+            subject.onComplete();
         }
     }
 
@@ -150,10 +149,7 @@ class TestStateProvider {
         if (testState != currentState) {
             currentState = testState;
             dumpCurrentTestState();
-
-            if (emitter != null) {
-                emitter.onNext(currentState);
-            }
+            subject.onNext(currentState);
         }
     }
 
