@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.radixdlt:radixdlt-java:feature~high-perf-btc-SNAPSHOT'
+    implementation 'com.github.radixdlt:radixdlt-java:mtps-1'
     implementation 'com.github.MuncleUscles:bitcoinj:master-SNAPSHOT'
 
     implementation 'com.squareup.okhttp3:okhttp:3.14.1'
