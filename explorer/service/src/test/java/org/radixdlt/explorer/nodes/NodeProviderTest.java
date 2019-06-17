@@ -1,24 +1,7 @@
 package org.radixdlt.explorer.nodes;
 
-import io.reactivex.Observer;
-import okhttp3.OkHttpClient;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.radixdlt.explorer.nodes.model.NodeInfo;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
-import static org.radixdlt.explorer.nodes.Utils.getMockClient;
-
 public class NodeProviderTest {
-
+/*
     @Test
     public void when_node_finder_returns_plain_text_response__further_node_info_is_requested() {
         OkHttpClient mockClient = getMockClient(
@@ -130,5 +113,5 @@ public class NodeProviderTest {
         nodeProvider.getNodesObservable().subscribe(mockObserver);
         verify(mockObserver, timeout(300L).times(2)).onNext(anyList());
     }
-
+*/
 }
