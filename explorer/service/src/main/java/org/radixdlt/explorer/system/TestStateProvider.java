@@ -5,20 +5,33 @@ import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 import org.radixdlt.explorer.nodes.model.NodeInfo;
 import org.radixdlt.explorer.system.model.SystemInfo;
-import org.radixdlt.explorer.config.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.StandardOpenOption.CREATE;
+import static java.nio.file.StandardOpenOption.WRITE;
+import static org.radixdlt.explorer.system.TestState.UNKNOWN;
 
 /**
  * Enables means of getting information on the current test state.
  */
 class TestStateProvider {
+    private static final Logger LOGGER = LoggerFactory.getLogger("org.radixdlt.explorer");
+
     private final Map<String, SystemInfo> systemInfo;
     private final Collection<NodeInfo> nodeInfo;
     private final Object systemInfoLock;
     private final Object nodeInfoLock;
+    private final Path stateDumpPath;
+    private final int measuringThreshold;
 
     private CompositeDisposable disposables;
     private Observable<TestState> observable;
@@ -29,15 +42,23 @@ class TestStateProvider {
 
     /**
      * Creates a new instance of this provider.
+     *
+     * @param stateDumpPath         Optional path to the file where the
+     *                              last calculated test run state is
+     *                              persisted.
+     * @param measuringTpsThreshold The minimum TPS value that must be reached
+     *                              in order to consider the test RUNNING.
      */
-    TestStateProvider() {
+    TestStateProvider(int measuringTpsThreshold, Path stateDumpPath) {
         this.disposables = new CompositeDisposable();
-        systemInfoLock = new Object();
-        nodeInfoLock = new Object();
-        systemInfo = new ConcurrentHashMap<>();
-        nodeInfo = ConcurrentHashMap.newKeySet();
-        currentState = TestState.UNKNOWN;
-        isStarted = false;
+        this.stateDumpPath = stateDumpPath;
+        this.systemInfoLock = new Object();
+        this.nodeInfoLock = new Object();
+        this.systemInfo = new ConcurrentHashMap<>();
+        this.nodeInfo = ConcurrentHashMap.newKeySet();
+        this.currentState = UNKNOWN;
+        this.isStarted = false;
+        this.measuringThreshold = measuringTpsThreshold;
     }
 
     /**
@@ -75,6 +96,7 @@ class TestStateProvider {
             disposables.add(systemInfoObserver.subscribe(this::updateSystemInfo));
             disposables.add(nodesObserver.subscribe(this::updateNodeInfo));
             observable = Observable.create(source -> emitter = source);
+            restoreTestState();
         }
     }
 
@@ -127,6 +149,8 @@ class TestStateProvider {
         TestState testState = currentState.validate(hasNodeInfo(), isMeasuring());
         if (testState != currentState) {
             currentState = testState;
+            dumpCurrentTestState();
+
             if (emitter != null) {
                 emitter.onNext(currentState);
             }
@@ -162,18 +186,50 @@ class TestStateProvider {
         }
 
         // sum(radixdlt_core_ledger{key="storing_per_shard"})
-        // When the cumulative TPS is above 10kTPS then the test is considered running
-        int threshold = Configuration.getInstance().getTestRunningThreshlod();
+        // When the cumulative TPS is above the threshold then the test is
+        // considered running
         double averageStoringPerShard = 0;
         synchronized (systemInfoLock) {
             double numNodes = systemInfo.size();
             for (SystemInfo info : systemInfo.values()) {
                 averageStoringPerShard += (info.getStoringPerShard() / numNodes);
-                if (averageStoringPerShard >= threshold) {
+                if (averageStoringPerShard >= measuringThreshold) {
                     return true;
                 }
             }
             return false;
         }
     }
+
+    /**
+     * Dumps the current test state to a file if a path to it has been set.
+     */
+    private void dumpCurrentTestState() {
+        if (stateDumpPath != null) {
+            try {
+                byte[] data = currentState.name().getBytes(UTF_8);
+                Files.write(stateDumpPath, data, CREATE, WRITE);
+            } catch (Exception e) {
+                LOGGER.info("Couldn't persist current state: " + currentState, e);
+            }
+        }
+    }
+
+    /**
+     * Restores the last test state from a file if a path to it has been set.
+     */
+    private void restoreTestState() {
+        if (stateDumpPath != null) {
+            try {
+                List<String> lines = Files.readAllLines(stateDumpPath, UTF_8);
+                String lastLine = lines.get(lines.size() - 1);
+                currentState = TestState.valueOf(lastLine);
+            } catch (Exception e) {
+                LOGGER.info("Couldn't restore test state, falling back to default", e);
+                currentState = UNKNOWN;
+                dumpCurrentTestState();
+            }
+        }
+    }
+
 }

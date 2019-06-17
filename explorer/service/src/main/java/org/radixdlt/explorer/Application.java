@@ -191,7 +191,10 @@ public class Application {
      * @return The new {@link TestStateService}.
      */
     private static TestStateService buildTestStateService() {
-        return new TestStateService();
+        Configuration configuration = Configuration.getInstance();
+        int runningThreshold = configuration.getTestRunningThreshold();
+        Path stateDumpPath = configuration.getTestStateDumpFilePath();
+        return new TestStateService(runningThreshold, stateDumpPath);
     }
 
     /**

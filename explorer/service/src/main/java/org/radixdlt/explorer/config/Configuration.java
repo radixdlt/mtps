@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -24,7 +25,6 @@ public final class Configuration {
     public static final float DEFAULT_NODES_FRACTION = 0.1f;
     public static final int DEFAULT_NODES_MAX_COUNT = 20;
     public static final long DEFAULT_UNIVERSE_SHARD_COUNT = 1L;
-    public static final long DEFAULT_UNIVERSE_INTERVAL = SECONDS.toMillis(2);
     public static final int DEFAULT_TEST_RUNNING = 100;
     public static final int DEFAULT_UNIVERSE_MAGIC = -849412095;
 
@@ -186,23 +186,11 @@ public final class Configuration {
     public synchronized long getUniverseShardCount() {
         String value = properties.getProperty("universe.shards");
         try {
-            return Long.parseLong(value);
-        } catch (NumberFormatException e) {
+            // BigDecimal knows how to parse scientific numbers (e.g. 18E+44).
+            return new BigDecimal(value).longValueExact();
+        } catch (NullPointerException | NumberFormatException e) {
             LOGGER.warn("Couldn't read universe shard count property, falling back to default", e);
             return DEFAULT_UNIVERSE_SHARD_COUNT;
-        }
-    }
-
-    /**
-     * @return The universe retry interval.
-     */
-    public synchronized long getUniverseRetryInterval() {
-        String value = properties.getProperty("universe.interval");
-        try {
-            return Long.parseLong(value);
-        } catch (NumberFormatException e) {
-            LOGGER.warn("Couldn't read universe retry interval property, falling back to default", e);
-            return DEFAULT_UNIVERSE_INTERVAL;
         }
     }
 
@@ -220,9 +208,18 @@ public final class Configuration {
     }
 
     /**
-     * @return This factor influences when test is considered finished.
+     * @return The path to the file where the test state should be dumped.
      */
-    public synchronized int getTestRunningThreshlod() {
+    public synchronized Path getTestStateDumpFilePath() {
+        String value = properties.getProperty("test.dump");
+        return value != null ? Paths.get(value) : null;
+    }
+
+    /**
+     * @return The minimum TPS count that must be reached in order to
+     * consider the test running.
+     */
+    public synchronized int getTestRunningThreshold() {
         String value = properties.getProperty("test.running");
         try {
             return Integer.parseInt(value);

@@ -9,12 +9,14 @@ import ratpack.service.Service;
 import ratpack.service.StartEvent;
 import ratpack.service.StopEvent;
 
+import java.nio.file.Path;
+
 public class TestStateService implements Service {
     private static final Logger LOGGER = LoggerFactory.getLogger("org.radixdlt.explorer");
     private final TestStateProvider testStateProvider;
 
-    public TestStateService() {
-        testStateProvider = new TestStateProvider();
+    public TestStateService(int runningTpsThreshold, Path stateDumpFile) {
+        testStateProvider = new TestStateProvider(runningTpsThreshold, stateDumpFile);
     }
 
     @Override
