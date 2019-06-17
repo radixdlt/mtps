@@ -32,34 +32,28 @@ $(function() {
   setInterval(function() {
       getMetrics().then(function(result) {
         const newState = result.state;
-        showPage(newState);
-        updateSummary(result.peak, result.average, result.start, result.stop);
-
         if (newState != state) {
           ticker = null;
         }
 
+        showPage(newState);
+        updateSummary(result.peak, result.average, result.start, result.stop);
+
         switch (newState) {
           case STATE_UNKNOWN:
             currentTps = 0;
-            const future = 1560429000000; // 13 June 13:30 BST
-            const now = new Date().getTime();
-            const offset = future - now;
-            startTicker(0, now, offset);
+            startTicker(0, 1560960000000); // 19 June 17:00 BST
             break;
           case STATE_TERMINATED: // intentional fallthrough
           case STATE_FINISHED:
             $('#top-buttons').show();
             currentTps = result.peak;
-            const f = 1560960000000; // 19 June 17:00 BST
-            const n = new Date().getTime();
-            const o = f - n;
-            startTicker(3, n, o);
+            startTicker(3, 1560960000000); // 19 June 17:00 BST
             updateCharts(currentTps, 100);
             break;
           case STATE_STARTED:
             currentTps = result.speed;
-            startTicker(1, result.start, ONE_HOUR);
+            startTicker(1, new Date().getTime() + ONE_HOUR);
             updateCharts(currentTps, result.progress);
             break;
         }
@@ -120,13 +114,13 @@ function initializeChart(id) {
   }, 10, 1500);
 }
 
-function startTicker(idSuffix, timestamp, offset) {
+function startTicker(idSuffix, future) {
   if (ticker) {
     return;
   }
 
   const now = new Date().getTime();
-  const diff = timestamp > 0 ? (now - timestamp + offset) / 1000 : 0; // seconds
+  const diff = future > now ? Math.round((future - now) / 1000) : 0; // seconds
   ticker = $('#counter-' + idSuffix)
       .FlipClock(diff, {
           clockFace: 'HourlyCounter',
