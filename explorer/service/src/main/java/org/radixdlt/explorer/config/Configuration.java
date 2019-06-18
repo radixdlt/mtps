@@ -26,10 +26,11 @@ public final class Configuration {
     public static final int DEFAULT_NODES_MAX_COUNT = 20;
     public static final long DEFAULT_UNIVERSE_SHARD_COUNT = 1L;
     public static final int DEFAULT_TEST_RUNNING = 100;
+    public static final long DEFAULT_NEXT_TEST = 0L;
     public static final int DEFAULT_UNIVERSE_MAGIC = -849412095;
-
-
+    private static final String CONFIG_FILE = "config.properties";
     private static final Logger LOGGER = LoggerFactory.getLogger("org.radixdlt.explorer");
+
     private final Properties properties;
 
     /**
@@ -53,7 +54,7 @@ public final class Configuration {
      * purposes only.
      */
     synchronized void reload() {
-        try (InputStream source = new FileInputStream("config.properties")) {
+        try (InputStream source = new FileInputStream(CONFIG_FILE)) {
             properties.clear();
             properties.load(source);
         } catch (IOException e) {
@@ -226,6 +227,25 @@ public final class Configuration {
         } catch (NumberFormatException e) {
             LOGGER.warn("Couldn't read test retry running threshold, falling back to default", e);
             return DEFAULT_TEST_RUNNING;
+        }
+    }
+
+    /**
+     * @return The timestamp for the next test run.
+     */
+    public synchronized long getNextTestRunUtc() {
+        // An alternative to forcefully reloading the configuration
+        // would be to use the Java NIO.2 "WatchService" API (Java7+)
+        // This, however, has so far not turned out to be performant
+        // enough, hence, going with this solution for now.
+        reload();
+        String value = properties.getProperty("test.next");
+
+        try {
+            return Long.parseLong(value);
+        } catch (NumberFormatException e) {
+            LOGGER.warn("Couldn't read next test run date time, falling back to default", e);
+            return DEFAULT_NEXT_TEST;
         }
     }
 

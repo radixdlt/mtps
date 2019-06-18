@@ -13,6 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.radixdlt.explorer.config.Configuration.DEFAULT_METRICS_INTERVAL;
 import static org.radixdlt.explorer.config.Configuration.DEFAULT_METRICS_TOTAL;
+import static org.radixdlt.explorer.config.Configuration.DEFAULT_NEXT_TEST;
 import static org.radixdlt.explorer.config.Configuration.DEFAULT_NODES_FRACTION;
 import static org.radixdlt.explorer.config.Configuration.DEFAULT_NODES_INTERVAL;
 import static org.radixdlt.explorer.config.Configuration.DEFAULT_NODES_MAX_COUNT;
@@ -137,6 +138,22 @@ public class ConfigurationTest {
         Configuration.getInstance().reload();
         assertThat(Configuration.getInstance().getTestRunningThreshold()).isEqualTo(4);
     }
+
+    @Test
+    public void when_requesting_existing_next_test_timestamp__correct_value_is_returned() throws IOException {
+        Files.write(CONFIG, "test.next=41".getBytes());
+        Configuration.getInstance().reload();
+        assertThat(Configuration.getInstance().getNextTestRunUtc()).isEqualTo(41);
+    }
+
+    @Test
+    public void when_next_test_timestamp_config_has_changed__the_new_value_is_returned() throws Exception {
+        Files.write(CONFIG, "test.next=42".getBytes());
+        Configuration.getInstance().reload();
+        assertThat(Configuration.getInstance().getNextTestRunUtc()).isEqualTo(42);
+        Files.write(CONFIG, "test.next=2".getBytes());
+        assertThat(Configuration.getInstance().getNextTestRunUtc()).isEqualTo(2);
+    }
     // END: Happy path
 
     // BEGIN: Unhappy path
@@ -204,6 +221,13 @@ public class ConfigurationTest {
     }
 
     @Test
+    public void when_requesting_invalid_next_test_timestamp__default_value_is_returned() throws IOException {
+        Files.write(CONFIG, "test.next=invalid".getBytes());
+        Configuration.getInstance().reload();
+        assertThat(Configuration.getInstance().getNextTestRunUtc()).isEqualTo(DEFAULT_NEXT_TEST);
+    }
+
+    @Test
     public void when_requesting_non_existing_nodes_url__null_is_returned() throws IOException {
         Files.write(CONFIG, "".getBytes());
         Configuration.getInstance().reload();
@@ -264,6 +288,13 @@ public class ConfigurationTest {
         Files.write(CONFIG, "".getBytes());
         Configuration.getInstance().reload();
         assertThat(Configuration.getInstance().getUniverseMagic()).isEqualTo(DEFAULT_UNIVERSE_MAGIC);
+    }
+
+    @Test
+    public void when_requesting_non_existing_next_test_timestamp__default_value_is_returned() throws IOException {
+        Files.write(CONFIG, "".getBytes());
+        Configuration.getInstance().reload();
+        assertThat(Configuration.getInstance().getNextTestRunUtc()).isEqualTo(DEFAULT_NEXT_TEST);
     }
     // END: Unhappy path
 
