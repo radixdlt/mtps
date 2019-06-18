@@ -14,6 +14,9 @@ import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.APPEND;
@@ -28,6 +31,7 @@ import static org.radixdlt.explorer.system.TestState.UNKNOWN;
 class MetricsProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger("org.radixdlt.explorer");
 
+    private final ExecutorService dumpMetricsExecutor;
     private final PublishSubject<Metrics> subject;
     private final CompositeDisposable disposables;
     private final Object calculationLock;
@@ -52,6 +56,7 @@ class MetricsProvider {
      *                        is persisted.
      */
     MetricsProvider(long maxShards, Path metricsDumpPath) {
+        this.dumpMetricsExecutor = Executors.newSingleThreadExecutor();
         this.subject = PublishSubject.create();
         this.disposables = new CompositeDisposable();
         this.calculationLock = new Object();
@@ -110,6 +115,7 @@ class MetricsProvider {
             isStarted = false;
             disposables.clear();
             subject.onComplete();
+            dumpMetricsExecutor.shutdownNow();
         }
     }
 
@@ -187,13 +193,20 @@ class MetricsProvider {
      * if a path to it has been set.
      */
     private void resetDumpFile() {
-        if (metricsDumpPath != null) {
-            try {
-                byte[] data = Metrics.DATA_HEADLINE.getBytes(UTF_8);
-                Files.write(metricsDumpPath, data, CREATE, WRITE);
-            } catch (Exception e) {
-                LOGGER.info("Couldn't reset metrics dump file: " + metricsDumpPath, e);
-            }
+        try {
+            dumpMetricsExecutor.submit(() -> {
+                if (metricsDumpPath != null) {
+                    try {
+                        byte[] data = Metrics.DATA_HEADLINE.getBytes(UTF_8);
+                        Files.write(metricsDumpPath, data, CREATE, WRITE);
+                    } catch (Exception e) {
+                        LOGGER.info("Couldn't reset metrics dump file: " + metricsDumpPath, e);
+                    }
+                }
+            });
+        } catch (RejectedExecutionException e) {
+            LOGGER.info("Couldn't enqueue reset-metrics-dump-file task." +
+                    " Ignoring, but you should look into this as the dump file may now be broken", e);
         }
     }
 
@@ -201,14 +214,21 @@ class MetricsProvider {
      * Dumps the current metrics to a file, if a path to it has been set.
      */
     private void dumpCurrentMetrics() {
-        if (metricsDumpPath != null) {
-            String line = calculatedMetrics.toString();
-            try {
-                byte[] data = line.getBytes(UTF_8);
-                Files.write(metricsDumpPath, data, CREATE, WRITE, APPEND);
-            } catch (Exception e) {
-                LOGGER.info("Couldn't dump metrics to file: " + line, e);
-            }
+        try {
+            dumpMetricsExecutor.submit(() -> {
+                if (metricsDumpPath != null) {
+                    String line = calculatedMetrics.toString();
+                    try {
+                        byte[] data = line.getBytes(UTF_8);
+                        Files.write(metricsDumpPath, data, CREATE, WRITE, APPEND);
+                    } catch (Exception e) {
+                        LOGGER.info("Couldn't dump metrics to file: " + line, e);
+                    }
+                }
+            });
+        } catch (RejectedExecutionException e) {
+            LOGGER.info("Couldn't enqueue dump-metrics-to-file task." +
+                    " Ignoring, but you should look into this as the dump file is now missing data", e);
         }
     }
 

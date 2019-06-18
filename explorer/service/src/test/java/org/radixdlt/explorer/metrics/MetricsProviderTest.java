@@ -2,17 +2,19 @@ package org.radixdlt.explorer.metrics;
 
 import io.reactivex.Observer;
 import io.reactivex.subjects.PublishSubject;
-import org.junit.AfterClass;
+import org.junit.After;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.radixdlt.explorer.metrics.model.Metrics;
 import org.radixdlt.explorer.system.TestState;
 import org.radixdlt.explorer.system.model.SystemInfo;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -22,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,8 +33,8 @@ import static org.radixdlt.explorer.system.TestState.STARTED;
 public class MetricsProviderTest {
     private static final Path TEST_DUMP_FILE_PATH = Paths.get("metrics_provider_test.csv");
 
-    @AfterClass
-    public static void afterSuite() throws Exception {
+    @After
+    public void afterTest() throws Exception {
         Files.deleteIfExists(TEST_DUMP_FILE_PATH);
     }
 
@@ -129,6 +132,43 @@ public class MetricsProviderTest {
         Metrics metrics2 = metricsProvider.getMetrics();
 
         assertThat(metrics1).isEqualTo(metrics2);
+    }
+
+    @Test
+    public void when_pushing_new_system_info__metrics_is_dumped_to_file() throws IOException {
+        PublishSubject<Map<String, SystemInfo>> systemInfo = PublishSubject.create();
+        PublishSubject<TestState> testState = PublishSubject.create();
+        Observer<Metrics> mockObserver = mock(Observer.class);
+        doNothing().when(mockObserver).onNext(any());
+
+        SystemInfo mockNode = mock(SystemInfo.class);
+        when(mockNode.getStoringPerShard()).thenReturn(100L);
+        when(mockNode.getShardSize()).thenReturn(10L);
+        when(mockNode.getStoredPerShard()).thenReturn(0.0);
+
+        Map<String, SystemInfo> data = new HashMap<>();
+        data.put("0.0.0.1", mockNode);
+
+        MetricsProvider metricsProvider = new MetricsProvider(1000, TEST_DUMP_FILE_PATH);
+        metricsProvider.start(systemInfo, testState);
+        metricsProvider.getMetricsObserver().subscribe(mockObserver);
+
+        // Poke the internal state machine of the metrics provider.
+        testState.onNext(STARTED);
+        systemInfo.onNext(data);
+
+        ArgumentCaptor<Metrics> captor = ArgumentCaptor.forClass(Metrics.class);
+        verify(mockObserver, timeout(100)).onNext(captor.capture());
+        Metrics metrics = captor.getValue();
+
+        List<String> lines = Files.readAllLines(TEST_DUMP_FILE_PATH);
+        assertThat(lines.size()).isEqualTo(2); // title row + data row
+        String[] fractions = lines.get(lines.size() - 1).split(",");
+
+        assertThat(Long.toString(metrics.getTps())).isEqualTo(fractions[1]);
+        assertThat(Long.toString(metrics.getProgress())).isEqualTo(fractions[2]);
+        assertThat(Long.toString(metrics.getAverageTps())).isEqualTo(fractions[3]);
+        assertThat(Long.toString(metrics.getPeakTps())).isEqualTo(fractions[4]);
     }
 
     @Test
