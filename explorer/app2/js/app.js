@@ -43,7 +43,7 @@ $(function() {
             break;
           case STATE_STARTED:
             currentTps = result.speed;
-            startTicker(1, new Date().getTime() + ONE_HOUR);
+            startTicker(1, result.start + ONE_HOUR);
             updateCharts(currentTps, result.progress);
             break;
           case STATE_TERMINATED: // intentional fallthrough
