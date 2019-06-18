@@ -9,9 +9,10 @@ import org.radixdlt.explorer.system.model.SystemInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -216,15 +217,44 @@ class MetricsProvider {
      * to the dump file has been set.
      */
     private void restoreMetrics() {
-        if (metricsDumpPath != null) {
-            try {
-                List<String> lines = Files.readAllLines(metricsDumpPath, UTF_8);
-                String lastLine = lines.get(lines.size() - 1);
-                calculatedMetrics = Metrics.fromCSV(lastLine);
-            } catch (Exception e) {
-                LOGGER.info("Couldn't restore metrics, falling back to default", e);
-                calculatedMetrics = null;
+        if (metricsDumpPath == null) {
+            return;
+        }
+
+        File file = metricsDumpPath.toFile();
+        try (RandomAccessFile fileHandler = new RandomAccessFile(file, "r")) {
+            long filePointer = fileHandler.length();
+            long fileLength = filePointer - 1;
+            StringBuilder sb = new StringBuilder();
+
+            // Fast-forward past the end of the file
+            // and start reading the bytes from the
+            // end until the first (last) line feed
+            // is encountered.
+            while (--filePointer != -1) {
+                fileHandler.seek(filePointer);
+                int readByte = fileHandler.readByte();
+
+                if (readByte == 0xA) { // 'new line'
+                    if (filePointer == fileLength) {
+                        continue;
+                    }
+                    break;
+                } else if (readByte == 0xD) { // 'carriage return'
+                    if (filePointer == fileLength - 1) {
+                        continue;
+                    }
+                    break;
+                }
+
+                sb.append((char) readByte);
             }
+
+            String lastLine = sb.reverse().toString();
+            calculatedMetrics = Metrics.fromCSV(lastLine);
+        } catch (Exception e) {
+            LOGGER.info("Couldn't restore metrics, falling back to default", e);
+            calculatedMetrics = null;
         }
     }
 

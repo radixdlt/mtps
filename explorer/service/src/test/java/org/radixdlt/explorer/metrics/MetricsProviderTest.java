@@ -133,8 +133,9 @@ public class MetricsProviderTest {
 
     @Test
     public void when_starting_metrics_provider__previous_metrics_value_is_restored() throws Exception {
-        String line = String.format("%d,%d,%d,%d,%d\n", 0, 100, 50, 80, 120); // timestamp, spotTps, progress, averageTps, peakTps
-        byte[] data = line.getBytes(UTF_8);
+        // timestamp, spotTps, progress, averageTps, peakTps
+        String lines = "0, 1, 2, 3, 4\n1000,100,50,80,120";
+        byte[] data = lines.getBytes(UTF_8);
         Files.write(TEST_DUMP_FILE_PATH, data, CREATE, WRITE);
 
         MetricsProvider metricsProvider = new MetricsProvider(1000, TEST_DUMP_FILE_PATH);
