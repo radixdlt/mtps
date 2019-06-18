@@ -8,6 +8,10 @@ const MONTH_LONG = [ "January", "February", "March", "April", "May", "June", "Ju
 var state = '';
 var page = 0;
 
+// Access demo mode by adding parameters e.g. '?demo&state=FINISHED'
+const demoMode = getParameterByName('demo') !== null ? true : false;
+const demoState = getParameterByName('state') !== null ? getParameterByName('state') : STATE_STARTED;
+
 /**
  * Requests TPS metrics from the server.
  *
@@ -17,6 +21,19 @@ var page = 0;
  */
 function getMetrics() {
   return new Promise(function(resolve, reject) {
+    if(demoMode) {
+      resolve({
+        speed: Math.floor(Math.random() * 1000000),
+        peak: Math.floor(Math.random() * 1000000),
+        average: Math.floor(Math.random() * 1000000),
+        progress: Math.floor(Math.random() * 100),
+        state: demoState,
+        start: 1550867544,
+        stop: 1560867544
+      })
+      return
+    }
+
     $.getJSON("https://test.radixdlt.com/api/metrics")
       .done(function(json) {
         const p = json.data.progress;
@@ -92,6 +109,29 @@ function getPreviousTransactions(bitcoinAddress) {
  */
 function getTransactions(bitcoinAddress, page) {
   return new Promise(function(resolve, reject) {
+    if(demoMode) {
+      resolve({
+        data: [
+          {
+            "bitcoinTransactionId": "hjidf2f68e38b980a6c4cec21e71851b0d8a5847d85208331a27321a9967bbd6",
+            "bitcoinBlockTimestamp": 1234567890,
+            "amount": 123.457
+          },
+          {
+            "bitcoinTransactionId": "2f2442f68e38b980a6c4cec21e71851b0d8a5847d85208331a27321a9967bbd6",
+            "bitcoinBlockTimestamp": 7462738942,
+            "amount": 909.10
+          },
+          {
+            "bitcoinTransactionId": "6ce5f3ff98d4d39e1ea408ec8128a17f6c426549bf8476738e30c418950b4911",
+            "bitcoinBlockTimestamp": 23849302039,
+            "amount": -10
+          },
+          ]
+        })
+    }
+
+
     $.getJSON("https://test.radixdlt.com/api/transactions/" + bitcoinAddress + "?page=" + page)
       .done(function(json) {
         if (json.data.length === 0){
@@ -169,4 +209,16 @@ function beautifulNumber(number, decimals) {
     .toFixed(decimals)
     .toString()
     .replace(/\B(?=(\d{3})+(?!\d))/g, "\xa0"); // non-breaking space
+}
+
+
+
+function getParameterByName(name, url) {
+  if (!url) url = window.location.href;
+  name = name.replace(/[\[\]]/g, '\\$&');
+  var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+      results = regex.exec(url);
+  if (!results) return null;
+  if (!results[2]) return '';
+  return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }

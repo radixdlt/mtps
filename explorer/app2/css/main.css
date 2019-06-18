@@ -185,7 +185,7 @@ body {
     background-color: rgba(86,91,185,0.1);
     font-weight: bold;
     padding: 11px 25px;
-    left: calc(50% - 80px);
+    left: calc(50% - 90px);
     width: 180px;
 }
 .header-second-part {
@@ -506,8 +506,21 @@ body {
 }
 @media (min-width: 1140px) and (max-width: 1239px) {
     .canvas {
-        width: 550px !important;
-        height: 550px !important;
+        width: 515px !important;
+        height: 515px !important;
+    }
+    .graph-header2 {
+        top: 207px !important;
+        font-size: 80px !important;
+    }
+    .graph-header3 {
+        top: 305px !important;
+    }
+    .graph-header4 {
+        top: 365px !important;
+        width: 150px;
+        left: calc(50% - 75px);
+        font-size: 16px !important;
     }
     .container-radix {
         width: 1000px;
@@ -562,7 +575,10 @@ body {
         top: 275px !important;
     }
     .graph-header4 {
-        top: 345px !important;
+        top: 325px !important;
+        width: 150px;
+        left: calc(50% - 75px);
+        font-size: 16px !important;
     }
     .row-footer .icon {
         padding-left: 3px !important;
@@ -671,7 +687,7 @@ body {
         padding-bottom: 30px;
     }
     .btn-watch {
-        width: 143px;
+        width: 100px;
     }
     .card-with-hover-wrapper {
         padding-top: 185px;
@@ -822,7 +838,7 @@ body {
         padding-top: 100px;
     }
     .btn-watch {
-        width: 90px;
+        width: 100px;
     }
     .text-watch-us {
         padding-top: 40px;
@@ -855,5 +871,5 @@ body {
 .txt-watch {
     border: none;
     outline: none;
-    width: 60%;
+    width: calc(100% - 100px);
 }
