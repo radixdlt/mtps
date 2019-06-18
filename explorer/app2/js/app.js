@@ -41,13 +41,13 @@ $(function() {
         switch (newState) {
           case STATE_UNKNOWN:
             currentTps = 0;
-            startTicker(0, 1560960000000); // 19 June 17:00 BST
+            startTicker(0, result.next);
             break;
           case STATE_TERMINATED: // intentional fallthrough
           case STATE_FINISHED:
             $('#top-buttons').show();
             currentTps = result.peak;
-            startTicker(3, 1560960000000); // 19 June 17:00 BST
+            startTicker(3, result.next);
             updateCharts(currentTps, 100);
             break;
           case STATE_STARTED:
