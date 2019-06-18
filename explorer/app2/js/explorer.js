@@ -46,7 +46,8 @@ function getMetrics() {
             progress: percentage,
             state: json.meta.testState,
             start: json.meta.testStart,
-            stop: json.meta.testStop
+            stop: json.meta.testStop,
+            next: json.meta.testNext
           })
       })
       .fail(function() {

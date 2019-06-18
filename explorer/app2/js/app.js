@@ -1,4 +1,3 @@
-const SEVEN_DAYS = 604800000;
 const TWO_DAYS = 172800000;
 const ONE_HOUR = 3600000;
 
@@ -37,7 +36,7 @@ $(function() {
         }
 
         showPage(newState);
-        updateSummary(result.peak, result.average, result.start, result.stop);
+        updateSummary(result.peak, result.average, result.start, result.stop, result.next);
 
         switch (newState) {
           case STATE_UNKNOWN:
@@ -203,7 +202,7 @@ function updateCharts(tps, progress) {
   });
 }
 
-function updateSummary(peak, average, start, stop) {
+function updateSummary(peak, average, start, stop, next) {
   $('#tps-peak-2').text(beautifulNumber(peak));
   $('#tps-avg-2').text(beautifulNumber(average));
 
@@ -211,13 +210,14 @@ function updateSummary(peak, average, start, stop) {
   const dataSetAgeDate = 1555502400000 // April 17, 12:00:00 UTC
   $('#age-date-2').text(beautifulDate(dataSetAgeDate));
 
+  if (next) {
+    $('.next-datetime').text(beautifulDateTime(next));
+    $('.next-date').text(beautifulDate(next));
+    $('.next-time').text(beautifulTime(next));
+  }
+
   if (stop > 0) {
-    const nextTestDate = stop + SEVEN_DAYS;
-    $('#test-date-2').text('Next test will be: ' + beautifulDate(nextTestDate));
-    $('#test-date-3').text('On ' + beautifulDate(stop) + ' we replayed history');
-    $('#next-date-2').text(beautifulDate(nextTestDate));
-    $('#next-time-2').text(beautifulTime(nextTestDate));
-    $('#next-date-3').text(beautifulDateTime(nextTestDate));
+    $('.test-date').text(beautifulDate(stop));
 
     if (start > 0 && start < stop) {
       const duration = Math.floor((stop - start) / 1000);
