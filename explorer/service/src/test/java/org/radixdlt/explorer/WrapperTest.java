@@ -11,7 +11,7 @@ public class WrapperTest {
 
     @Test
     public void when_wrapping_a_metrics_object__valid_type_is_set() {
-        Metrics metrics = new Metrics(0, 0f, 0L, 0L);
+        Metrics metrics = new Metrics(0, 0, 0, 0);
         Wrapper wrapper = Wrapper.of(metrics);
         assertThat(wrapper.getType()).isEqualTo("metrics");
         assertThat(wrapper.getData()).isEqualTo(metrics);
@@ -59,7 +59,7 @@ public class WrapperTest {
 
     @Test
     public void when_wrapping_single_transaction__exception_is_thrown() {
-        TransactionInfo transaction = new TransactionInfo(null, null, null, null);
+        TransactionInfo transaction = new TransactionInfo(null, 0L, null);
         assertThatThrownBy(() -> Wrapper.of(transaction))
                 .isExactlyInstanceOf(IllegalArgumentException.class);
     }
