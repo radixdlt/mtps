@@ -32,9 +32,13 @@ public class MetricsGetHandler implements Handler {
         }
 
         Wrapper wrapper = Wrapper.of(metrics)
+                // TODO: <ugly>
+                //  Break out separate API
                 .addMetaData("testState", state.name())
                 .addMetaData("testStart", state.getStartTimestamp())
                 .addMetaData("testStop", state.getStopTimestamp())
+                .addMetaData("testNext", configuration.getNextTestRunUtc())
+                // TODO: </ugly>
                 .addMetaData("progressMax", configuration.getMetricsTotalTransactions());
 
         long maxAgeConfig = configuration.getMetricsCalculationInterval();
