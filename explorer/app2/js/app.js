@@ -18,8 +18,6 @@ var currentCompetitor;
 var currentTps;
 
 $(function() {
-  nextTestTicker = null;
-  durationTicker = null;
   currentCompetitor = 0;
   currentTps = 0;
 
@@ -43,17 +41,17 @@ $(function() {
             currentTps = 0;
             startTicker(0, result.next);
             break;
+          case STATE_STARTED:
+            currentTps = result.speed;
+            startTicker(1, new Date().getTime() + ONE_HOUR);
+            updateCharts(currentTps, result.progress);
+            break;
           case STATE_TERMINATED: // intentional fallthrough
           case STATE_FINISHED:
             $('#top-buttons').show();
             currentTps = result.peak;
             startTicker(3, result.next);
             updateCharts(currentTps, 100);
-            break;
-          case STATE_STARTED:
-            currentTps = result.speed;
-            startTicker(1, new Date().getTime() + ONE_HOUR);
-            updateCharts(currentTps, result.progress);
             break;
         }
 
