@@ -168,41 +168,27 @@ function buildTransactionErrorRowItem() {
 }
 
 function niceDate(timestamp) {
-  var date = new Date(timestamp);
-  var yyyy = date.getFullYear();
-  var d = date.getDate();
-  var m = (date.getMonth() + 1);
-  var H = date.getHours()
-  var M = date.getMinutes()
-  var S = date.getSeconds();
-  return yyyy + '-' + pad(m) + '-' + pad(d) + ' ' + pad(H) + ':' + pad(M) + ':' + pad(S);
+  return moment(timestamp)
+      .tz('Europe/London')
+      .format('YYYY-MM-DD HH:mm:ss (z)');
 }
 
 function beautifulDateTime(timestamp) {
-  const date = new Date(timestamp);
-  const month = MONTH_LONG[date.getUTCMonth()];
-  const d = date.getUTCDate();
-  const h = date.getUTCHours();
-  const m = date.getUTCMinutes();
-  return month + ' ' + d + ', ' + pad(h) + ':' + pad(m) + ' UTC'
+  return moment(timestamp)
+      .tz('Europe/London')
+      .format('MMM D, HH:mm (z)');
 }
 
 function beautifulDate(timestamp) {
-  const date = new Date(timestamp);
-  const month = MONTH_LONG[date.getMonth()];
-  const d = date.getDate();
-  return month + ' ' + pad(d);
+  return moment(timestamp)
+      .tz('Europe/London')
+      .format('MMM D');
 }
 
 function beautifulTime(timestamp) {
-  const date = new Date(timestamp);
-  const h = date.getUTCHours();
-  const m = date.getUTCMinutes();
-  return pad(h) + ':' + pad(m) + ' UTC'
-}
-
-function pad(n) {
-  return n < 10 ? '0' + n : n;
+  return moment(timestamp)
+      .tz('Europe/London')
+      .format('HH:mm (z)');
 }
 
 function beautifulNumber(number, decimals) {
