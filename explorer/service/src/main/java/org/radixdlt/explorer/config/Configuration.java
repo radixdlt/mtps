@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -234,17 +235,49 @@ public final class Configuration {
      * @return The timestamp for the next test run.
      */
     public synchronized long getNextTestRunUtc() {
-        // An alternative to forcefully reloading the configuration
-        // would be to use the Java NIO.2 "WatchService" API (Java7+)
-        // This, however, has so far not turned out to be performant
-        // enough, hence, going with this solution for now.
-        reload();
         String value = properties.getProperty("test.next");
+        return getNextTestDateTimestamp(value);
+    }
+
+    /**
+     * Selects the next timestamp from the next test timestamps.
+     *
+     * @param testDatesFile The name of the file containing the future
+     *                      test timestamps.
+     * @return The next test timestamp.
+     */
+    private long getNextTestDateTimestamp(String testDatesFile) {
+        if (testDatesFile == null) {
+            LOGGER.info("Timestamps file mustn't be null pointer, falling back to default");
+            return DEFAULT_NEXT_TEST;
+        }
+
+        Path path = Paths.get(testDatesFile);
+        if (!Files.exists(path)) {
+            LOGGER.info("Couldn't read timestamps from file, falling back to default: " +
+                    path.toAbsolutePath().toString());
+            return DEFAULT_NEXT_TEST;
+        }
 
         try {
-            return Long.parseLong(value);
-        } catch (NumberFormatException e) {
-            LOGGER.warn("Couldn't read next test run date time, falling back to default", e);
+            // We hope that people won't be able to add more lines to
+            // this file than what will fit in runtime memory.
+            long now = System.currentTimeMillis();
+            return Files.readAllLines(path)
+                    .stream()
+                    .map(line -> {
+                        try {
+                            return Long.parseLong(line);
+                        } catch (NumberFormatException e) {
+                            LOGGER.info("Couldn't parse timestamp, falling back to default: " + line);
+                            return DEFAULT_NEXT_TEST;
+                        }
+                    })
+                    .filter(timestamp -> timestamp > now)
+                    .findFirst()
+                    .orElse(0L);
+        } catch (Exception e) {
+            LOGGER.info("Couldn't read timestamps from file, falling back to default", e);
             return DEFAULT_NEXT_TEST;
         }
     }

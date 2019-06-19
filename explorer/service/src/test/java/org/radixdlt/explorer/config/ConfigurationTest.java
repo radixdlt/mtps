@@ -23,20 +23,19 @@ import static org.radixdlt.explorer.config.Configuration.DEFAULT_UNIVERSE_MAGIC;
 import static org.radixdlt.explorer.config.Configuration.DEFAULT_UNIVERSE_SHARD_COUNT;
 
 public class ConfigurationTest {
+    private static final Path TESTS = Paths.get("tests.txt");
     private static final Path CONFIG = Paths.get("config.properties");
 
     @Before
     public void beforeTest() throws IOException {
-        if (Files.exists(CONFIG)) {
-            Files.delete(Paths.get("config.properties"));
-        }
+        Files.deleteIfExists(CONFIG);
+        Files.deleteIfExists(TESTS);
     }
 
     @After
     public void afterTest() throws IOException {
-        if (Files.exists(CONFIG)) {
-            Files.delete(Paths.get("config.properties"));
-        }
+        Files.deleteIfExists(CONFIG);
+        Files.deleteIfExists(TESTS);
     }
 
     // BEGIN: Happy path
@@ -141,18 +140,24 @@ public class ConfigurationTest {
 
     @Test
     public void when_requesting_existing_next_test_timestamp__correct_value_is_returned() throws IOException {
-        Files.write(CONFIG, "test.next=41".getBytes());
+        long nextTestTimestamp = System.currentTimeMillis() + 10_000;
+        Files.write(TESTS, Long.toString(nextTestTimestamp).getBytes());
+        Files.write(CONFIG, ("test.next=" + TESTS.toString()).getBytes());
         Configuration.getInstance().reload();
-        assertThat(Configuration.getInstance().getNextTestRunUtc()).isEqualTo(41);
+        assertThat(Configuration.getInstance().getNextTestRunUtc()).isEqualTo(nextTestTimestamp);
     }
 
     @Test
     public void when_next_test_timestamp_config_has_changed__the_new_value_is_returned() throws Exception {
-        Files.write(CONFIG, "test.next=42".getBytes());
+        long nextTestTimestamp = System.currentTimeMillis() + 10_000;
+        Files.write(TESTS, Long.toString(nextTestTimestamp).getBytes());
+        Files.write(CONFIG, ("test.next=" + TESTS.toString()).getBytes());
         Configuration.getInstance().reload();
-        assertThat(Configuration.getInstance().getNextTestRunUtc()).isEqualTo(42);
-        Files.write(CONFIG, "test.next=2".getBytes());
-        assertThat(Configuration.getInstance().getNextTestRunUtc()).isEqualTo(2);
+        assertThat(Configuration.getInstance().getNextTestRunUtc()).isEqualTo(nextTestTimestamp);
+
+        long nextNextTestTimestamp = System.currentTimeMillis() + 20_000;
+        Files.write(TESTS, Long.toString(nextNextTestTimestamp).getBytes());
+        assertThat(Configuration.getInstance().getNextTestRunUtc()).isEqualTo(nextNextTestTimestamp);
     }
     // END: Happy path
 
