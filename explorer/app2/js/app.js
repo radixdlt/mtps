@@ -130,8 +130,8 @@ function setupTransactions() {
 }
 
 function setupWatchTextbox(idSuffix) {
-  $('#txt-watch-' + idSuffix).keyup(function() {
-    var address = $('#txt-watch-' + idSuffix).val();
+  $('#txt-watch-' + idSuffix).on('input', function() {
+    var address = $(this).val();
     var isValid = WAValidator.validate(address, "bitcoin", "prod");
     if (isValid) {
       $('#btn-watch-' + idSuffix).removeAttr('disabled');
