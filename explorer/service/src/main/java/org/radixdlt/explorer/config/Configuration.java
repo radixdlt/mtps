@@ -275,7 +275,7 @@ public final class Configuration {
                     })
                     .filter(timestamp -> timestamp > now)
                     .findFirst()
-                    .orElse(0L);
+                    .orElse(DEFAULT_NEXT_TEST);
         } catch (Exception e) {
             LOGGER.info("Couldn't read timestamps from file, falling back to default", e);
             return DEFAULT_NEXT_TEST;
