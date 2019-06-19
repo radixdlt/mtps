@@ -175,7 +175,8 @@ def get_boot_node(gce):
     nodes = gce.list_nodes()
     for node in nodes:
         if node.name.startswith("core-boot-"):
-            gce.wait_until_running([node], 5, 600) # 5 second loops | 10 minute timeout
+            while(not node.public_ips):
+                gce.wait_until_running([node], 15, 600) # 15 second loops | 10 minute timeout
             return node
     return False
 
