@@ -175,6 +175,11 @@ class TestStateProvider {
      * @return Boolean true if test is running, false otherwise.
      */
     private boolean isMeasuring() {
+        // We can't be measuring if there is no network to measure on.
+        if (!hasNodeInfo()) {
+            return false;
+        }
+
         // The storingPerShard works well for detecting when test is about to start
         // but sucks for detecting when test is finished.
         //
