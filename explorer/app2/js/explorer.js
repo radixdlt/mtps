@@ -34,7 +34,7 @@ function getMetrics() {
       return
     }
 
-    $.getJSON("https://test.radixdlt.com/api/metrics")
+    $.getJSON("/api/metrics")
       .done(function(json) {
         const p = json.data.progress;
         const total = json.meta.progressMax;
@@ -133,7 +133,7 @@ function getTransactions(bitcoinAddress, page) {
     }
 
 
-    $.getJSON("https://test.radixdlt.com/api/transactions/" + bitcoinAddress + "?page=" + page)
+    $.getJSON("/api/transactions/" + bitcoinAddress + "?page=" + page)
       .done(function(json) {
         if (json.data.length === 0){
           reject();
