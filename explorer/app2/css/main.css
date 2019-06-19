@@ -627,7 +627,6 @@ body {
     }
     .flip-clock-wrapper.bigger {
         margin: 1em auto;
-        width: 865px;
     }
     .flip-clock-wrapper.bigger .flip-clock-divider .flip-clock-label {
         top: 151px;
@@ -721,11 +720,9 @@ body {
     }
     .flip-clock-wrapper {
         margin: 1em auto;
-        width: 416px;
     }
     .flip-clock-wrapper.bigger {
         margin: 1em auto;
-        width: 500px;
     }
     .container-radix {
         width: calc(100% - 48px);
