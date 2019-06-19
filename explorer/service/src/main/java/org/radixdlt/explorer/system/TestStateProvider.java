@@ -207,7 +207,7 @@ class TestStateProvider {
     private void dumpCurrentTestState() {
         if (stateDumpPath != null) {
             try {
-                byte[] data = currentState.name().getBytes(UTF_8);
+                byte[] data = currentState.toString().getBytes(UTF_8);
                 Files.write(stateDumpPath, data, CREATE, WRITE);
             } catch (Exception e) {
                 LOGGER.info("Couldn't persist current state: " + currentState, e);
@@ -223,7 +223,7 @@ class TestStateProvider {
             try {
                 List<String> lines = Files.readAllLines(stateDumpPath, UTF_8);
                 String lastLine = lines.get(lines.size() - 1);
-                currentState = TestState.valueOf(lastLine);
+                currentState = TestState.fromCSV(lastLine);
             } catch (Exception e) {
                 LOGGER.info("Couldn't restore test state, falling back to default", e);
                 currentState = UNKNOWN;
