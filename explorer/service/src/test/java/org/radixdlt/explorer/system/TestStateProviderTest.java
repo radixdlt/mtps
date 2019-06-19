@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.radixdlt.explorer.system.TestState.TERMINATED;
 
 public class TestStateProviderTest {
-    private static final Path TEST_DUMP_FILE_PATH = Paths.get("test_state_provider_test.csv");
+    private static final Path TEST_DUMP_FILE_PATH = Paths.get("test_state_provider_test.csv").toAbsolutePath();
 
     @AfterClass
     public static void afterSuite() throws Exception {
@@ -25,7 +25,8 @@ public class TestStateProviderTest {
 
     @Test
     public void when_starting_metrics_provider__previous_metrics_value_is_restored() throws Exception {
-        byte[] data = TERMINATED.name().getBytes(UTF_8);
+        String line = TERMINATED.name() + ",0,1";
+        byte[] data = line.getBytes(UTF_8);
         Files.write(TEST_DUMP_FILE_PATH, data, CREATE, WRITE);
 
         TestStateProvider testStateProvider = new TestStateProvider(1000, TEST_DUMP_FILE_PATH);
@@ -33,6 +34,8 @@ public class TestStateProviderTest {
         TestState testState = testStateProvider.getState();
 
         assertThat(testState).isEqualTo(TERMINATED);
+        assertThat(testState.getStartTimestamp()).isEqualTo(0);
+        assertThat(testState.getStopTimestamp()).isEqualTo(1);
     }
 
 }
