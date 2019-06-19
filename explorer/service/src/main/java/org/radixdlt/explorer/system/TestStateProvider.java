@@ -3,7 +3,6 @@ package org.radixdlt.explorer.system;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.PublishSubject;
-import org.radixdlt.explorer.config.Configuration;
 import org.radixdlt.explorer.nodes.model.NodeInfo;
 import org.radixdlt.explorer.system.model.SystemInfo;
 import org.slf4j.Logger;
@@ -94,6 +93,11 @@ class TestStateProvider {
     synchronized void start(Observable<Collection<NodeInfo>> nodesObserver, Observable<Map<String, SystemInfo>> systemInfoObserver) {
         if (!isStarted) {
             isStarted = true;
+            if (stateDumpPath != null) {
+                // Ensure the full directory structure to the dump file
+                // exists before we attempt to write to it.
+                stateDumpPath.getParent().toFile().mkdirs();
+            }
             disposables.add(systemInfoObserver.subscribe(this::updateSystemInfo));
             disposables.add(nodesObserver.subscribe(this::updateNodeInfo));
             restoreTestState();

@@ -101,6 +101,11 @@ class MetricsProvider {
     synchronized void start(Observable<Map<String, SystemInfo>> systemInfoObserver, Observable<TestState> testStateObserver) {
         if (!isStarted) {
             isStarted = true;
+            if (metricsDumpPath != null) {
+                // Ensure the full directory structure to the dump file
+                // exists before we attempt to write to it.
+                metricsDumpPath.getParent().toFile().mkdirs();
+            }
             disposables.add(testStateObserver.subscribe(this::maybeResetMetrics));
             disposables.add(systemInfoObserver.subscribe(this::calculateMetrics));
             restoreMetrics();
