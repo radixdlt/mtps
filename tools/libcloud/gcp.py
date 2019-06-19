@@ -133,7 +133,6 @@ def create_core_template(gce, name, cloud_init):
                     "deviceName": '{0}-persistent'.format(name),
                     "initializeParams": {
                         "diskType": 'pd-ssd',
-                        "diskName": '{0}-persistent'.format(name),
                         "diskSizeGb": config.CORE_MACHINE_STORAGE,
                         "sourceImage": config.CORE_MACHINE_IMAGE,
                     }
@@ -143,7 +142,6 @@ def create_core_template(gce, name, cloud_init):
                     "deviceName": '{0}-atoms'.format(name),
                     "initializeParams": {
                         "diskType": 'pd-standard',
-                        "diskName": '{0}-atoms'.format(name),
                         "diskSizeGb": config.CORE_EXTRA_DISK_SIZE,
                         "sourceImage": config.CORE_EXTRA_DISK_IMAGE_NAME,
                     }

@@ -7,20 +7,19 @@ import argparse
 BASE_CLOUD_INIT_PATH=os.path.join(
     os.path.dirname(os.path.realpath(__file__)),
     "..",
-    "gcp",
     "cloudinit")
 
 # default credentials
-DEFAULT_EMAIL = 'libcloud@m-tps-test-2.iam.gserviceaccount.com'
+DEFAULT_EMAIL = 'libcloud@fast-gateway-233909.iam.gserviceaccount.com'
 DEFAULT_CREDS = '~/.gcloud.json'
-PROJECT = os.getenv('RADIX_MTPS_CLOUD_PROJECT', 'm-tps-test-2')
+PROJECT = os.getenv('RADIX_MTPS_CLOUD_PROJECT', 'fast-gateway-233909')
 
 # network config
 DEFAULT_NETWORK_UNIVERSE=""
 DEFAULT_NETWORK_PASSWORD="DEFAULT_PASSWORD"
 DEFAULT_NETWORK_ATOMS_FILE="/radix/atoms_v4_full.zst"
 DEFAULT_NETWORK_START_PUMPING=40 # X minutes
-DEFAULT_NETWORK_SHARD_COUNT="1000"
+DEFAULT_NETWORK_SHARD_COUNT="1181"
 DEFAULT_NETWORK_SHARD_OVERLAP="0.1"
 
 # cores
@@ -35,25 +34,52 @@ CORE_MACHINE_STORAGE = "100" # GB
 CORE_EXTRA_DISK_IMAGE_NAME = "projects/fast-gateway-233909/global/images/atoms-v4-full-standard-persistent-image"
 CORE_EXTRA_DISK_SIZE = "200" # GB
 CORE_REGIONS = {
-    # 130 IP, 1000 CPU, 20.48TB
-    #"asia-northeast1": 1,
-    #"us-central1": 1,
-    # 110 IP, 1000 CPU, 20.48TB
-    #"us-west1": 1,
-    #"us-east1": 1,
-    "europe-west4": 1,
-    # 110 IP, 1000 CPU, 19TB
-    "europe-west1": 1,
+    # Europe
+    # 130 IP, 1000 CPU, 25TB, 4GB HDD, MAX 115 nodes
+    "europe-north1": 15,
+    # 110 IP, 1000 CPU, 24TB
+    "europe-west4": 5#,
+    # 110 IP, 1000 CPU, 24TB - 3 vm, bottleneck: SSD_TOTAL_GB,MAX 104 nodes
+    #"europe-west1":104,
+    # 8 IP, 24 CPU, 4TB, MAX 2 nodes
+    #"europe-west2":2,
+    # 8 IP, 24 CPU, 4TB, MAX 2 nodes
+    #"europe-west3": 2,
+    # 8 IP, 24 CPU, 4TB, MAX 2 nodes
+    #"europe-west6":2,
+
+    #Americas
+    # 130 IP, 1000 CPU, 23TB, MAX 115 nodes
+    #"us-central1":115,
+    # 110 IP, 1000 CPU, 22TB
+    #"us-west1":110,
+    # 110 IP, 1000 CPU, 22TB
+    #"us-east1":110,
     # 100 IP, 1000 CPU, 20.48TB
-    #"us-east4": 1,
-    #"asia-southeast1": 1,
-    #"asia-east1": 1,
-    # 130 IP, 1000 CPY, 0.5 TB
-    #"europe-north1": 1,
-    # 8 IP, 1000 CPU
-    #"northamerica-northeast1": 1,
-    # 8 IP, 400 CPU
-    #"australia-southeast1": 1,
+    #"us-east4":100,
+    # 8 IP, 24 CPU, 4TB, MAX 2 nodes
+    #"us-west2":2,
+
+    # 100 IP, 1000 CPU, 25TB, DISK_TOTAL_GB MAX 100 nodes - 1 node
+    #"northamerica-northeast1":99,
+    # 8 IP, 24 CPU, 4TB, MAX 2 nodes:
+    #"southamerica-east1":2,
+
+    #Asia
+    # 130 IP, 1000 CPU, 20.48TB, bottleneck: SSD's, MAX 102 nodes
+    #"asia-northeast1":102,
+    # 100 IP, 1000 CPU, 20.48TB - bottleneck: IP's, MAX 100 nodes
+    #"asia-southeast1":100,
+    # 100 IP, 1000 CPU, 20.48TB
+    #"asia-east1":100,
+    # 8 IP, 24 CPU, 4TB, MAX 2 nodes
+    #"asia-east2":2,
+    # 8 IP, 24 CPU, 4TB, MAX 2 nodes
+    #"asia-south1":2,
+
+    #Australia
+    # 8 IP, 400 CPU, MAX 2 nodes
+    #"australia-southeast1":2
 }
 
 # explorer
