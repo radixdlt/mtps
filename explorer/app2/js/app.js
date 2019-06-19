@@ -1,4 +1,3 @@
-const SEVEN_DAYS = 604800000;
 const TWO_DAYS = 172800000;
 const ONE_HOUR = 3600000;
 
@@ -19,8 +18,6 @@ var currentCompetitor;
 var currentTps;
 
 $(function() {
-  nextTestTicker = null;
-  durationTicker = null;
   currentCompetitor = 0;
   currentTps = 0;
 
@@ -32,29 +29,25 @@ $(function() {
   setInterval(function() {
       getMetrics().then(function(result) {
         const newState = result.state;
-        if (newState != state) {
-          ticker = null;
-        }
-
         showPage(newState);
-        updateSummary(result.peak, result.average, result.start, result.stop);
+        updateSummary(result.peak, result.average, result.start, result.stop, result.next);
 
         switch (newState) {
           case STATE_UNKNOWN:
             currentTps = 0;
-            startTicker(0, 1560960000000); // 19 June 17:00 BST
+            startTicker(0, result.next);
+            break;
+          case STATE_STARTED:
+            currentTps = result.speed;
+            startTicker(1, result.start + ONE_HOUR);
+            updateCharts(currentTps, result.progress);
             break;
           case STATE_TERMINATED: // intentional fallthrough
           case STATE_FINISHED:
             $('#top-buttons').show();
             currentTps = result.peak;
-            startTicker(3, 1560960000000); // 19 June 17:00 BST
+            startTicker(3, result.next);
             updateCharts(currentTps, 100);
-            break;
-          case STATE_STARTED:
-            currentTps = result.speed;
-            startTicker(1, new Date().getTime() + ONE_HOUR);
-            updateCharts(currentTps, result.progress);
             break;
         }
 
@@ -115,10 +108,6 @@ function initializeChart(id) {
 }
 
 function startTicker(idSuffix, future) {
-  if (ticker) {
-    return;
-  }
-
   const now = new Date().getTime();
   const diff = future > now ? Math.round((future - now) / 1000) : 0; // seconds
   ticker = $('#counter-' + idSuffix)
@@ -203,7 +192,7 @@ function updateCharts(tps, progress) {
   });
 }
 
-function updateSummary(peak, average, start, stop) {
+function updateSummary(peak, average, start, stop, next) {
   $('#tps-peak-2').text(beautifulNumber(peak));
   $('#tps-avg-2').text(beautifulNumber(average));
 
@@ -211,13 +200,14 @@ function updateSummary(peak, average, start, stop) {
   const dataSetAgeDate = 1555502400000 // April 17, 12:00:00 UTC
   $('#age-date-2').text(beautifulDate(dataSetAgeDate));
 
+  if (next) {
+    $('.next-datetime').text(beautifulDateTime(next));
+    $('.next-date').text(beautifulDate(next));
+    $('.next-time').text(beautifulTime(next));
+  }
+
   if (stop > 0) {
-    const nextTestDate = stop + SEVEN_DAYS;
-    $('#test-date-2').text('Next test will be: ' + beautifulDate(nextTestDate));
-    $('#test-date-3').text('On ' + beautifulDate(stop) + ' we replayed history');
-    $('#next-date-2').text(beautifulDate(nextTestDate));
-    $('#next-time-2').text(beautifulTime(nextTestDate));
-    $('#next-date-3').text(beautifulDateTime(nextTestDate));
+    $('.test-date').text(beautifulDate(stop));
 
     if (start > 0 && start < stop) {
       const duration = Math.floor((stop - start) / 1000);
