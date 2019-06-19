@@ -12,3 +12,4 @@ bin/
 .venv/
 *.pyc
 .gradle/
+build/

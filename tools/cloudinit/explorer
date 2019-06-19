@@ -36,6 +36,8 @@ write_files:
               environment:
                 ADMIN_PASSWORD: "$RADIX_MTPS_NETWORK_PASSWORD"
                 METRICS_PASSWORD: "$RADIX_MTPS_NETWORK_PASSWORD"
+              volumes:
+                - "explorer_data:/opt/radixdlt/service/data"
             node_finder:
               image: radixdlt/node-finder:latest
               restart: unless-stopped
@@ -90,6 +92,7 @@ write_files:
             nodes_lst:
             prometheus_tsdb:
             nginx_secrets:
+            explorer_data:
 package_upgrade: true
 apt:
   preserve_sources_list: true
