@@ -96,7 +96,7 @@ class TestStateProvider {
             if (stateDumpPath != null) {
                 // Ensure the full directory structure to the dump file
                 // exists before we attempt to write to it.
-                stateDumpPath.getParent().toFile().mkdirs();
+                stateDumpPath.toAbsolutePath().getParent().toFile().mkdirs();
             }
             disposables.add(systemInfoObserver.subscribe(this::updateSystemInfo));
             disposables.add(nodesObserver.subscribe(this::updateNodeInfo));
