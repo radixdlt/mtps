@@ -35,16 +35,20 @@ public enum TestState {
 
     TestState validate(boolean hasNodes, boolean isMeasuring) {
         switch (this) {
-            case UNKNOWN: // Intentional fallthrough
-            case TERMINATED:
-                if (hasNodes && isMeasuring) {
-                    TestState newState = STARTED;
-                    newState.start = System.currentTimeMillis();
-                    newState.stop = 0L;
-                    return newState;
+            case UNKNOWN:
+                TestState state;
+                if (hasNodes) {
+                    if (isMeasuring) {
+                        state = STARTED;
+                    } else {
+                        state = FINISHED;
+                    }
                 } else {
-                    return this;
+                    state = TERMINATED;
                 }
+                state.start = System.currentTimeMillis();
+                state.stop = System.currentTimeMillis();
+                return state;
             case STARTED:
                 if (!isMeasuring) {
                     TestState newState = FINISHED;
@@ -59,6 +63,15 @@ public enum TestState {
                     TestState newState = TERMINATED;
                     newState.start = this.start;
                     newState.stop = this.stop;
+                    return newState;
+                } else {
+                    return this;
+                }
+            case TERMINATED:
+                if (hasNodes && isMeasuring) {
+                    TestState newState = STARTED;
+                    newState.start = System.currentTimeMillis();
+                    newState.stop = 0L;
                     return newState;
                 } else {
                     return this;
