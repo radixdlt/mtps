@@ -13,6 +13,9 @@ RUN mv /opt/radixdlt/service-* /opt/radixdlt/service/
 # add user
 RUN addgroup -S radix && adduser -S radix -G radix
 
+# make data directory
+RUN mkdir -p /opt/radixdlt/service/data
+
 # set permissions
 RUN chown -R radix:radix /opt/radixdlt/
 
