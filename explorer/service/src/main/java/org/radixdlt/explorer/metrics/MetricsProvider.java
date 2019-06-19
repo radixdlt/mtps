@@ -104,7 +104,7 @@ class MetricsProvider {
             if (metricsDumpPath != null) {
                 // Ensure the full directory structure to the dump file
                 // exists before we attempt to write to it.
-                metricsDumpPath.getParent().toFile().mkdirs();
+                metricsDumpPath.toAbsolutePath().getParent().toFile().mkdirs();
             }
             disposables.add(testStateObserver.subscribe(this::maybeResetMetrics));
             disposables.add(systemInfoObserver.subscribe(this::calculateMetrics));
