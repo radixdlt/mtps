@@ -117,7 +117,7 @@ class TransactionsProvider {
         //       There is currently a hard dependency to both Gson
         //       and Radix Serialization with this implementation.
         return dataHelper
-                .getRawAuthorized(host, "api/atoms?address=%s&index=%d&limit=%d&sort=DESCENDING",
+                .getRawAuthorized(host, "api/atoms?address=%s&index=%d&limit=%d",
                         radixAddress.toString(), index, pageSize)                   // Fetch raw JSON data
                 .filter(HttpResponseData::isJson)                                   // Verify it's JSON
                 .map(response -> new JsonParser().parse(response.getContent()))     // Parse JSON into Gson JsonElement
