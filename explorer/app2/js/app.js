@@ -13,7 +13,6 @@ const competitors = [
   {name: 'WeChat', tps: 520000}
 ];
 
-var ticker;
 var currentCompetitor;
 var currentTps;
 
@@ -42,8 +41,12 @@ $(function() {
             startTicker(1, result.start + ONE_HOUR);
             updateCharts(currentTps, result.progress);
             break;
-          case STATE_TERMINATED: // intentional fallthrough
           case STATE_FINISHED:
+            $('#top-buttons').show();
+            currentTps = result.peak;
+            updateCharts(currentTps, 100);
+            break;
+          case STATE_TERMINATED:
             $('#top-buttons').show();
             currentTps = result.peak;
             startTicker(3, result.next);
@@ -110,11 +113,13 @@ function initializeChart(id) {
 function startTicker(idSuffix, future) {
   const now = new Date().getTime();
   const diff = future > now ? Math.round((future - now) / 1000) : 0; // seconds
-  ticker = $('#counter-' + idSuffix)
-      .FlipClock(diff, {
-          clockFace: 'HourlyCounter',
-          countdown: true
-        });
+  $('.counter-' + idSuffix).each(function() {
+    $(this).FlipClock(diff, {
+      clockFace: 'HourlyCounter',
+      countdown: true
+    });
+
+  });
 }
 
 function setupTransactions() {
