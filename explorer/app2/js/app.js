@@ -14,11 +14,21 @@ const competitors = [
 ];
 
 var currentCompetitor;
+var currentTicker;
 var currentTps;
 
 $(function() {
   currentCompetitor = 0;
+  currentTicker = null;
   currentTps = 0;
+
+  // Force friendly re-sync of count down tickers every time the window
+  // gains focus. This prevents count down digression due to timers
+  // being halted under certain circumstances on certain device types
+  // (e.g. after screen lock kicks in on some mobile devices).
+  $(window).focus(function() {
+    currentTicker = null;
+  });
 
   setupCharts();
   updateCharts(currentTps, 0);
@@ -111,6 +121,11 @@ function initializeChart(id) {
 }
 
 function startTicker(idSuffix, future) {
+  if (idSuffix === currentTicker) {
+    return;
+  }
+
+  currentTicker = idSuffix;
   const now = new Date().getTime();
   const diff = future > now ? Math.round((future - now) / 1000) : 0; // seconds
   $('.counter-' + idSuffix).each(function() {
