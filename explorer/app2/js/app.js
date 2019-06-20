@@ -14,11 +14,13 @@ const competitors = [
 ];
 
 var currentCompetitor;
+var currentProgress;
 var currentTicker;
 var currentTps;
 
 $(function() {
   currentCompetitor = 0;
+  currentProgress = 0;
   currentTicker = null;
   currentTps = 0;
 
@@ -31,7 +33,7 @@ $(function() {
   });
 
   setupCharts();
-  updateCharts(currentTps, 0);
+  updateCharts(currentTps, currentProgress);
   setupTransactions();
   showPage(STATE_UNKNOWN);
 
@@ -206,9 +208,9 @@ function showPage(newTestState) {
 }
 
 function updateCharts(tps, progress) {
-  const p = Math.min(100, progress);
+  currentProgress = Math.max(currentProgress, Math.min(100, progress));
   charts.forEach(function(chart) {
-    chart.updateModel(tps, p);
+    chart.updateModel(tps, currentProgress);
   });
 }
 
