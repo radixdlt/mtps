@@ -13,15 +13,15 @@ const competitors = [
   {name: 'WeChat', tps: 520000}
 ];
 
+var currentTickerClass;
 var currentCompetitor;
 var currentProgress;
-var currentTicker;
 var currentTps;
 
 $(function() {
+  currentTickerClass = null;
   currentCompetitor = 0;
   currentProgress = 0;
-  currentTicker = null;
   currentTps = 0;
 
   // Force friendly re-sync of count down tickers every time the window
@@ -29,7 +29,7 @@ $(function() {
   // being halted under certain circumstances on certain device types
   // (e.g. after screen lock kicks in on some mobile devices).
   $(window).focus(function() {
-    currentTicker = null;
+    currentTickerClass = null;
   });
 
   setupCharts();
@@ -46,11 +46,11 @@ $(function() {
         switch (newState) {
           case STATE_UNKNOWN:
             currentTps = 0;
-            startTicker(0, result.next);
+            updateTickers(0, result.next);
             break;
           case STATE_STARTED:
             currentTps = result.speed;
-            startTicker(1, result.start + ONE_HOUR);
+            updateTickers(1, result.start + ONE_HOUR);
             updateCharts(currentTps, result.progress);
             break;
           case STATE_FINISHED:
@@ -61,7 +61,7 @@ $(function() {
           case STATE_TERMINATED:
             $('#top-buttons').show();
             currentTps = result.peak;
-            startTicker(3, result.next);
+            updateTickers(3, result.next);
             updateCharts(currentTps, 100);
             break;
         }
@@ -122,21 +122,23 @@ function initializeChart(id) {
   }, 10, 1500);
 }
 
-function startTicker(idSuffix, future) {
-  if (idSuffix === currentTicker) {
+function updateTickers(classSuffix, future) {
+  const tickerClass = '.counter-' + classSuffix;
+  if (tickerClass === currentTickerClass) {
     return;
   }
 
-  currentTicker = idSuffix;
   const now = new Date().getTime();
   const diff = future > now ? Math.round((future - now) / 1000) : 0; // seconds
-  $('.counter-' + idSuffix).each(function() {
+
+  $(tickerClass).each(function() {
     $(this).FlipClock(diff, {
       clockFace: 'HourlyCounter',
       countdown: true
     });
-
   });
+
+  currentTickerClass = tickerClass;
 }
 
 function setupTransactions() {
