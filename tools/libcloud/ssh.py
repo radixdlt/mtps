@@ -20,7 +20,7 @@ def generate_universe(host):
     with ssh_client(host) as client:
         entrypoint = "/opt/radixdlt/bin/generate_universes"
         stdin, stdout, stderr = client.exec_command(
-            "docker pull {0} && docker run --rm --entrypoint {1} {0}".format(
+            "docker pull {0} && docker run --rm --entrypoint {1} {0} --dev.planck 3600 --universe.timestamp 1231006505".format(
                 config.CORE_DOCKER_IMAGE, entrypoint
             )
         )
