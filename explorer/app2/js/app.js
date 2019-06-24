@@ -13,13 +13,13 @@ const competitors = [
   {name: 'WeChat', tps: 520000}
 ];
 
-var currentTickerClass;
+var forceUpdateTickers;
 var currentCompetitor;
 var currentProgress;
 var currentTps;
 
 $(function() {
-  currentTickerClass = null;
+  forceUpdateTickers = true;
   currentCompetitor = 0;
   currentProgress = 0;
   currentTps = 0;
@@ -29,7 +29,7 @@ $(function() {
   // being halted under certain circumstances on certain device types
   // (e.g. after screen lock kicks in on some mobile devices).
   $(window).focus(function() {
-    currentTickerClass = null;
+    forceUpdateTickers = true;
   });
 
   setupCharts();
@@ -122,23 +122,18 @@ function initializeChart(id) {
   }, 10, 1500);
 }
 
-function updateTickers(classSuffix, future) {
-  const tickerClass = '.counter-' + classSuffix;
-  if (tickerClass === currentTickerClass) {
-    return;
-  }
-
-  const now = new Date().getTime();
-  const diff = future > now ? Math.round((future - now) / 1000) : 0; // seconds
-
-  $(tickerClass).each(function() {
-    $(this).FlipClock(diff, {
-      clockFace: 'HourlyCounter',
-      countdown: true
+function updateTickers(future) {
+  if (forceUpdateTickers) {
+    forceUpdateTickers = false;
+    const now = new Date().getTime();
+    const diffSeconds = future > now ? Math.round((future - now) / 1000) : 0;
+    $('.ticker').each(function() {
+      $(this).FlipClock(diffSeconds, {
+        clockFace: 'HourlyCounter',
+        countdown: true
+      });
     });
-  });
-
-  currentTickerClass = tickerClass;
+  }
 }
 
 function setupTransactions() {
