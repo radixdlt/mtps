@@ -1,7 +1,6 @@
 const TWO_DAYS = 172800000;
 const ONE_HOUR = 3600000;
 
-const charts = [];
 const competitors = [
   {name: 'Visa', tps: 2000},
   {name: 'Google', tps: 75000},
@@ -17,12 +16,14 @@ var forceUpdateTickers;
 var currentCompetitor;
 var currentProgress;
 var currentTps;
+var graphs;
 
 $(function() {
   forceUpdateTickers = true;
   currentCompetitor = 0;
   currentProgress = 0;
   currentTps = 0;
+  graphs = [];
 
   // Force friendly re-sync of count down tickers every time the window
   // gains focus. This prevents count down digression due to timers
@@ -32,8 +33,8 @@ $(function() {
     forceUpdateTickers = true;
   });
 
-  setupCharts();
-  updateCharts(currentTps, currentProgress);
+  setupGraphs();
+  updateGraphs(currentTps, currentProgress);
   setupTransactions();
   showPage(STATE_UNKNOWN);
 
@@ -51,18 +52,18 @@ $(function() {
           case STATE_STARTED:
             currentTps = result.speed;
             updateTickers(1, result.start + ONE_HOUR);
-            updateCharts(currentTps, result.progress);
+            updateGraphs(currentTps, result.progress);
             break;
           case STATE_FINISHED:
             $('#top-buttons').show();
             currentTps = result.peak;
-            updateCharts(currentTps, 100);
+            updateGraphs(currentTps, 100);
             break;
           case STATE_TERMINATED:
             $('#top-buttons').show();
             currentTps = result.peak;
             updateTickers(3, result.next);
-            updateCharts(currentTps, 100);
+            updateGraphs(currentTps, 100);
             break;
         }
 
@@ -100,26 +101,29 @@ $(function() {
     }, 2000);
   });
 
-function setupCharts() {
-  charts.push(
-    initializeChart('canvas-1'),
-    initializeChart('canvas-2'),
-    initializeChart('canvas-3')
-  );
+function setupGraphs() {
+  graphs = $('.graph')
+      .map(function() {
+        return $(this).chart({
+          width: 512,
+          height: 512,
+          radius: 228,
+          textSize: '80px',
+          textColor: '#5B76F1',
+          innerlineHeight: 8,
+          outerLineHeight: 54,
+          glowLineHeight: 36,
+          parent: $(this).parent(),
+        }, 10, 1500)
+      })
+      .get();
 }
 
-function initializeChart(id) {
-  return $('#' + id).chart({
-      width: 512,
-      height: 512,
-      radius: 228,
-      textSize: '80px',
-      textColor: '#5B76F1',
-      innerlineHeight: 8,
-      outerLineHeight: 54,
-      glowLineHeight: 36,
-      parent: $('#' + id).parent(),
-  }, 10, 1500);
+function updateGraphs(tps, progress) {
+  currentProgress = Math.max(currentProgress, Math.min(100, progress));
+  graphs.forEach(function(graph) {
+    graph.updateModel(tps, currentProgress);
+  });
 }
 
 function updateTickers(future) {
@@ -202,13 +206,6 @@ function showPage(newTestState) {
     $('.page-3').hide();
     $('.page-0').show();
   }
-}
-
-function updateCharts(tps, progress) {
-  currentProgress = Math.max(currentProgress, Math.min(100, progress));
-  charts.forEach(function(chart) {
-    chart.updateModel(tps, currentProgress);
-  });
 }
 
 function updateSummary(peak, average, start, stop, next) {
