@@ -15,3 +15,26 @@
 .search-paging .btn {
   margin: 0 2px;
 }
+
+.graph-header0 {
+  position: absolute;
+  left: 0px;
+  right: 0px;
+  text-align: center;
+  color: #515F7F;
+  font-family: "Open Sans";
+}
+
+@media (max-width: 959px) {
+  .graph-header0 {
+    top: 120px;
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 960px) {
+  .graph-header0 {
+    top: 120px;
+    font-size: 18px;
+  }
+}
