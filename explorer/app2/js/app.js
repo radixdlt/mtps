@@ -15,6 +15,7 @@ const competitors = [
 
 var forceUpdateTickers;
 var currentPageOfTransactions;
+var currentMetricsResult;
 var currentCompetitor;
 var currentProgress;
 var currentTps;
@@ -23,6 +24,7 @@ var graphs;
 $(function() {
   forceUpdateTickers = true;
   currentPageOfTransactions = 1;
+  currentMetricsResult = {};
   currentCompetitor = 0;
   currentProgress = 0;
   currentTps = 0;
@@ -44,9 +46,10 @@ $(function() {
 
   setInterval(function() {
       getMetrics().then(function(result) {
+        currentMetricsResult = result;
         const newState = result.state;
         showPage(newState);
-        updateSummary(result.peak, result.average, result.start, result.stop, result.next);
+        updateStats();
 
         switch (newState) {
           case STATE_UNKNOWN:
@@ -54,7 +57,7 @@ $(function() {
             updateTickers(0, result.next);
             break;
           case STATE_STARTED:
-            currentTps = result.speed;
+            currentTps = result.spot;
             updateTickers(1, result.start + ONE_HOUR);
             updateGraphs(currentTps, result.progress);
             break;
@@ -167,6 +170,36 @@ function updateTickers(future) {
   }
 }
 
+function updateStats() {
+  $('.tps-spot').each(function() {
+    $(this).text(beautifulNumber(currentMetricsResult.spot));
+  });
+  $('.tps-peak').each(function() {
+    $(this).text(beautifulNumber(currentMetricsResult.peak));
+  });
+  $('.tps-avg').each(function() {
+    $(this).text(beautifulNumber(currentMetricsResult.average));
+  });
+  $('.age-date').each(function() {
+    $(this).text(beautifulDate(1555502400000)); //April 17, 12:00:00 UTC
+  });
+  $('.next-datetime').each(function() {
+    $(this).text(beautifulDateTime(currentMetricsResult.next));
+  });
+  $('.next-date').each(function() {
+    $(this).text(beautifulDate(currentMetricsResult.next));
+  });
+  $('.next-time').each(function() {
+    $(this).text(beautifulTime(currentMetricsResult.next));
+  });
+  $('.test-date').each(function() {
+    $(this).text(beautifulDate(currentMetricsResult.stop));
+  });
+  $('.test-duration').each(function() {
+    $(this).text(buildTestDurationString(currentMetricsResult.start, currentMetricsResult.stop));
+  });
+}
+
 function showPage(newTestState) {
   if (newTestState === state) {
     return;
@@ -196,54 +229,6 @@ function showPage(newTestState) {
     $('.page-2').hide();
     $('.page-3').hide();
     $('.page-0').show();
-  }
-}
-
-function updateSummary(peak, average, start, stop, next) {
-  $('#tps-peak-2').text(beautifulNumber(peak));
-  $('#tps-avg-2').text(beautifulNumber(average));
-
-  //const dataSetAgeDate = new Date().getTime() - TWO_DAYS;
-  const dataSetAgeDate = 1555502400000 // April 17, 12:00:00 UTC
-  $('#age-date-2').text(beautifulDate(dataSetAgeDate));
-
-  if (next) {
-    $('.next-datetime').text(beautifulDateTime(next));
-    $('.next-date').text(beautifulDate(next));
-    $('.next-time').text(beautifulTime(next));
-  }
-
-  if (stop > 0) {
-    $('.test-date').text(beautifulDate(stop));
-
-    if (start > 0 && start < stop) {
-      const duration = Math.floor((stop - start) / 1000);
-      const minutes = Math.floor(duration / 60);
-      const seconds = duration % 60
-      var durationString = '';
-
-      if (minutes > 0) {
-        if (minutes > 1) {
-          durationString += minutes + ' minutes';
-        } else {
-          durationString += minutes + ' minute';
-        }
-
-        if (seconds > 1) {
-          durationString += ' and ' + seconds + ' seconds';
-        } else if (seconds > 0) {
-          durationString += ' and ' + seconds + ' second';
-        }
-      } else if (seconds > 0) {
-        if (seconds > 1) {
-          durationString += seconds + ' seconds';
-        } else {
-          durationString += seconds + ' second';
-        }
-      }
-
-      $('#test-duration-2').text('Test Complete in ' + durationString);
-    }
   }
 }
 
@@ -336,5 +321,56 @@ function buildTransactionPagingButtons(bitcoinAddress) {
   buttons.push('<button class="btn btn-success" onclick="skipTenPagesOfTransactions(\'' + bitcoinAddress + '\')">+10</button>');
   buttons.push('</span>');
   return buttons.join('\n');
+}
+
+function buildTestDurationString(start, stop) {
+  const duration = Math.floor((stop - start) / 1000);
+  const minutes = Math.floor(duration / 60);
+  const seconds = duration % 60
+  var durationString = '';
+  if (minutes > 0) {
+    durationString += minutes > 1 ?
+        (minutes + ' minutes') :
+        (minutes + ' minute');
+  }
+  if (minutes > 0 && seconds > 0) {
+    durationString += ' and ';
+  }
+  if (seconds > 0) {
+    seconds > 1 ?
+        (' and ' + seconds + ' seconds') :
+        (' and ' + seconds + ' second');
+  }
+  return durationString;
+}
+
+function niceDate(timestamp) {
+  return timestamp ?
+      moment(timestamp).tz('Europe/London').format('YYYY-MM-DD HH:mm:ss (z)') :
+      '';
+}
+
+function beautifulDateTime(timestamp) {
+  return timestamp ?
+      moment(timestamp).tz('Europe/London').format('MMM D, HH:mm (z)') :
+      '';
+}
+
+function beautifulDate(timestamp) {
+  return timestamp ?
+      moment(timestamp).tz('Europe/London').format('MMM D') :
+      '';
+}
+
+function beautifulTime(timestamp) {
+  return timestamp ?
+      moment(timestamp).tz('Europe/London').format('HH:mm (z)') :
+      '';
+}
+
+function beautifulNumber(number, decimals) {
+  return number ?
+      number.toFixed(decimals).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\xa0") : // 1 234 567 (with non-breaking space)
+      '';
 }
 // END: Utils

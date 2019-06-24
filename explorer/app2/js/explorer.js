@@ -22,15 +22,16 @@ function getMetrics() {
   return new Promise(function(resolve, reject) {
     if(demoMode) {
       resolve({
-        speed: Math.floor(Math.random() * 1000000),
+        spot: Math.floor(Math.random() * 1000000),
         peak: Math.floor(Math.random() * 1000000),
         average: Math.floor(Math.random() * 1000000),
         progress: Math.floor(Math.random() * 100),
         state: demoState,
         start: 1550867544,
-        stop: 1560867544
-      })
-      return
+        stop: 1560867544,
+        next: new Date().getTime() + 3600000
+      });
+      return;
     }
 
     $.getJSON("/api/metrics")
@@ -39,7 +40,7 @@ function getMetrics() {
         const total = json.meta.progressMax;
         const percentage = Math.min(100, p / total * 100).toFixed();
         resolve({
-            speed: json.data.spotTps,
+            spot: json.data.spotTps,
             peak: json.data.peakTps,
             average: json.data.averageTps,
             progress: percentage,
@@ -104,37 +105,6 @@ function getTransactions(bitcoinAddress, page) {
         reject();
       });
   });
-}
-
-function niceDate(timestamp) {
-  return moment(timestamp)
-      .tz('Europe/London')
-      .format('YYYY-MM-DD HH:mm:ss (z)');
-}
-
-function beautifulDateTime(timestamp) {
-  return moment(timestamp)
-      .tz('Europe/London')
-      .format('MMM D, HH:mm (z)');
-}
-
-function beautifulDate(timestamp) {
-  return moment(timestamp)
-      .tz('Europe/London')
-      .format('MMM D');
-}
-
-function beautifulTime(timestamp) {
-  return moment(timestamp)
-      .tz('Europe/London')
-      .format('HH:mm (z)');
-}
-
-function beautifulNumber(number, decimals) {
-  return number
-    .toFixed(decimals)
-    .toString()
-    .replace(/\B(?=(\d{3})+(?!\d))/g, "\xa0"); // non-breaking space
 }
 
 
