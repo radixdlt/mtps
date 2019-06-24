@@ -6,7 +6,6 @@ const STATE_TERMINATED = "TERMINATED";
 const MONTH_LONG = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
 
 var state = '';
-var page = 0;
 
 // Access demo mode by adding parameters e.g. '?demo&state=FINISHED'
 const demoMode = getParameterByName('demo') !== null ? true : false;
@@ -57,48 +56,6 @@ function getMetrics() {
 }
 
 /**
- * Tries to request the next page of transactions for a
- * given Bitcoin address. Returns a promise
- *
- * @param {String} bitcoinAddress The address to get
- * transactions for.
- *
- * @returns A Promise, which when resolved, provides an
- * object with a "data" array of transactions.
- */
-function getMoreTransactions(bitcoinAddress) {
-  return getTransactions(bitcoinAddress, page + 1);
-}
-
-/**
- * Tries to request the +10th page of transactions for a
- * given Bitcoin address. Returns a promise
- *
- * @param {String} bitcoinAddress The address to get
- * transactions for.
- *
- * @returns A Promise, which when resolved, provides an
- * object with a "data" array of transactions.
- */
-function getMuchMoreTransactions(bitcoinAddress) {
-  return getTransactions(bitcoinAddress, page + 10);
-}
-
-/**
- * Tries to request the previous page of transactions for
- * a given Bitcoin address. Returns a promise
- *
- * @param {String} bitcoinAddress The address to get
- * transactions for.
- *
- * @returns A Promise, which when resolved, provides an
- * object with a "data" array of transactions.
- */
-function getPreviousTransactions(bitcoinAddress) {
-  return getTransactions(bitcoinAddress, page - 1);
-}
-
-/**
  * Tries to request the given page of transactions for a
  * given Bitcoin address. Returns a promise
  *
@@ -139,34 +96,14 @@ function getTransactions(bitcoinAddress, page) {
       .done(function(json) {
         if (json.data.length === 0){
           reject();
+        } else {
+          resolve({ data: json.data, page: json.meta.page });
         }
-        page = json.meta.page;
-        resolve({ data: json.data });
       })
       .fail(function() {
         reject();
       });
   });
-}
-
-function buildTransactionRowItems(transactions) {
-  const items = [];
-  $.each(transactions, function(index, transaction) {
-    var amount = transaction.amount;
-    var amountClass = amount > 0 ? 'text-green' : 'text-red';
-    var amountString = amount > 0 ? ('+ ' + amount + ' BTC') : ('- ' + amount + ' BTC');
-    var dateString = niceDate(transaction.bitcoinBlockTimestamp);
-
-    var amountCell = '<td class="' + amountClass + '">' + amountString + '</td>';
-    var dateCell = '<td class="text-date">' + dateString + '</td>';
-    items.push('<tr>' + amountCell + dateCell + '</tr>');
-  });
-  return items;
-}
-
-function buildTransactionErrorRowItem() {
-  const msg = 'Couldn\'t find any transactions for that address right now. Try again later.'
-  return '<tr><td class="text-red" colspan="2">' + msg + '</td><tr>'
 }
 
 function niceDate(timestamp) {

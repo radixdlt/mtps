@@ -1,3 +1,4 @@
+const MAX_PAGE_BUTTONS = 4;
 const TWO_DAYS = 172800000;
 const ONE_HOUR = 3600000;
 
@@ -13,6 +14,7 @@ const competitors = [
 ];
 
 var forceUpdateTickers;
+var currentPageOfTransactions;
 var currentCompetitor;
 var currentProgress;
 var currentTps;
@@ -20,6 +22,7 @@ var graphs;
 
 $(function() {
   forceUpdateTickers = true;
+  currentPageOfTransactions = 1;
   currentCompetitor = 0;
   currentProgress = 0;
   currentTps = 0;
@@ -138,18 +141,7 @@ function setupSearch() {
   })
   $('.search-button').each(function() {
     $(this).on('click', function() {
-      getTransactions($(this).prev().val(), 1)
-          .then(function(result) {
-            const rows = buildTransactionRowItems(result.data);
-            $('.search-list').each(function() {
-              $(this).empty().append(rows.join('\n'));
-            })
-          }, function(error) {
-            const message = buildTransactionErrorRowItem();
-            $('.search-list').each(function() {
-              $(this).empty().append(message);
-            });
-          });
+      getPageOfTransactions($(this).prev().val(), 1);
     });
   });
 }
@@ -265,5 +257,84 @@ function validateBitcoinAddress(bitcoinAddress) {
       reject();
     }
   });
+}
+
+function getNextPageOfTransactions(bitcoinAddress) {
+  return getPageOfTransactions(bitcoinAddress, currentPageOfTransactions + 1);
+}
+
+function skipTenPagesOfTransactions(bitcoinAddress) {
+  return getPageOfTransactions(bitcoinAddress, currentPageOfTransactions + 10);
+}
+
+function getPreviousPageOfTransactions(bitcoinAddress) {
+  return getPageOfTransactions(bitcoinAddress, currentPageOfTransactions - 1);
+}
+
+function getPageOfTransactions(bitcoinAddress, requestedPage) {
+  getTransactions(bitcoinAddress, requestedPage)
+      .then(function(result) {
+        currentPageOfTransactions = result.page;
+        $('.search-list tbody').each(function() {
+          $(this).empty().append(buildTransactionList(result.data));
+        });
+        $('.search-paging').each(function() {
+          $(this).empty().append(buildTransactionPagingButtons(bitcoinAddress));
+        });
+      }, function(error) {
+        $('.search-list tbody').each(function() {
+          $(this).empty().append(buildTransactionError());
+        });
+        $('.search-paging').each(function() {
+          $(this).empty();
+        });
+      });
+}
+
+function buildTransactionList(transactions) {
+  return transactions
+      .map(function(transaction) {
+        var amount = transaction.amount;
+        var amountClass = amount > 0 ? 'text-green' : 'text-red';
+        var amountString = amount > 0 ? ('+ ' + amount + ' BTC') : ('- ' + amount + ' BTC');
+        var dateString = niceDate(transaction.bitcoinBlockTimestamp);
+        var amountCell = '<td class="' + amountClass + '">' + amountString + '</td>';
+        var dateCell = '<td class="text-date">' + dateString + '</td>';
+        return '<tr>' + amountCell + dateCell + '</tr>';
+      })
+      .reduce(function(collected, row) {
+        return collected + '\n' + row;
+      }, '');
+}
+
+function buildTransactionError() {
+  return '<tr><td class="text-red" colspan="2">' +
+      'Couldn\'t find any transactions for that address right now. Try again later.' +
+      '</td><tr>';
+}
+
+function buildTransactionPagingButtons(bitcoinAddress) {
+  const buttons = [];
+  var button = 1;
+  buttons.push(currentPageOfTransactions > 1 ?
+    '<button class="btn btn-success" onclick="getPreviousPageOfTransactions(\'' + bitcoinAddress + '\')">&lt;</button>' :
+    '<button class="btn btn-success" disabled>&lt;</button>');
+  buttons.push('<span>');
+  if (currentPageOfTransactions > MAX_PAGE_BUTTONS) {
+    buttons.push('<button class="btn btn-outline-success" disabled>&hellip;</button>');
+    button++;
+  }
+  for(button; button <= MAX_PAGE_BUTTONS && button <= currentPageOfTransactions; button++) {
+    var page = Math.max(0, currentPageOfTransactions - MAX_PAGE_BUTTONS) + button;
+    buttons.push(page === currentPageOfTransactions ?
+      '<button class="btn btn-success" onclick="getPageOfTransactions(\'' + bitcoinAddress + '\', ' + page + ')">' + page + '</button>' :
+      '<button class="btn btn-outline-success" onclick="getPageOfTransactions(\'' + bitcoinAddress + '\', ' + page + ')">' + page + '</button>');
+  }
+  buttons.push('</span>');
+  buttons.push('<span>');
+  buttons.push('<button class="btn btn-success" onclick="getNextPageOfTransactions(\'' + bitcoinAddress + '\')">&gt;</button>');
+  buttons.push('<button class="btn btn-success" onclick="skipTenPagesOfTransactions(\'' + bitcoinAddress + '\')">+10</button>');
+  buttons.push('</span>');
+  return buttons.join('\n');
 }
 // END: Utils
