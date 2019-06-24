@@ -34,8 +34,9 @@ $(function() {
   });
 
   setupGraphs();
+  setupSearch();
+
   updateGraphs(currentTps, currentProgress);
-  setupTransactions();
   showPage(STATE_UNKNOWN);
 
   setInterval(function() {
@@ -119,6 +120,40 @@ function setupGraphs() {
       .get();
 }
 
+function setupSearch() {
+  $('.search-textbox').each(function() {
+    $(this).on('input', function() {
+      $('.search-list tbody').empty();
+      validateBitcoinAddress($(this).val())
+          .then(function() {
+            $('.search-button').each(function() {
+              $(this).removeAttr('disabled');
+            });
+          }, function() {
+            $('.search-button').each(function() {
+              $(this).attr('disabled', true);
+            });
+          });
+    });
+  })
+  $('.search-button').each(function() {
+    $(this).on('click', function() {
+      getTransactions($(this).prev().val(), 1)
+          .then(function(result) {
+            const rows = buildTransactionRowItems(result.data);
+            $('.search-list').each(function() {
+              $(this).empty().append(rows.join('\n'));
+            })
+          }, function(error) {
+            const message = buildTransactionErrorRowItem();
+            $('.search-list').each(function() {
+              $(this).empty().append(message);
+            });
+          });
+    });
+  });
+}
+
 function updateGraphs(tps, progress) {
   currentProgress = Math.max(currentProgress, Math.min(100, progress));
   graphs.forEach(function(graph) {
@@ -138,42 +173,6 @@ function updateTickers(future) {
       });
     });
   }
-}
-
-function setupTransactions() {
-  setupWatchTextbox(1);
-  setupWatchButton(1);
-  setupWatchTextbox(2);
-  setupWatchButton(2);
-}
-
-function setupWatchTextbox(idSuffix) {
-  $('#txt-watch-' + idSuffix).on('input', function() {
-    var address = $(this).val();
-    var isValid = WAValidator.validate(address, "bitcoin", "prod");
-    if (isValid) {
-      $('#btn-watch-' + idSuffix).removeAttr('disabled');
-    } else {
-      $('#btn-watch-' + idSuffix).attr('disabled', 'disabled');
-    }
-    $('#lst-watch-' + idSuffix + ' tbody').empty();
-  });
-}
-
-function setupWatchButton(idSuffix) {
-  $('#btn-watch-' + idSuffix).click(function() {
-    var address = $('#txt-watch-' + idSuffix).val();
-    getTransactions(address, 1)
-        .then(function(result) {
-          const rows = buildTransactionRowItems(result.data);
-          $('#lst-watch-' + idSuffix + ' tbody').empty();
-          $('#lst-watch-' + idSuffix + ' tbody').append(rows.join('\n'));
-        }, function(error) {
-          const message= buildTransactionErrorRowItem();
-          $('#lst-watch-' + idSuffix + ' tbody').empty();
-          $('#lst-watch-' + idSuffix + ' tbody').append(message);
-        });
-  });
 }
 
 function showPage(newTestState) {
@@ -255,3 +254,16 @@ function updateSummary(peak, average, start, stop, next) {
     }
   }
 }
+
+
+// BEGIN: Utils
+function validateBitcoinAddress(bitcoinAddress) {
+  return new Promise(function(resolve, reject) {
+    if (WAValidator.validate(bitcoinAddress, "bitcoin", "prod")) {
+      resolve();
+    } else {
+      reject();
+    }
+  });
+}
+// END: Utils

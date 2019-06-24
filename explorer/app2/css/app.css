@@ -5,3 +5,13 @@
 .has-text-centered {
   text-align: center;
 }
+
+.search-textbox {
+  border: none;
+  outline: none;
+  width: calc(100% - 100px);
+}
+
+.search-paging .btn {
+  margin: 0 2px;
+}

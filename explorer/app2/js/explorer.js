@@ -128,8 +128,10 @@ function getTransactions(bitcoinAddress, page) {
             "bitcoinBlockTimestamp": 23849302039,
             "amount": -10
           },
-          ]
-        })
+          ],
+        page: page
+      });
+      return;
     }
 
 
