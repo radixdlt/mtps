@@ -3,7 +3,7 @@ const TWO_DAYS = 172800000;
 const ONE_HOUR = 3600000;
 
 const COMPETITORS = [
-  {name: 'Visa', tps: 2000},
+  {name: 'Visa', tps: 24000},
   {name: 'Google', tps: 75000},
   {name: 'YouTube', tps: 79000},
   {name: 'Twitter', tps: 85000},
