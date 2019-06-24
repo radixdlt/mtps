@@ -2,7 +2,7 @@ const MAX_PAGE_BUTTONS = 4;
 const TWO_DAYS = 172800000;
 const ONE_HOUR = 3600000;
 
-const competitors = [
+const COMPETITORS = [
   {name: 'Visa', tps: 2000},
   {name: 'Google', tps: 75000},
   {name: 'YouTube', tps: 79000},
@@ -18,16 +18,16 @@ var currentPageOfTransactions;
 var currentMetricsResult;
 var currentCompetitor;
 var currentProgress;
-var currentTps;
+var currentState;
 var graphs;
 
 $(function() {
   forceUpdateTickers = true;
   currentPageOfTransactions = 1;
-  currentMetricsResult = {};
+  currentMetricsResult = { state: STATE_UNKNOWN };
   currentCompetitor = 0;
   currentProgress = 0;
-  currentTps = 0;
+  currentState = '';
   graphs = [];
 
   // Force friendly re-sync of count down tickers every time the window
@@ -40,73 +40,15 @@ $(function() {
 
   setupGraphs();
   setupSearch();
-
-  updateGraphs(currentTps, currentProgress);
-  showPage(STATE_UNKNOWN);
+  updatePages();
 
   setInterval(function() {
-      getMetrics().then(function(result) {
-        currentMetricsResult = result;
-        const newState = result.state;
-        showPage(newState);
-        updateStats();
-
-        switch (newState) {
-          case STATE_UNKNOWN:
-            currentTps = 0;
-            updateTickers(0, result.next);
-            break;
-          case STATE_STARTED:
-            currentTps = result.spot;
-            updateTickers(1, result.start + ONE_HOUR);
-            updateGraphs(currentTps, result.progress);
-            break;
-          case STATE_FINISHED:
-            $('#top-buttons').show();
-            currentTps = result.peak;
-            updateGraphs(currentTps, 100);
-            break;
-          case STATE_TERMINATED:
-            $('#top-buttons').show();
-            currentTps = result.peak;
-            updateTickers(3, result.next);
-            updateGraphs(currentTps, 100);
-            break;
-        }
-
-        // Update comparison labels
-        if (currentTps === 0) {
-          return;
-        }
-
-        // Find the next competitor which has less TPS than we do.
-        var competitor = competitors[currentCompetitor];
-        var startIndex = currentCompetitor;
-        while (competitor.tps > currentTps) {
-          currentCompetitor = (currentCompetitor + 1) % competitors.length;
-          competitor = competitors[currentCompetitor];
-
-          if (currentCompetitor == startIndex && competitor.tps > currentTps) {
-            // We have cycled through all competitors and all
-            // have higher TPS than we do. Exit in shame.
-            $('.graph-header4').empty();
-            return;
-          }
-        }
-        // Calculate the fraction by which we are faster
-        const fraction = Math.round(currentTps / competitor.tps);
-        if (fraction === 0) {
-          return;
-        }
-
-        // Update the labels.
-        const label = fraction + 'x ' + competitor.name;
-        $('.graph-header4').text(label);
-
-        currentCompetitor = (currentCompetitor + 1) % competitors.length;
-      });
-    }, 2000);
-  });
+    getMetrics().then(function(result) {
+      currentMetricsResult = result;
+      updatePages();
+    });
+  }, 2000);
+});
 
 function setupGraphs() {
   graphs = $('.graph')
@@ -149,16 +91,60 @@ function setupSearch() {
   });
 }
 
-function updateGraphs(tps, progress) {
-  currentProgress = Math.max(currentProgress, Math.min(100, progress));
-  graphs.forEach(function(graph) {
-    graph.updateModel(tps, currentProgress);
-  });
+function showPage() {
+  var newState = currentMetricsResult.state;
+  if (newState !== currentState) {
+    switch (newState) {
+      case STATE_UNKNOWN:
+        forceUpdateTickers = true;
+        currentState = newState;
+        $('.page-1').hide();
+        $('.page-2').hide();
+        $('.page-3').hide();
+        $('.page-0').show();
+        break;
+      case STATE_STARTED:
+        forceUpdateTickers = true;
+        currentState = newState;
+        $('.page-0').hide();
+        $('.page-2').hide();
+        $('.page-3').hide();
+        $('.page-1').show();
+        break;
+      case STATE_FINISHED:
+        forceUpdateTickers = true;
+        currentState = newState;
+        $('#top-buttons').show();
+        $('.page-0').hide();
+        $('.page-1').hide();
+        $('.page-3').hide();
+        $('.page-2').show();
+        break;
+      case STATE_TERMINATED:
+        forceUpdateTickers = true;
+        currentState = newState;
+        $('#top-buttons').show();
+        $('.page-0').hide();
+        $('.page-1').hide();
+        $('.page-2').hide();
+        $('.page-3').show();
+        break;
+    }
+  }
 }
 
-function updateTickers(future) {
+function updatePages() {
+  showPage();
+  updateTickers();
+  updateStats();
+  updateGraphs();
+  updateCompetitors();
+}
+
+function updateTickers() {
   if (forceUpdateTickers) {
     forceUpdateTickers = false;
+    const future = getTickerOffset();
     const now = new Date().getTime();
     const diffSeconds = future > now ? Math.round((future - now) / 1000) : 0;
     $('.ticker').each(function() {
@@ -200,36 +186,38 @@ function updateStats() {
   });
 }
 
-function showPage(newTestState) {
-  if (newTestState === state) {
-    return;
+function updateGraphs() {
+  const tps = currentMetricsResult.spot;
+  const progress = getProgress();
+  if (tps && progress) {
+    currentProgress = Math.max(currentProgress, Math.min(100, progress));
+    graphs.forEach(function(graph) {
+      graph.updateModel(tps, currentProgress);
+    });
   }
+}
 
-  if (newTestState === STATE_STARTED) {
-    state = newTestState;
-    $('.page-0').hide();
-    $('.page-2').hide();
-    $('.page-3').hide();
-    $('.page-1').show();
-  } else if (newTestState === STATE_FINISHED) {
-    state = newTestState;
-    $('.page-0').hide();
-    $('.page-1').hide();
-    $('.page-3').hide();
-    $('.page-2').show();
-  } else if (newTestState === STATE_TERMINATED) {
-    state = newTestState;
-    $('.page-0').hide();
-    $('.page-1').hide();
-    $('.page-2').hide();
-    $('.page-3').show();
-  } else if (newTestState === STATE_UNKNOWN) {
-    state = newTestState;
-    $('.page-1').hide();
-    $('.page-2').hide();
-    $('.page-3').hide();
-    $('.page-0').show();
-  }
+function updateCompetitors() {
+  currentCompetitor = (currentCompetitor + 1) % COMPETITORS.length;
+  var competitor = COMPETITORS[currentCompetitor];
+  var startIndex = currentCompetitor;
+    while (competitor.tps > currentMetricsResult.spot) {
+      currentCompetitor = (currentCompetitor + 1) % COMPETITORS.length;
+      competitor = COMPETITORS[currentCompetitor];
+      if (currentCompetitor == startIndex && competitor.tps > currentMetricsResult.spot) {
+        // We have cycled through all competitors and all
+        // have higher TPS than we do. Exit in shame.
+        $('.tps-competitor').each(function() {
+          $(this).empty();
+        });
+        return;
+      }
+    }
+    const fraction = Math.round(currentMetricsResult.spot / competitor.tps);
+    const label = fraction + 'x ' + competitor.name;
+    $('.tps-competitor').each(function() {
+      $(this).text(label);
+    });
 }
 
 
@@ -342,6 +330,36 @@ function buildTestDurationString(start, stop) {
         (' and ' + seconds + ' second');
   }
   return durationString;
+}
+
+function getTickerOffset() {
+  switch (currentMetricsResult.state) {
+    case STATE_UNKNOWN:
+      return currentMetricsResult.next;
+    case STATE_STARTED:
+      return currentMetricsResult.start + ONE_HOUR;
+    case STATE_FINISHED:
+      return 0;
+    case STATE_TERMINATED:
+      return currentMetricsResult.next;
+    default:
+      return 0;
+  }
+}
+
+function getProgress() {
+  switch (currentMetricsResult.state) {
+    case STATE_UNKNOWN:
+      return 0;
+    case STATE_STARTED:
+      return currentMetricsResult.progress;
+    case STATE_FINISHED:
+      return 100;
+    case STATE_TERMINATED:
+      return 100;
+    default:
+      return 0;
+  }
 }
 
 function niceDate(timestamp) {

@@ -3,13 +3,41 @@ const STATE_UNKNOWN = "UNKNOWN";
 const STATE_STARTED = "STARTED";
 const STATE_FINISHED = "FINISHED";
 const STATE_TERMINATED = "TERMINATED";
-const MONTH_LONG = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
-
-var state = '';
 
 // Access demo mode by adding parameters e.g. '?demo&state=FINISHED'
-const demoMode = getParameterByName('demo') !== null ? true : false;
-const demoState = getParameterByName('state') !== null ? getParameterByName('state') : STATE_STARTED;
+const DEMO_MODE = getParameterByName('demo') !== null ? true : false;
+const DEMO_STATE = getParameterByName('state') !== null ? getParameterByName('state') : STATE_STARTED;
+
+const MOCK_TRANSACTIONS = [
+  {
+    "bitcoinTransactionId": "hjidf2f68e38b980a6c4cec21e71851b0d8a5847d85208331a27321a9967bbd6",
+    "bitcoinBlockTimestamp": 1234567890,
+    "amount": 123.457
+  },
+  {
+    "bitcoinTransactionId": "2f2442f68e38b980a6c4cec21e71851b0d8a5847d85208331a27321a9967bbd6",
+    "bitcoinBlockTimestamp": 7462738942,
+    "amount": 909.10
+  },
+  {
+    "bitcoinTransactionId": "6ce5f3ff98d4d39e1ea408ec8128a17f6c426549bf8476738e30c418950b4911",
+    "bitcoinBlockTimestamp": 23849302039,
+    "amount": -10
+  },
+];
+
+const MOCK_METRICS = function() {
+  return {
+    spot: Math.floor(Math.random() * 1000000),
+    peak: Math.floor(Math.random() * 1000000),
+    average: Math.floor(Math.random() * 1000000),
+    progress: Math.floor(Math.random() * 100),
+    state: DEMO_STATE,
+    start: 1550867544,
+    stop: 1560867544,
+    next: 1560867544 + (24 * 60 * 60 * 1000)
+  };
+}
 
 /**
  * Requests TPS metrics from the server.
@@ -20,17 +48,8 @@ const demoState = getParameterByName('state') !== null ? getParameterByName('sta
  */
 function getMetrics() {
   return new Promise(function(resolve, reject) {
-    if(demoMode) {
-      resolve({
-        spot: Math.floor(Math.random() * 1000000),
-        peak: Math.floor(Math.random() * 1000000),
-        average: Math.floor(Math.random() * 1000000),
-        progress: Math.floor(Math.random() * 100),
-        state: demoState,
-        start: 1550867544,
-        stop: 1560867544,
-        next: new Date().getTime() + 3600000
-      });
+    if(DEMO_MODE) {
+      resolve(MOCK_METRICS());
       return;
     }
 
@@ -68,30 +87,10 @@ function getMetrics() {
  */
 function getTransactions(bitcoinAddress, page) {
   return new Promise(function(resolve, reject) {
-    if(demoMode) {
-      resolve({
-        data: [
-          {
-            "bitcoinTransactionId": "hjidf2f68e38b980a6c4cec21e71851b0d8a5847d85208331a27321a9967bbd6",
-            "bitcoinBlockTimestamp": 1234567890,
-            "amount": 123.457
-          },
-          {
-            "bitcoinTransactionId": "2f2442f68e38b980a6c4cec21e71851b0d8a5847d85208331a27321a9967bbd6",
-            "bitcoinBlockTimestamp": 7462738942,
-            "amount": 909.10
-          },
-          {
-            "bitcoinTransactionId": "6ce5f3ff98d4d39e1ea408ec8128a17f6c426549bf8476738e30c418950b4911",
-            "bitcoinBlockTimestamp": 23849302039,
-            "amount": -10
-          },
-          ],
-        page: page
-      });
+    if(DEMO_MODE) {
+      resolve({ data: MOCK_TRANSACTIONS, page: page });
       return;
     }
-
 
     $.getJSON("/api/transactions/" + bitcoinAddress + "?page=" + page)
       .done(function(json) {
