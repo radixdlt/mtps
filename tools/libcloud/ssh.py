@@ -4,6 +4,7 @@ import config
 
 from paramiko.client import SSHClient, WarningPolicy
 
+
 @contextmanager
 def ssh_client(host):
     client = SSHClient()
@@ -14,29 +15,49 @@ def ssh_client(host):
         yield client
     finally:
         client.close()
-    
+
+
+def ssh_exec(host, command):
+    """
+    Executes command on the ssh server
+
+    :param host: host to connect to
+    :param command: command to be executed on that host
+    :return: list of std_output lines
+
+    :raise: Exception when executed command return_status in non zero
+    """
+    with ssh_client(host) as client:
+        stdin, stdout, stderr = client.exec_command(command)
+        exit_status = stdout.channel.recv_exit_status()
+        if exit_status != 0:
+            raise Exception('exec_command exception: {0}'.format(stdout.readlines))
+        lines = stdout.readlines()
+        return lines
+
 
 def generate_universe(host):
-    with ssh_client(host) as client:
-        entrypoint = "/opt/radixdlt/bin/generate_universes"
-        stdin, stdout, stderr = client.exec_command(
-            "docker pull {0} && docker run --rm --entrypoint {1} {0} --dev.planck 3600 --universe.timestamp 1231006505".format(
-                config.CORE_DOCKER_IMAGE, entrypoint
-            )
-        )
-        magic = "UNIVERSE - TEST: "
-        for line in stdout.readlines():
-            if line.startswith(magic):
-                return line[len(magic):].strip()
+    entrypoint = "/opt/radixdlt/bin/generate_universes"
+    command = "docker pull {0} && docker run --rm --entrypoint {1} {0} --dev.planck 3600 --universe.timestamp 1231006505".format(
+        config.CORE_DOCKER_IMAGE, entrypoint)
+    magic = "UNIVERSE - TEST: "
+
+    output_lines = ssh_exec(host, command)
+
+    for line in output_lines:
+        if line.startswith(magic):
+            return line[len(magic):].strip()
     raise RuntimeError("Could not generate universe on " + host)
 
+
 def read_env_from_docker_compose(host, key):
-    with ssh_client(host) as client:
-        stdin, stdout, stderr = client.exec_command("grep '{0}' /etc/radixdlt/docker-compose.yml".format(key))
-        quoted = stdout.readline().split("#")[0].split(":", 1)[1].strip()
-        if not quoted:
-            raise RuntimeError("Could not read {0} from {1}".format(host, key))
-        return quoted.strip('"')
+    command = "grep '{0}' /etc/radixdlt/docker-compose.yml".format(key)
+
+    output_lines = ssh_exec(host, command)
+    quoted = output_lines[0].split("#")[0].split(":", 1)[1].strip()
+    if not quoted:
+        raise RuntimeError("Could not read {0} from {1}".format(host, key))
+    return quoted.strip('"')
 
 
 def get_test_time(host):
@@ -52,15 +73,14 @@ def get_admin_password(host):
 
 
 def update_node_finder(host, boot_node_ip):
-    with ssh_client(host) as client:
-        command = "sudo sed -i -r 's/BOOT_NODES: \".*\"/BOOT_NODES: \"{0}\"/g' /etc/radixdlt/docker-compose.yml".format(
-            boot_node_ip)
-        stdin, stdout, stderr =  client.exec_command(command)
+    command = "sudo sed -i -r 's/BOOT_NODES: \".*\"/BOOT_NODES: \"{0}\"/g' /etc/radixdlt/docker-compose.yml".format(
+        boot_node_ip)
+    ssh_exec(host, command)
 
-        command = '''docker exec radixdlt_shard_allocator_1 rm -f seeds.db && 
+    command = '''docker exec radixdlt_shard_allocator_1 rm -f seeds.db && 
                      docker-compose -f /etc/radixdlt/docker-compose.yml up -d'''
-        stdin, stdout, stderr = client.exec_command(command)
-        return True
+    ssh_exec(host, command)
+    return True
 
 
 def update_shard_count(host, shard_count, shard_overlap):
@@ -72,6 +92,5 @@ def update_shard_count(host, shard_count, shard_overlap):
                 shard_count,
                 shard_overlap
             )
-    with ssh_client(host) as client:
-        stdin, stdout, stderr =  client.exec_command(command)
-        return True
+    ssh_exec(host, command)
+    return True
