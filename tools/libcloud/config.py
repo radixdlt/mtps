@@ -31,14 +31,14 @@ CORE_MACHINE_INSTANCE_TEMPLATE_NAME = "core-template"
 CORE_MACHINE_SIZE = "n1-standard-8"
 CORE_MACHINE_IMAGE = "projects/fast-gateway-233909/global/images/ubuntu-1604-lts-radix-1mtps"
 CORE_MACHINE_STORAGE = "100" # GB
-CORE_EXTRA_DISK_IMAGE_NAME = "projects/fast-gateway-233909/global/images/atoms-v4-full-standard-persistent-image"
+CORE_EXTRA_DISK_IMAGE_NAME = "projects/fast-gateway-233909/global/images/atoms-v4-full-standard-persistent-image3"
 CORE_EXTRA_DISK_SIZE = "200" # GB
 CORE_REGIONS = {
     # Europe
     # 130 IP, 1000 CPU, 25TB, 4GB HDD, MAX 115 nodes
-    "europe-north1": 1,
+    "europe-north1": 5,
     # 110 IP, 1000 CPU, 24TB
-    "europe-west4": 1#,
+    "europe-west4": 5#,
     # 110 IP, 1000 CPU, 24TB - 3 vm, bottleneck: SSD_TOTAL_GB,MAX 104 nodes
     #"europe-west1":104,
     # 8 IP, 24 CPU, 4TB, MAX 2 nodes

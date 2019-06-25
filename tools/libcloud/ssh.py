@@ -31,7 +31,14 @@ def ssh_exec(host, command):
         stdin, stdout, stderr = client.exec_command(command)
         exit_status = stdout.channel.recv_exit_status()
         if exit_status != 0:
-            raise Exception('exec_command exception: {0}'.format(stdout.read().strip('\n')))
+            raise Exception("command: '{0}', on host:'{1}' finished with exit_status: '{2}', with stdout: '{3}', "
+                            "errOut: '{4}'"
+                            .format(command,
+                                    host,
+                                    exit_status,
+                                    stdout.read().decode('utf-8'),
+                                    stderr.read().decode('utf-8')
+                            ))
         lines = stdout.readlines()
         return lines
 
