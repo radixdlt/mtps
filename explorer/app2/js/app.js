@@ -3,7 +3,7 @@ const TWO_DAYS = 172800000;
 const ONE_HOUR = 3600000;
 
 const COMPETITORS = [
-  {name: 'Visa', tps: 2000},
+  {name: 'Visa', tps: 24000},
   {name: 'Google', tps: 75000},
   {name: 'YouTube', tps: 79000},
   {name: 'Twitter', tps: 85000},
@@ -158,7 +158,7 @@ function updateTickers() {
 
 function updateStats() {
   $('.tps-spot').each(function() {
-    $(this).text(beautifulNumber(currentMetricsResult.spot));
+    $(this).text(beautifulNumber(getTps()));
   });
   $('.tps-peak').each(function() {
     $(this).text(beautifulNumber(currentMetricsResult.peak));
@@ -187,7 +187,7 @@ function updateStats() {
 }
 
 function updateGraphs() {
-  const tps = currentMetricsResult.spot;
+  const tps = getTps();
   const progress = getProgress();
   if (tps && progress) {
     currentProgress = Math.max(currentProgress, Math.min(100, progress));
@@ -342,6 +342,21 @@ function getTickerOffset() {
       return 0;
     case STATE_TERMINATED:
       return currentMetricsResult.next;
+    default:
+      return 0;
+  }
+}
+
+function getTps() {
+  switch (currentMetricsResult.state) {
+    case STATE_UNKNOWN:
+      return 0;
+    case STATE_STARTED:
+      return currentMetricsResult.spot;
+    case STATE_FINISHED:
+      return currentMetricsResult.peak;
+    case STATE_TERMINATED:
+      return currentMetricsResult.peak;
     default:
       return 0;
   }
