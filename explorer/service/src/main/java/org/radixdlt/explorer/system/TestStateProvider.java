@@ -3,21 +3,18 @@ package org.radixdlt.explorer.system;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.PublishSubject;
+import org.radixdlt.explorer.helper.DumpHelper;
 import org.radixdlt.explorer.nodes.model.NodeInfo;
 import org.radixdlt.explorer.system.model.SystemInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.WRITE;
 import static org.radixdlt.explorer.system.TestState.TERMINATED;
 
 /**
@@ -30,6 +27,7 @@ class TestStateProvider {
     private final CompositeDisposable disposables;
     private final Map<String, SystemInfo> systemInfo;
     private final Collection<NodeInfo> nodeInfo;
+    private final DumpHelper dumpHelper;
     private final Object systemInfoLock;
     private final Object nodeInfoLock;
     private final Path stateDumpPath;
@@ -59,6 +57,7 @@ class TestStateProvider {
         this.systemInfoLock = new Object();
         this.nodeInfoLock = new Object();
         this.systemInfo = new ConcurrentHashMap<>();
+        this.dumpHelper = new DumpHelper();
         this.nodeInfo = ConcurrentHashMap.newKeySet();
         this.currentState = TERMINATED;
         this.isStarted = false;
@@ -226,33 +225,25 @@ class TestStateProvider {
     }
 
     /**
-     * Dumps the current test state to a file if a path to it has been set.
+     * Dumps the current test state to a file if a path to it has been
+     * set.
      */
     private void dumpCurrentTestState() {
         if (stateDumpPath != null) {
-            try {
-                byte[] data = currentState.toString().getBytes(UTF_8);
-                Files.write(stateDumpPath, data, CREATE, WRITE);
-            } catch (Exception e) {
-                LOGGER.info("Couldn't persist current state: " + currentState, e);
-            }
+            byte[] data = currentState.toString().getBytes(UTF_8);
+            dumpHelper.dumpData(data, stateDumpPath);
         }
     }
 
     /**
-     * Restores the last test state from a file if a path to it has been set.
+     * Restores the last test state from a file if a path to it has been
+     * set. This file should in practice only be called once during the
+     * Explorer life span (and again on restart).
      */
     private void restoreTestState() {
         if (stateDumpPath != null) {
-            try {
-                List<String> lines = Files.readAllLines(stateDumpPath, UTF_8);
-                String lastLine = lines.get(lines.size() - 1);
-                currentState = TestState.fromCSV(lastLine);
-            } catch (Exception e) {
-                LOGGER.info("Couldn't restore test state, falling back to default", e);
-                currentState = TERMINATED;
-                dumpCurrentTestState();
-            }
+            String lastLine = dumpHelper.restoreLastDumpedData(stateDumpPath);
+            currentState = TestState.fromCSV(lastLine);
         }
     }
 

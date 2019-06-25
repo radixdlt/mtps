@@ -3,25 +3,17 @@ package org.radixdlt.explorer.metrics;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.PublishSubject;
+import org.radixdlt.explorer.helper.DumpHelper;
 import org.radixdlt.explorer.metrics.model.Metrics;
 import org.radixdlt.explorer.system.TestState;
 import org.radixdlt.explorer.system.model.SystemInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.RandomAccessFile;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.RejectedExecutionException;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.StandardOpenOption.APPEND;
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.WRITE;
 import static org.radixdlt.explorer.system.TestState.STARTED;
 import static org.radixdlt.explorer.system.TestState.UNKNOWN;
 
@@ -31,10 +23,10 @@ import static org.radixdlt.explorer.system.TestState.UNKNOWN;
 class MetricsProvider {
     private static final Logger LOGGER = LoggerFactory.getLogger("org.radixdlt.explorer");
 
-    private final ExecutorService dumpMetricsExecutor;
     private final PublishSubject<Metrics> subject;
     private final CompositeDisposable disposables;
     private final Object calculationLock;
+    private final DumpHelper dumpHelper;
     private final Path metricsDumpPath;
     private final long maxShards;
 
@@ -56,10 +48,10 @@ class MetricsProvider {
      *                        is persisted.
      */
     MetricsProvider(long maxShards, Path metricsDumpPath) {
-        this.dumpMetricsExecutor = Executors.newSingleThreadExecutor();
         this.subject = PublishSubject.create();
         this.disposables = new CompositeDisposable();
         this.calculationLock = new Object();
+        this.dumpHelper = new DumpHelper();
         this.maxShards = maxShards;
         this.isStarted = false;
         this.peakTps = 0L;
@@ -101,11 +93,6 @@ class MetricsProvider {
     synchronized void start(Observable<Map<String, SystemInfo>> systemInfoObserver, Observable<TestState> testStateObserver) {
         if (!isStarted) {
             isStarted = true;
-            if (metricsDumpPath != null) {
-                // Ensure the full directory structure to the dump file
-                // exists before we attempt to write to it.
-                metricsDumpPath.toAbsolutePath().getParent().toFile().mkdirs();
-            }
             disposables.add(testStateObserver.subscribe(this::maybeResetMetrics));
             disposables.add(systemInfoObserver.subscribe(this::calculateMetrics));
             restoreMetrics();
@@ -120,7 +107,6 @@ class MetricsProvider {
             isStarted = false;
             disposables.clear();
             subject.onComplete();
-            dumpMetricsExecutor.shutdownNow();
         }
     }
 
@@ -198,20 +184,9 @@ class MetricsProvider {
      * if a path to it has been set.
      */
     private void resetDumpFile() {
-        try {
-            dumpMetricsExecutor.submit(() -> {
-                if (metricsDumpPath != null) {
-                    try {
-                        byte[] data = Metrics.DATA_HEADLINE.getBytes(UTF_8);
-                        Files.write(metricsDumpPath, data, CREATE, WRITE);
-                    } catch (Exception e) {
-                        LOGGER.info("Couldn't reset metrics dump file: " + metricsDumpPath, e);
-                    }
-                }
-            });
-        } catch (RejectedExecutionException e) {
-            LOGGER.info("Couldn't enqueue reset-metrics-dump-file task." +
-                    " Ignoring, but you should look into this as the dump file may now be broken", e);
+        if (metricsDumpPath != null) {
+            byte[] data = Metrics.DATA_HEADLINE.getBytes(UTF_8);
+            dumpHelper.dumpData(data, metricsDumpPath);
         }
     }
 
@@ -219,21 +194,10 @@ class MetricsProvider {
      * Dumps the current metrics to a file, if a path to it has been set.
      */
     private void dumpCurrentMetrics() {
-        try {
-            dumpMetricsExecutor.submit(() -> {
-                if (metricsDumpPath != null) {
-                    String line = calculatedMetrics.toString();
-                    try {
-                        byte[] data = line.getBytes(UTF_8);
-                        Files.write(metricsDumpPath, data, CREATE, WRITE, APPEND);
-                    } catch (Exception e) {
-                        LOGGER.info("Couldn't dump metrics to file: " + line, e);
-                    }
-                }
-            });
-        } catch (RejectedExecutionException e) {
-            LOGGER.info("Couldn't enqueue dump-metrics-to-file task." +
-                    " Ignoring, but you should look into this as the dump file is now missing data", e);
+        if (metricsDumpPath != null) {
+            String line = calculatedMetrics.toString();
+            byte[] data = line.getBytes(UTF_8);
+            dumpHelper.dumpData(data, metricsDumpPath);
         }
     }
 
@@ -242,44 +206,9 @@ class MetricsProvider {
      * to the dump file has been set.
      */
     private void restoreMetrics() {
-        if (metricsDumpPath == null) {
-            return;
-        }
-
-        File file = metricsDumpPath.toFile();
-        try (RandomAccessFile fileHandler = new RandomAccessFile(file, "r")) {
-            long filePointer = fileHandler.length();
-            long fileLength = filePointer - 1;
-            StringBuilder sb = new StringBuilder();
-
-            // Fast-forward past the end of the file
-            // and start reading the bytes from the
-            // end until the first (last) line feed
-            // is encountered.
-            while (--filePointer != -1) {
-                fileHandler.seek(filePointer);
-                int readByte = fileHandler.readByte();
-
-                if (readByte == 0xA) { // 'new line'
-                    if (filePointer == fileLength) {
-                        continue;
-                    }
-                    break;
-                } else if (readByte == 0xD) { // 'carriage return'
-                    if (filePointer == fileLength - 1) {
-                        continue;
-                    }
-                    break;
-                }
-
-                sb.append((char) readByte);
-            }
-
-            String lastLine = sb.reverse().toString();
+        if (metricsDumpPath != null) {
+            String lastLine = dumpHelper.restoreLastDumpedData(metricsDumpPath);
             calculatedMetrics = Metrics.fromCSV(lastLine);
-        } catch (Exception e) {
-            LOGGER.info("Couldn't restore metrics, falling back to default", e);
-            calculatedMetrics = null;
         }
     }
 
