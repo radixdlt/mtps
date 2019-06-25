@@ -40,7 +40,7 @@ public class DumpHelper {
      * @param path The path to the file to dump it in (or null, in which
      *             case nothing is dumped.
      */
-    public synchronized void dumpData(byte[] data, Path path) {
+    public void dumpData(byte[] data, Path path) {
         if (path == null) {
             return;
         }
@@ -74,7 +74,7 @@ public class DumpHelper {
      * @return The last line in the provided file. May be empty
      * if the file was empty or null if something goes wrong.
      */
-    public synchronized String restoreLastDumpedData(Path path) {
+    public String restoreLastDumpedData(Path path) {
         if (path == null) {
             return null;
         }
