@@ -1,6 +1,8 @@
 from contextlib import contextmanager
 
 import config
+import logging
+import time
 
 from paramiko.client import SSHClient, WarningPolicy
 
@@ -17,30 +19,43 @@ def ssh_client(host):
         client.close()
 
 
-def ssh_exec(host, command):
+def ssh_exec(host, command, retries=1):
     """
     Executes command on the ssh server
 
     :param host: host to connect to
     :param command: command to be executed on that host
+    :param retries: number of iteration, that method will retry to execute the command
     :return: list of std_output lines
 
     :raise: Exception when executed command return_status in non zero
     """
-    with ssh_client(host) as client:
-        stdin, stdout, stderr = client.exec_command(command)
-        exit_status = stdout.channel.recv_exit_status()
-        if exit_status != 0:
-            raise Exception("command: '{0}', on host:'{1}' finished with exit_status: '{2}', with stdout: '{3}', "
-                            "errOut: '{4}'"
-                            .format(command,
-                                    host,
-                                    exit_status,
-                                    stdout.read().decode('utf-8'),
-                                    stderr.read().decode('utf-8')
-                            ))
-        lines = stdout.readlines()
-        return lines
+    current_try = 0
+    exit_status = -1
+    while current_try < retries and exit_status != 0:
+        with ssh_client(host) as client:
+            stdin, stdout, stderr = client.exec_command(command)
+            exit_status = stdout.channel.recv_exit_status()
+            if exit_status != 0:
+                return_message = ("ssh_exec proble:\n command: '{0}', on host:'{1}'\n finished with exit_status: '"
+                                  "{2}',\n with stdout: '{3}'\n errOut: '{4}',\n currentTry: {5}/{6} "
+                                  .format(command,
+                                          host,
+                                          exit_status,
+                                          stdout.read().decode('utf-8'),
+                                          stderr.read().decode('utf-8'),
+                                          current_try,
+                                          retries
+                                          ))
+                logging.warning(return_message)
+                time.sleep(10)
+            else:
+                lines = stdout.readlines()
+        current_try += 1
+    if exit_status != 0:
+        raise Exception(return_message)
+
+    return lines
 
 
 def generate_universe(host):
@@ -96,8 +111,8 @@ def update_shard_count(host, shard_count, shard_overlap):
             docker exec radixdlt_shard_allocator_1 rm -f seeds.db && 
             docker-compose -f /etc/radixdlt/docker-compose.yml up -d
             '''.format(
-                shard_count,
-                shard_overlap
-            )
+        shard_count,
+        shard_overlap
+    )
     ssh_exec(host, command)
     return True
