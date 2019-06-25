@@ -40,7 +40,7 @@ public final class Configuration {
      */
     private Configuration() {
         properties = new Properties();
-        reload();
+        reload(CONFIG_FILE);
     }
 
     /**
@@ -55,8 +55,8 @@ public final class Configuration {
      * not be called by application logic. It's intended for testing
      * purposes only.
      */
-    synchronized void reload() {
-        try (InputStream source = new FileInputStream(CONFIG_FILE)) {
+    synchronized void reload(String configFilePath) {
+        try (InputStream source = new FileInputStream(configFilePath)) {
             properties.clear();
             properties.load(source);
         } catch (IOException e) {
