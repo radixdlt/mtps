@@ -64,7 +64,7 @@
                         <div class="counter-header1" style="color: #32354E">Next test run will start at</div>
                         <div class="counter-header2 next-datetime" style="color: #32354E"></div>
                         <div class="flip-clock-wrapper-wrapper">
-                            <div class="counter-0 bigger"></div>
+                            <div class="bigger ticker"></div>
                         </div>
                         <div class="counter-buttons">
                           <!-- This feature will be added later-->
@@ -97,9 +97,9 @@
                         </div>
                     </div>
                     <div class="col-radix-2" style="position: relative; text-align: center">
-                        <canvas id="canvas-1" class="canvas"></canvas>
+                        <canvas id="graph-1" class="canvas graph"></canvas>
                         <div class="graph-header1">Validating Bitcoin transactions at:</div>
-                        <div class="graph-header2 graph-counter">1 234 567</div>
+                        <div class="graph-header2 graph-counter tps-spot">0</div>
                         <div class="graph-header3">transactions per second</div>
                         <div class="graph-header4 radix-only-on-bigger graph-comparison"></div>
                     </div>
@@ -132,8 +132,7 @@
                                         The test will be over after
                                     </div>
                                     <div class="flip-clock-wrapper-wrapper">
-                                        <div class="counter-1">
-                                        </div>
+                                        <div class="ticker"></div>
                                     </div>
                                 </div>
                             </div>
@@ -144,8 +143,8 @@
                         <div class="background-oval background-oval4"></div>
                         <div class="card card-with-highlight">
                             <div class="card-header">
-                                <input id="txt-watch-1" type="text" class="float-left title txt-watch" placeholder="Bitcoin address" />
-                                <input id="btn-watch-1" type="button" class="btn btn-purple float-right btn-watch" disabled="disabled" value="SEARCH" />
+                                <input type="text" class="float-left title search-textbox" placeholder="Bitcoin address" />
+                                <input type="button" class="btn btn-purple float-right search-button" disabled="disabled" value="SEARCH" />
                             </div>
                             <div class="card-inner">
                                 <table class="table table-hover table-striped">
@@ -157,17 +156,11 @@
                                     </thead>
                                 </table>
                                 <div class="overflow-container" style="height: 266px">
-                                    <table  id="lst-watch-1" class="table table-hover table-striped">
-                                        <tbody>
-                                        </tbody>
+                                    <table class="table table-hover table-striped search-list">
+                                        <tbody></tbody>
                                     </table>
                                 </div>
-                                <!--
-                                <div class="table-paging-buttons">
-                                    <button class="btn btn-outline-success">&lt;&lt;</button>
-                                    <button class="btn btn-outline-success">&gt;&gt;</button>
-                                </div>
-                                -->
+                                <div class="table-paging-buttons search-paging"></div>
                             </div>
                         </div>
                     </div>
@@ -176,8 +169,7 @@
                             The test will be over after
                         </div>
                         <div class="flip-clock-wrapper-wrapper">
-                            <div class="counter-1">
-                            </div>
+                            <div class="ticker"></div>
                         </div>
                     </div>
                 </div>
@@ -187,8 +179,8 @@
             <div id="page-2" class="page-2">
                 <div class="row" style="padding-top: 32px;">
                     <div class="col-radix-2">
-                        <div id="test-duration-2" class="header1">
-                            Test Complete in 0 minutes and 0 seconds
+                        <div class="header1">
+                            Test Complete in <span class="test-duration"></span>
                         </div>
                         <div class="header2">
                             The next test will be: <span class="next-datetime"></span>
@@ -209,11 +201,11 @@
                         </div>
                     </div>
                     <div class="col-radix-2" style="position: relative; text-align: center">
-                        <canvas id="canvas-2" class="canvas"></canvas>
+                        <canvas id="graph-2" class="canvas graph"></canvas>
                         <div class="graph-header1">During the last test we peaked at</div>
-                        <div class="graph-header2 graph-counter">1 234 567</div>
+                        <div class="graph-header2 graph-counter tps-spot">0</div>
                         <div class="graph-header3">transactions per second</div>
-                        <div class="graph-header4 radix-only-on-bigger graph-comparison"></div>
+                        <div class="graph-header4 radix-only-on-bigger graph-comparison tps-competitor"></div>
                     </div>
                 </div>
                 <div class="row card-with-hover-wrapper">
@@ -224,7 +216,7 @@
                                 <div class="card-header-icon group-7">
                                 </div>
                                 <div class="card-text">
-                                    We <span class="text-purple">peaked</span> at <span id="tps-peak-2" class="text-purple">0</span>
+                                    We <span class="text-purple">peaked</span> at <span class="text-purple tps-peak">0</span>
                                     transactions per second
                                 </div>
                             </div>
@@ -237,7 +229,7 @@
                                 <div class="card-header-icon group-8">
                                 </div>
                                 <div class="card-text">
-                                    We <span class="text-purple">averaged</span> <span id="tps-avg-2" class="text-purple">0</span>
+                                    We <span class="text-purple">averaged</span> <span class="text-purple tps-avg">0</span>
                                     transactions per second
                                 </div>
                             </div>
@@ -288,7 +280,7 @@
                                 <div class="header-watch-us">
                                     Check your Bitcoin
                                     transaction history up
-                                    to <span id="age-date-2">date</span> on Radix
+                                    to <span class="age-date">date</span> on Radix
                                 </div>
                             </div>
                         </div>
@@ -298,8 +290,8 @@
                         <div class="background-oval background-oval4"></div>
                         <div class="card card-with-highlight">
                             <div class="card-header">
-                                <input id="txt-watch-2" type="text" class="float-left title txt-watch" placeholder="Bitcoin address"/>
-                                <input id="btn-watch-2" type="button" class="btn btn-purple float-right btn-watch" disabled="disabled" value="SEARCH" />
+                                <input type="text" class="float-left title search-textbox" placeholder="Bitcoin address"/>
+                                <input type="button" class="btn btn-purple float-right search-button" disabled="disabled" value="SEARCH" />
                             </div>
                             <div class="card-inner">
                                 <table class="table table-hover table-striped">
@@ -311,17 +303,12 @@
                                     </thead>
                                 </table>
                                 <div class="overflow-container" style="height: 266px">
-                                    <table  id="lst-watch-2" class="table table-hover table-striped">
+                                    <table class="table table-hover table-striped search-list">
                                         <tbody>
                                         </tbody>
                                     </table>
                                 </div>
-                                <!--
-                                <div class="table-paging-buttons">
-                                    <button class="btn btn-outline-success">&lt;&lt;</button>
-                                    <button class="btn btn-outline-success">&gt;&gt;</button>
-                                </div>
-                                -->
+                                <div class="table-paging-buttons search-paging"></div>
                             </div>
                         </div>
                     </div>
@@ -349,11 +336,11 @@
                         </div>
                     </div>
                     <div class="col-radix-2" style="position: relative; text-align: center">
-                        <canvas id="canvas-3" class="canvas"></canvas>
+                        <canvas id="graph-3" class="canvas graph"></canvas>
                         <div class="graph-header1">During the last test we peaked at</div>
-                        <div class="graph-header2 graph-counter">0</div>
+                        <div class="graph-header2 graph-counter tps-spot">0</div>
                         <div class="graph-header3">transactions per second</div>
-                        <div class="graph-header4 radix-only-on-bigger graph-comparison"></div>
+                        <div class="graph-header4 radix-only-on-bigger graph-comparison tps-competitor"></div>
                     </div>
                 </div>
                 <div class="row radix-only-on-bigger" style="padding-top: 150px">
@@ -375,8 +362,7 @@
                         <div class="counter-header1">Next test run will start in</div>
                         <div class="counter-header2 next-datetime"></div>
                         <div class="flip-clock-wrapper-wrapper">
-                            <div class="bigger counter-3">
-                            </div>
+                            <div class="bigger ticker"></div>
                         </div>
                         <div class="counter-buttons">
                           <!-- This feature will be added later-->

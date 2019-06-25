@@ -864,9 +864,3 @@ body {
         margin-bottom: 10px;
     }
 }
-
-.txt-watch {
-    border: none;
-    outline: none;
-    width: calc(100% - 100px);
-}
