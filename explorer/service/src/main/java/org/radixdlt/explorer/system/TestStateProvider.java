@@ -6,8 +6,6 @@ import io.reactivex.subjects.PublishSubject;
 import org.radixdlt.explorer.helper.DumpHelper;
 import org.radixdlt.explorer.nodes.model.NodeInfo;
 import org.radixdlt.explorer.system.model.SystemInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -21,8 +19,6 @@ import static org.radixdlt.explorer.system.TestState.TERMINATED;
  * Enables means of getting information on the current test state.
  */
 class TestStateProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger("org.radixdlt.explorer");
-
     private final PublishSubject<TestState> subject;
     private final CompositeDisposable disposables;
     private final Map<String, SystemInfo> systemInfo;
@@ -117,6 +113,7 @@ class TestStateProvider {
             isStarted = false;
             disposables.clear();
             subject.onComplete();
+            dumpHelper.stopDumpExecutor();
         }
     }
 

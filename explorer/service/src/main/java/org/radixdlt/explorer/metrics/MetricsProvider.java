@@ -7,8 +7,6 @@ import org.radixdlt.explorer.helper.DumpHelper;
 import org.radixdlt.explorer.metrics.model.Metrics;
 import org.radixdlt.explorer.system.TestState;
 import org.radixdlt.explorer.system.model.SystemInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -21,8 +19,6 @@ import static org.radixdlt.explorer.system.TestState.UNKNOWN;
  * Enables means of getting calculated Radix network throughput metrics.
  */
 class MetricsProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger("org.radixdlt.explorer");
-
     private final PublishSubject<Metrics> subject;
     private final CompositeDisposable disposables;
     private final Object calculationLock;
@@ -107,6 +103,7 @@ class MetricsProvider {
             isStarted = false;
             disposables.clear();
             subject.onComplete();
+            dumpHelper.stopDumpExecutor();
         }
     }
 
