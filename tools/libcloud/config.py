@@ -31,51 +31,51 @@ CORE_MACHINE_INSTANCE_TEMPLATE_NAME = "core-template"
 CORE_MACHINE_SIZE = "n1-standard-8"
 CORE_MACHINE_IMAGE = "projects/fast-gateway-233909/global/images/ubuntu-1604-lts-radix-1mtps"
 CORE_MACHINE_STORAGE = "100" # GB
-CORE_EXTRA_DISK_IMAGE_NAME = "projects/fast-gateway-233909/global/images/atoms-v4-full-standard-persistent-image"
+CORE_EXTRA_DISK_IMAGE_NAME = "projects/fast-gateway-233909/global/images/atoms-v4-full-standard-persistent-image3"
 CORE_EXTRA_DISK_SIZE = "200" # GB
 CORE_REGIONS = {
     # Europe
-    # 130 IP, 1000 CPU, 25TB, 4GB HDD, MAX 115 nodes
-    "europe-north1": 15,
+    # 130 IP, 1000 CPU, 25TB, 4GB HDD, MAX 125 nodes
+    "europe-north1": 155,
     # 110 IP, 1000 CPU, 24TB
-    "europe-west4": 5#,
+    "europe-west4": 110,
     # 110 IP, 1000 CPU, 24TB - 3 vm, bottleneck: SSD_TOTAL_GB,MAX 104 nodes
-    #"europe-west1":104,
+    "europe-west1": 104,
+    # 110 IP, 1000 CPU, 22TB, MAX 110 nodes, new DC
+    "europe-west2": 108,
     # 8 IP, 24 CPU, 4TB, MAX 2 nodes
-    #"europe-west2":2,
+    "europe-west3": 2,
     # 8 IP, 24 CPU, 4TB, MAX 2 nodes
-    #"europe-west3": 2,
-    # 8 IP, 24 CPU, 4TB, MAX 2 nodes
-    #"europe-west6":2,
+    "europe-west6":2,
 
     #Americas
     # 130 IP, 1000 CPU, 23TB, MAX 115 nodes
-    #"us-central1":115,
+    "us-central1":115,
     # 110 IP, 1000 CPU, 22TB
-    #"us-west1":110,
+    "us-west1":2,
     # 110 IP, 1000 CPU, 22TB
-    #"us-east1":110,
+    "us-east1":110,
     # 100 IP, 1000 CPU, 20.48TB
-    #"us-east4":100,
+    "us-east4":100,
     # 8 IP, 24 CPU, 4TB, MAX 2 nodes
-    #"us-west2":2,
+    "us-west2":2,
 
     # 100 IP, 1000 CPU, 25TB, DISK_TOTAL_GB MAX 100 nodes - 1 node
-    #"northamerica-northeast1":99,
+    "northamerica-northeast1":99,
     # 8 IP, 24 CPU, 4TB, MAX 2 nodes:
-    #"southamerica-east1":2,
+    "southamerica-east1":2,
 
     #Asia
     # 130 IP, 1000 CPU, 20.48TB, bottleneck: SSD's, MAX 102 nodes
-    #"asia-northeast1":102,
+    "asia-northeast1":102,
     # 100 IP, 1000 CPU, 20.48TB - bottleneck: IP's, MAX 100 nodes
-    #"asia-southeast1":100,
+    "asia-southeast1":100,
     # 100 IP, 1000 CPU, 20.48TB
-    #"asia-east1":100,
+    "asia-east1":100,
     # 8 IP, 24 CPU, 4TB, MAX 2 nodes
-    #"asia-east2":2,
+    "asia-east2":2,
     # 8 IP, 24 CPU, 4TB, MAX 2 nodes
-    #"asia-south1":2,
+    "asia-south1":2,
 
     #Australia
     # 8 IP, 400 CPU, MAX 2 nodes
