@@ -165,7 +165,11 @@ class TestStateProvider {
      */
     private boolean hasNodeInfo() {
         synchronized (nodeInfoLock) {
-            return !nodeInfo.isEmpty();
+            // The node-finder will always return the boot node in order
+            // to guarantee an existing entry point in to the network for
+            // any clients. But we don't want to consider the boot node as
+            // a valid metrics providing node.
+            return nodeInfo.size() > 1;
         }
     }
 
