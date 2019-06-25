@@ -222,9 +222,9 @@ class TestStateProvider {
         // TODO: Piers wants to transition to FINISHED state when >=90% of the data has been
         // validated (storedPerShard). Problem is that systemInfo is not normalised like in
         // MetricsProvide.calculateMetrics.      
-        if (currentState == TestState.STARTED) {
-            return (currentState.getStartTimestamp() + 60 * 60 * 1000) > System.currentTimeMillis();
-        }
+        //if (currentState == TestState.STARTED) {
+        //    return (currentState.getStartTimestamp() + 60 * 60 * 1000) > System.currentTimeMillis();
+        //}
 
         // sum(radixdlt_core_ledger{key="storing_per_shard"})
         // When the cumulative TPS is above the threshold then the test is
