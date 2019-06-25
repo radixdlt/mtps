@@ -403,7 +403,7 @@ function beautifulTime(timestamp) {
 }
 
 function beautifulNumber(number, decimals) {
-  return $.isNumeric(number) ?
+  return (typeof number == 'number') ?
       number.toFixed(decimals).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\xa0") : // 1 234 567 (with non-breaking space)
       '';
 }
