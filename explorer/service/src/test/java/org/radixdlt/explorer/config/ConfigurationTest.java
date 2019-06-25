@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.radixdlt.explorer.config.Configuration.DEFAULT_LATEST_TRANSACTION_TIMESTAMP;
 import static org.radixdlt.explorer.config.Configuration.DEFAULT_METRICS_INTERVAL;
 import static org.radixdlt.explorer.config.Configuration.DEFAULT_METRICS_TOTAL;
 import static org.radixdlt.explorer.config.Configuration.DEFAULT_NEXT_TEST;
@@ -111,6 +112,13 @@ public class ConfigurationTest {
     }
 
     @Test
+    public void whe_requesting_existing_latest_transaction_timestamp__correct_value_is_returned() throws IOException {
+        Files.write(CONFIG, "transactions.latest=123".getBytes());
+        Configuration.getInstance().reload();
+        assertThat(Configuration.getInstance().getLatestTransactionTimestamp()).isEqualTo(123);
+    }
+
+    @Test
     public void when_requesting_valid_shards_count__correct_value_is_returned() throws IOException {
         Files.write(CONFIG, "universe.shards=2.0E2".getBytes());
         Configuration.getInstance().reload();
@@ -205,6 +213,13 @@ public class ConfigurationTest {
     }
 
     @Test
+    public void when_requesting_invalid_latest_transaction_timestamp__default_value_is_returned() throws IOException {
+        Files.write(CONFIG, "transactions.latest=invalid".getBytes());
+        Configuration.getInstance().reload();
+        assertThat(Configuration.getInstance().getLatestTransactionTimestamp()).isEqualTo(DEFAULT_LATEST_TRANSACTION_TIMESTAMP);
+    }
+
+    @Test
     public void when_requesting_invalid_shards_count__default_value_is_returned() throws IOException {
         Files.write(CONFIG, "universe.shards=invalid".getBytes());
         Configuration.getInstance().reload();
@@ -279,6 +294,13 @@ public class ConfigurationTest {
         Files.write(CONFIG, "".getBytes());
         Configuration.getInstance().reload();
         assertThat(Configuration.getInstance().getTransactionsPageSize()).isEqualTo(DEFAULT_TRANSACTIONS_PAGE_SIZE);
+    }
+
+    @Test
+    public void when_requesting_non_existing_latest_transaction_timestamp__default_value_is_returned() throws IOException {
+        Files.write(CONFIG, "".getBytes());
+        Configuration.getInstance().reload();
+        assertThat(Configuration.getInstance().getLatestTransactionTimestamp()).isEqualTo(DEFAULT_LATEST_TRANSACTION_TIMESTAMP);
     }
 
     @Test

@@ -32,6 +32,7 @@ const MOCK_METRICS = function() {
     peak: Math.floor(Math.random() * 1000000),
     average: Math.floor(Math.random() * 1000000),
     progress: Math.floor(Math.random() * 100),
+    latest: 1561378584000, // 2019-06-24 12:16:24 UTC
     state: DEMO_STATE,
     start: 1550867544,
     stop: 1560867544,
@@ -63,6 +64,7 @@ function getMetrics() {
             peak: json.data.peakTps,
             average: json.data.averageTps,
             progress: percentage,
+            latest: json.meta.progressLatest,
             state: json.meta.testState,
             start: json.meta.testStart,
             stop: json.meta.testStop,

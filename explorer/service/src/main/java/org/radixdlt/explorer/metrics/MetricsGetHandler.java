@@ -39,7 +39,8 @@ public class MetricsGetHandler implements Handler {
                 .addMetaData("testStop", state.getStopTimestamp())
                 .addMetaData("testNext", configuration.getNextTestRunUtc())
                 // TODO: </ugly>
-                .addMetaData("progressMax", configuration.getMetricsTotalTransactions());
+                .addMetaData("progressMax", configuration.getMetricsTotalTransactions())
+                .addMetaData("progressLatest", configuration.getLatestTransactionTimestamp());
 
         long maxAgeConfig = configuration.getMetricsCalculationInterval();
         long maxAge = MILLISECONDS.toSeconds(maxAgeConfig);

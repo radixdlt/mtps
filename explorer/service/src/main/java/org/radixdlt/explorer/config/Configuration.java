@@ -20,6 +20,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public final class Configuration {
     public static final int DEFAULT_TRANSACTIONS_PAGE_SIZE = 50;
+    public static final long DEFAULT_LATEST_TRANSACTION_TIMESTAMP = 0;
     public static final long DEFAULT_METRICS_INTERVAL = SECONDS.toMillis(10);
     public static final long DEFAULT_METRICS_TOTAL = 100;
     public static final long DEFAULT_NODES_INTERVAL = SECONDS.toMillis(30);
@@ -162,7 +163,8 @@ public final class Configuration {
     }
 
     /**
-     * @return The path to the file where any calculated metrics should be dumped.
+     * @return The path to the file where any calculated metrics should
+     * be dumped.
      */
     public synchronized Path getMetricsDumpFilePath() {
         String value = properties.getProperty("metrics.dump");
@@ -179,6 +181,20 @@ public final class Configuration {
         } catch (NumberFormatException e) {
             LOGGER.warn("Couldn't read transactions page size property, falling back to default", e);
             return DEFAULT_TRANSACTIONS_PAGE_SIZE;
+        }
+    }
+
+    /**
+     * @return Return the timestamp of the most recent Bitcoin block in
+     * the dataset.
+     */
+    public synchronized long getLatestTransactionTimestamp() {
+        String value = properties.getProperty("transactions.latest");
+        try {
+            return Long.parseLong(value);
+        } catch (NumberFormatException e) {
+            LOGGER.warn("Couldn't read latest transaction timestamp, falling back to default", e);
+            return DEFAULT_LATEST_TRANSACTION_TIMESTAMP;
         }
     }
 

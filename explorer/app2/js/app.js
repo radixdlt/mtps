@@ -167,7 +167,7 @@ function updateStats() {
     $(this).text(beautifulNumber(currentMetricsResult.average));
   });
   $('.age-date').each(function() {
-    $(this).text(beautifulDate(1555502400000)); //April 17, 12:00:00 UTC
+    $(this).text(beautifulDate(currentMetricsResult.latest));
   });
   $('.next-datetime').each(function() {
     $(this).text(beautifulDateTime(currentMetricsResult.next));
