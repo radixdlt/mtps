@@ -40,7 +40,6 @@ class TestStateProvider {
     private TestState currentState;
     private boolean isStarted;
     private int highNodeCount;
-    private int lowNodeCount;
 
     /**
      * Creates a new instance of this provider.
@@ -66,7 +65,6 @@ class TestStateProvider {
         this.measuringThreshold = measuringTpsThreshold;
         this.maxNodeDeclineFraction = nodeDeclineThreshold;
         this.highNodeCount = Integer.MIN_VALUE;
-        this.lowNodeCount = Integer.MAX_VALUE;
     }
 
     /**
@@ -136,17 +134,12 @@ class TestStateProvider {
                 highNodeCount = size;
             }
 
-            if (size < lowNodeCount) {
-                lowNodeCount = size;
-            }
-
             nodeInfo.clear();
 
             if (size <= 1) {
                 // We've hit rock bottom, reset our
                 // extreme values and bail out.
                 highNodeCount = Integer.MIN_VALUE;
-                lowNodeCount = Integer.MAX_VALUE;
                 return;
             }
 
