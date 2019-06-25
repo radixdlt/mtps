@@ -209,7 +209,7 @@ function updateCompetitors() {
       // We have cycled through all competitors and all
       // have higher TPS than we do. Exit in shame.
       $('.tps-competitor').each(function() {
-        $(this).empty();
+        $(this).empty().hide();
       });
       return;
     }
@@ -217,7 +217,7 @@ function updateCompetitors() {
   const fraction = Math.round(ourTps / competitor.tps);
   const label = fraction + 'x ' + competitor.name;
   $('.tps-competitor').each(function() {
-    $(this).text(label);
+    $(this).text(label).show();
   });
 }
 
