@@ -205,7 +205,7 @@ function updateCompetitors() {
   while (competitor.tps > ourTps) {
     currentCompetitor = (currentCompetitor + 1) % COMPETITORS.length;
     competitor = COMPETITORS[currentCompetitor];
-    if (currentCompetitor == startIndex && competitor.tps > ourTps()) {
+    if (currentCompetitor == startIndex && competitor.tps > ourTps {
       // We have cycled through all competitors and all
       // have higher TPS than we do. Exit in shame.
       $('.tps-competitor').each(function() {
