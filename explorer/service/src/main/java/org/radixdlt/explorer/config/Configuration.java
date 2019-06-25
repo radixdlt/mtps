@@ -25,6 +25,7 @@ public final class Configuration {
     public static final long DEFAULT_METRICS_TOTAL = 100;
     public static final long DEFAULT_NODES_INTERVAL = SECONDS.toMillis(30);
     public static final float DEFAULT_NODES_FRACTION = 0.1f;
+    public static final float DEFAULT_NODES_DECLINE_FRACTION = 0.1f;
     public static final int DEFAULT_NODES_MAX_COUNT = 20;
     public static final long DEFAULT_UNIVERSE_SHARD_COUNT = 1L;
     public static final int DEFAULT_TEST_RUNNING = 100;
@@ -130,6 +131,20 @@ public final class Configuration {
         }
 
         return password;
+    }
+
+    /**
+     * @return Returns the fraction of dropped nodes to consider as a
+     * signal to transition to FINISHED state.
+     */
+    public synchronized float getNodesDeclineFraction() {
+        String value = properties.getProperty("nodes.decline");
+        try {
+            return Float.parseFloat(value);
+        } catch (NullPointerException | NumberFormatException e) {
+            LOGGER.warn("Couldn't read nodes decline fraction, falling back to default", e);
+            return DEFAULT_NODES_DECLINE_FRACTION;
+        }
     }
 
     /**

@@ -15,6 +15,7 @@ import static org.radixdlt.explorer.config.Configuration.DEFAULT_LATEST_TRANSACT
 import static org.radixdlt.explorer.config.Configuration.DEFAULT_METRICS_INTERVAL;
 import static org.radixdlt.explorer.config.Configuration.DEFAULT_METRICS_TOTAL;
 import static org.radixdlt.explorer.config.Configuration.DEFAULT_NEXT_TEST;
+import static org.radixdlt.explorer.config.Configuration.DEFAULT_NODES_DECLINE_FRACTION;
 import static org.radixdlt.explorer.config.Configuration.DEFAULT_NODES_FRACTION;
 import static org.radixdlt.explorer.config.Configuration.DEFAULT_NODES_INTERVAL;
 import static org.radixdlt.explorer.config.Configuration.DEFAULT_NODES_MAX_COUNT;
@@ -66,6 +67,13 @@ public class ConfigurationTest {
         Files.write(CONFIG, "nodes.max=2".getBytes());
         Configuration.getInstance().reload(CONFIG.toString());
         assertThat(Configuration.getInstance().getMaxNodesSubsetCount()).isEqualTo(2);
+    }
+
+    @Test
+    public void when_requesting_valid_decline_fraction__correct_value_is_returned() throws IOException {
+        Files.write(CONFIG, "nodes.decline=1.0".getBytes());
+        Configuration.getInstance().reload(CONFIG.toString());
+        assertThat(Configuration.getInstance().getNodesDeclineFraction()).isEqualTo(1f);
     }
 
     @Test
@@ -192,6 +200,13 @@ public class ConfigurationTest {
     }
 
     @Test
+    public void when_requesting_invalid_decline_fraction__default_value_is_returned() throws IOException {
+        Files.write(CONFIG, "nodes.decline=invalid".getBytes());
+        Configuration.getInstance().reload(CONFIG.toString());
+        assertThat(Configuration.getInstance().getNodesDeclineFraction()).isEqualTo(DEFAULT_NODES_DECLINE_FRACTION);
+    }
+
+    @Test
     public void when_requesting_invalid_calculation_interval__default_value_is_returned() throws IOException {
         Files.write(CONFIG, "metrics.interval=invalid".getBytes());
         Configuration.getInstance().reload(CONFIG.toString());
@@ -273,6 +288,13 @@ public class ConfigurationTest {
         Files.write(CONFIG, "".getBytes());
         Configuration.getInstance().reload(CONFIG.toString());
         assertThat(Configuration.getInstance().getMaxNodesSubsetCount()).isEqualTo(DEFAULT_NODES_MAX_COUNT);
+    }
+
+    @Test
+    public void when_requesting_non_existing_decline_fraction__default_value_is_returned() throws IOException {
+        Files.write(CONFIG, "".getBytes());
+        Configuration.getInstance().reload(CONFIG.toString());
+        assertThat(Configuration.getInstance().getNodesDeclineFraction()).isEqualTo(DEFAULT_NODES_DECLINE_FRACTION);
     }
 
     @Test
