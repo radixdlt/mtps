@@ -31,7 +31,7 @@ def ssh_exec(host, command):
         stdin, stdout, stderr = client.exec_command(command)
         exit_status = stdout.channel.recv_exit_status()
         if exit_status != 0:
-            raise Exception('exec_command exception: {0}'.format(stdout.readlines))
+            raise Exception('exec_command exception: {0}'.format(stdout.read().strip('\n')))
         lines = stdout.readlines()
         return lines
 

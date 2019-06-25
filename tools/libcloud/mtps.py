@@ -13,6 +13,17 @@ from libcloud.compute.providers import get_driver
 import secrets
 import string
 
+# show test variables
+logging.info(
+    "Configuration: \n\temail: '%s'\n\tcreadentials file: '%s'\n\tproject: '%s'\n\tatom file: "
+    "'%s'\n\tshard count: '%s'\n\tshard overlap: '%s'",
+    os.getenv('RADIX_MTPS_CLOUD_EMAIL', config.DEFAULT_EMAIL),
+    os.getenv('RADIX_MTPS_CLOUD_CREDENTIALS', config.DEFAULT_CREDS),
+    os.getenv('RADIX_MTPS_CLOUD_PROJECT', 'fast-gateway-233909'),
+    os.environ.get("RADIX_MTPS_NETWORK_ATOMS_FILE", config.DEFAULT_NETWORK_ATOMS_FILE),
+    os.environ.get("RADIX_MTPS_SHARD_COUNT", config.DEFAULT_NETWORK_SHARD_COUNT),
+    os.environ.get("RADIX_MTPS_SHARD_OVERLAP", config.DEFAULT_NETWORK_SHARD_OVERLAP))
+
 # credentials
 ComputeEngine = get_driver(Provider.GCE)
 gce = gcp.login_gcp(ComputeEngine)
