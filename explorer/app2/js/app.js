@@ -189,7 +189,7 @@ function updateStats() {
 function updateGraphs() {
   const tps = getTps();
   const progress = getProgress();
-  if (tps && progress) {
+  if ($.isNumeric(tps) && $.isNumeric(progress)) {
     currentProgress = Math.max(currentProgress, Math.min(100, progress));
     graphs.forEach(function(graph) {
       graph.updateModel(tps, currentProgress);
@@ -201,23 +201,24 @@ function updateCompetitors() {
   currentCompetitor = (currentCompetitor + 1) % COMPETITORS.length;
   var competitor = COMPETITORS[currentCompetitor];
   var startIndex = currentCompetitor;
-    while (competitor.tps > currentMetricsResult.spot) {
-      currentCompetitor = (currentCompetitor + 1) % COMPETITORS.length;
-      competitor = COMPETITORS[currentCompetitor];
-      if (currentCompetitor == startIndex && competitor.tps > currentMetricsResult.spot) {
-        // We have cycled through all competitors and all
-        // have higher TPS than we do. Exit in shame.
-        $('.tps-competitor').each(function() {
-          $(this).empty();
-        });
-        return;
-      }
+  const ourTps = getTps();
+  while (competitor.tps > ourTps) {
+    currentCompetitor = (currentCompetitor + 1) % COMPETITORS.length;
+    competitor = COMPETITORS[currentCompetitor];
+    if (currentCompetitor == startIndex && competitor.tps > ourTps) {
+      // We have cycled through all competitors and all
+      // have higher TPS than we do. Exit in shame.
+      $('.tps-competitor').each(function() {
+        $(this).empty().hide();
+      });
+      return;
     }
-    const fraction = Math.round(currentMetricsResult.spot / competitor.tps);
-    const label = fraction + 'x ' + competitor.name;
-    $('.tps-competitor').each(function() {
-      $(this).text(label);
-    });
+  }
+  const fraction = Math.round(ourTps / competitor.tps);
+  const label = fraction + 'x ' + competitor.name;
+  $('.tps-competitor').each(function() {
+    $(this).text(label).show();
+  });
 }
 
 
@@ -378,31 +379,31 @@ function getProgress() {
 }
 
 function niceDate(timestamp) {
-  return timestamp ?
+  return $.isNumeric(timestamp) ?
       moment(timestamp).tz('Europe/London').format('YYYY-MM-DD HH:mm:ss (z)') :
       '';
 }
 
 function beautifulDateTime(timestamp) {
-  return timestamp ?
+  return $.isNumeric(timestamp) ?
       moment(timestamp).tz('Europe/London').format('MMM D, HH:mm (z)') :
       '';
 }
 
 function beautifulDate(timestamp) {
-  return timestamp ?
+  return $.isNumeric(timestamp) ?
       moment(timestamp).tz('Europe/London').format('MMM D') :
       '';
 }
 
 function beautifulTime(timestamp) {
-  return timestamp ?
+  return $.isNumeric(timestamp) ?
       moment(timestamp).tz('Europe/London').format('HH:mm (z)') :
       '';
 }
 
 function beautifulNumber(number, decimals) {
-  return number ?
+  return (typeof number == 'number') ?
       number.toFixed(decimals).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\xa0") : // 1 234 567 (with non-breaking space)
       '';
 }
