@@ -189,7 +189,7 @@ function updateStats() {
 function updateGraphs() {
   const tps = getTps();
   const progress = getProgress();
-  if (tps && progress) {
+  if ($.isNumeric(tps) && $.isNumeric(progress)) {
     currentProgress = Math.max(currentProgress, Math.min(100, progress));
     graphs.forEach(function(graph) {
       graph.updateModel(tps, currentProgress);
@@ -378,31 +378,31 @@ function getProgress() {
 }
 
 function niceDate(timestamp) {
-  return timestamp ?
+  return $.isNumeric(timestamp) ?
       moment(timestamp).tz('Europe/London').format('YYYY-MM-DD HH:mm:ss (z)') :
       '';
 }
 
 function beautifulDateTime(timestamp) {
-  return timestamp ?
+  return $.isNumeric(timestamp) ?
       moment(timestamp).tz('Europe/London').format('MMM D, HH:mm (z)') :
       '';
 }
 
 function beautifulDate(timestamp) {
-  return timestamp ?
+  return $.isNumeric(timestamp) ?
       moment(timestamp).tz('Europe/London').format('MMM D') :
       '';
 }
 
 function beautifulTime(timestamp) {
-  return timestamp ?
+  return $.isNumeric(timestamp) ?
       moment(timestamp).tz('Europe/London').format('HH:mm (z)') :
       '';
 }
 
 function beautifulNumber(number, decimals) {
-  return number ?
+  return $.isNumeric(number) ?
       number.toFixed(decimals).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "\xa0") : // 1 234 567 (with non-breaking space)
       '';
 }
