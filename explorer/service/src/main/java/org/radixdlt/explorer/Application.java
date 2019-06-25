@@ -98,9 +98,10 @@ public class Application {
      * java resources.
      */
     private static void ensureProperties() {
-        if (!Files.exists(Paths.get("config.properties"))) {
+        Path configFilePath = Paths.get(Configuration.CONFIG_FILE);
+        if (!Files.exists(configFilePath)) {
             try (InputStream source = Application.class.getResourceAsStream("/config.properties")) {
-                Files.copy(source, Paths.get("config.properties"));
+                Files.copy(source, configFilePath);
             } catch (IOException e) {
                 throw new UncheckedIOException("Couldn't read configuration properties", e);
             }

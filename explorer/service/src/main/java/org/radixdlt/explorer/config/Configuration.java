@@ -29,7 +29,7 @@ public final class Configuration {
     public static final int DEFAULT_TEST_RUNNING = 100;
     public static final long DEFAULT_NEXT_TEST = 0L;
     public static final int DEFAULT_UNIVERSE_MAGIC = -849412095;
-    private static final String CONFIG_FILE = "config.properties";
+    public static final String CONFIG_FILE = "/opt/radixdlt/service/data/config.properties";
     private static final Logger LOGGER = LoggerFactory.getLogger("org.radixdlt.explorer");
 
     private final Properties properties;
