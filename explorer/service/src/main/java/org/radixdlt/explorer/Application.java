@@ -194,8 +194,9 @@ public class Application {
     private static TestStateService buildTestStateService() {
         Configuration configuration = Configuration.getInstance();
         int runningThreshold = configuration.getTestRunningThreshold();
+        float nodesDeclineFraction = configuration.getNodesDeclineFraction();
         Path stateDumpPath = configuration.getTestStateDumpFilePath();
-        return new TestStateService(runningThreshold, stateDumpPath);
+        return new TestStateService(runningThreshold, nodesDeclineFraction, stateDumpPath);
     }
 
     /**
