@@ -201,10 +201,11 @@ function updateCompetitors() {
   currentCompetitor = (currentCompetitor + 1) % COMPETITORS.length;
   var competitor = COMPETITORS[currentCompetitor];
   var startIndex = currentCompetitor;
-    while (competitor.tps > currentMetricsResult.spot) {
+  const ourTps = getTps();
+    while (competitor.tps > ourTps) {
       currentCompetitor = (currentCompetitor + 1) % COMPETITORS.length;
       competitor = COMPETITORS[currentCompetitor];
-      if (currentCompetitor == startIndex && competitor.tps > currentMetricsResult.spot) {
+      if (currentCompetitor == startIndex && competitor.tps > ourTps()) {
         // We have cycled through all competitors and all
         // have higher TPS than we do. Exit in shame.
         $('.tps-competitor').each(function() {
@@ -213,7 +214,7 @@ function updateCompetitors() {
         return;
       }
     }
-    const fraction = Math.round(currentMetricsResult.spot / competitor.tps);
+    const fraction = Math.round(ourTps / competitor.tps);
     const label = fraction + 'x ' + competitor.name;
     $('.tps-competitor').each(function() {
       $(this).text(label);
