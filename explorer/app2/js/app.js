@@ -13,6 +13,7 @@ const COMPETITORS = [
   {name: 'WeChat', tps: 520000}
 ];
 
+var forceUpdateProgress;
 var forceUpdateTickers;
 var currentPageOfTransactions;
 var currentMetricsResult;
@@ -22,6 +23,7 @@ var currentState;
 var graphs;
 
 $(function() {
+  forceUpdateProgress = true;
   forceUpdateTickers = true;
   currentPageOfTransactions = 1;
   currentMetricsResult = { state: STATE_UNKNOWN };
@@ -35,6 +37,7 @@ $(function() {
   // being halted under certain circumstances on certain device types
   // (e.g. after screen lock kicks in on some mobile devices).
   $(window).focus(function() {
+    forceUpdateProgress = true;
     forceUpdateTickers = true;
   });
 
@@ -96,6 +99,7 @@ function showPage() {
   if (newState !== currentState) {
     switch (newState) {
       case STATE_UNKNOWN:
+        forceUpdateProgress = true;
         forceUpdateTickers = true;
         currentState = newState;
         $('.page-1').hide();
@@ -104,6 +108,7 @@ function showPage() {
         $('.page-0').show();
         break;
       case STATE_STARTED:
+        forceUpdateProgress = true;
         forceUpdateTickers = true;
         currentState = newState;
         $('.page-0').hide();
@@ -112,6 +117,7 @@ function showPage() {
         $('.page-1').show();
         break;
       case STATE_FINISHED:
+        forceUpdateProgress = true;
         forceUpdateTickers = true;
         currentState = newState;
         $('#top-buttons').show();
@@ -121,6 +127,7 @@ function showPage() {
         $('.page-2').show();
         break;
       case STATE_TERMINATED:
+        forceUpdateProgress = true;
         forceUpdateTickers = true;
         currentState = newState;
         $('#top-buttons').show();
@@ -190,7 +197,12 @@ function updateGraphs() {
   const tps = getTps();
   const progress = getProgress();
   if ($.isNumeric(tps) && $.isNumeric(progress)) {
-    currentProgress = Math.max(currentProgress, Math.min(100, progress));
+    if (forceUpdateProgress) {
+      currentProgress = progress;
+      forceUpdateProgress = false;
+    } else {
+      currentProgress = Math.max(currentProgress, Math.min(100, progress));
+    }
     graphs.forEach(function(graph) {
       graph.updateModel(tps, currentProgress);
     });
