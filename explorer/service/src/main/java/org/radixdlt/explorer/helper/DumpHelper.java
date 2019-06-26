@@ -15,6 +15,11 @@ import java.util.concurrent.RejectedExecutionException;
 import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
+/**
+ * Offers means of safely dumping data to a file on the filesystem. This
+ * helper class enqueues any dump tasks in a single threaded executor
+ * service and each dump is forcefully synced to the file system.
+ */
 public class DumpHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger("org.radixdlt.explorer");
     private final ExecutorService dumpExecutor;
@@ -56,6 +61,7 @@ public class DumpHelper {
                     fileOutputStream.write(data);
                     fileOutputStream.flush();
                     fileOutputStream.getFD().sync();
+                    fileOutputStream.close();
                     Files.move(tmpFilePath, targetFilePath, ATOMIC_MOVE, REPLACE_EXISTING);
                 } catch (Exception e) {
                     LOGGER.info("Couldn't dump data to file: " + path.toString(), e);
