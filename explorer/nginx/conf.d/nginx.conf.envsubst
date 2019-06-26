@@ -83,6 +83,33 @@ http {
             add_header Cache-Control "public, max-age=1";
             include conf.d/enable-cors.conf;
         }
+        # map selected prometheus queries to concrete endpoints that are publicly available
+        location = /explorer/shards {
+            auth_basic off;
+            limit_except GET {
+                deny all;
+            }
+            # https://www.nadeau.tv/nginx-proxy_pass-dns-cache/
+            set ${DOLLAR}backend "http://prometheus:9090/prometheus/api/v1/query?query=radixdlt_core_shards%7Bkey%3D~%22low%7Chigh%22%7D";
+            proxy_pass ${DOLLAR}backend;
+            include conf.d/enable-proxy.conf;
+            add_header Cache-Control "public, max-age=1";
+            include conf.d/enable-cors.conf;
+        }
+
+        # map selected prometheus queries to concrete endpoints that are publicly available
+        location = /explorer/storing-per-shard {
+            auth_basic off;
+            limit_except GET {
+                deny all;
+            }
+            # https://www.nadeau.tv/nginx-proxy_pass-dns-cache/
+            set ${DOLLAR}backend "http://prometheus:9090/prometheus/api/v1/query?query=radixdlt_core_ledger%7Bkey%3D~%22storing_per_shard%22%7D";
+            proxy_pass ${DOLLAR}backend;
+            include conf.d/enable-proxy.conf;
+            add_header Cache-Control "public, max-age=1";
+            include conf.d/enable-cors.conf;
+        }
 
         include conf.d/error-location.conf;
         include conf.d/nginx-status-location.conf;
