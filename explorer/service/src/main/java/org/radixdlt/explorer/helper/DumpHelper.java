@@ -8,8 +8,10 @@ import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 
 import static java.nio.file.StandardCopyOption.ATOMIC_MOVE;
@@ -45,13 +47,13 @@ public class DumpHelper {
      * @param path The path to the file to dump it in (or null, in which
      *             case nothing is dumped.
      */
-    public void dumpData(byte[] data, Path path) {
+    public Future<?> dumpData(byte[] data, Path path) {
         if (path == null) {
-            return;
+            return CompletableFuture.completedFuture(null);
         }
 
         try {
-            dumpExecutor.submit(() -> {
+            return dumpExecutor.submit(() -> {
                 // Ensure parent folder exists
                 path.toAbsolutePath().getParent().toFile().mkdirs();
                 Path tmpFilePath = path.getParent().resolve("tmp.txt").toAbsolutePath();
@@ -70,6 +72,8 @@ public class DumpHelper {
         } catch (RejectedExecutionException e) {
             LOGGER.info("Couldn't enqueue dump data task. Ignoring this," +
                     " but you should look into it as the dump file may now be broken", e);
+
+            return CompletableFuture.completedFuture(null);
         }
     }
 
