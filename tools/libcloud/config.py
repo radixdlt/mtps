@@ -18,7 +18,7 @@ DEFAULT_NETWORK_UNIVERSE = ""
 DEFAULT_NETWORK_PASSWORD = "DEFAULT_PASSWORD"
 DEFAULT_NETWORK_ATOMS_FILE = "/radix/atoms_v4_full.zst"
 DEFAULT_NETWORK_START_PUMPING = 40  # X minutes
-DEFAULT_NETWORK_SHARD_COUNT = "1298"
+DEFAULT_NETWORK_SHARD_COUNT = "1181"
 DEFAULT_NETWORK_SHARD_OVERLAP = "0.1"
 
 # cores
@@ -33,7 +33,7 @@ CORE_MACHINE_STORAGE = "100"  # GB
 CORE_EXTRA_DISK_IMAGE_NAME = "projects/fast-gateway-233909/global/images/atoms-v4-full-standard-persistent-image3"
 CORE_EXTRA_DISK_SIZE = "200"  # GB
 CORE_REGIONS = {
-    # Europe
+    # Europe: 345 nodes
     # 130 IP, 1000 CPU, 25TB, 4GB HDD, MAX 125 nodes
     "europe-north1": 125,
     # 110 IP, 1000 CPU, 24TB
@@ -41,13 +41,13 @@ CORE_REGIONS = {
     # 110 IP, 1000 CPU, 24TB - 3 vm, bottleneck: SSD_TOTAL_GB,MAX 104 nodes
     "europe-west1": 104,
     # 110 IP, 1000 CPU, 22TB, MAX 110 nodes, new DC
-    "europe-west2": 108,
+    "europe-west2": 2,
     # 8 IP, 24 CPU, 4TB, MAX 2 nodes
     "europe-west3": 2,
     # 8 IP, 24 CPU, 4TB, MAX 2 nodes
     "europe-west6": 2,
 
-    # Americas
+    # Americas: 538 nodes
     # 130 IP, 1000 CPU, 23TB, MAX 115 nodes
     "us-central1": 115,
     # 110 IP, 1000 CPU, 22TB
@@ -64,7 +64,7 @@ CORE_REGIONS = {
     # 8 IP, 24 CPU, 4TB, MAX 2 nodes:
     "southamerica-east1": 2,
 
-    # Asia
+    # Asia: 306 nodes
     # 130 IP, 1000 CPU, 20.48TB, bottleneck: SSD's, MAX 102 nodes
     "asia-northeast1": 102,
     # 100 IP, 1000 CPU, 20.48TB - bottleneck: IP's, MAX 100 nodes
@@ -76,7 +76,7 @@ CORE_REGIONS = {
     # 8 IP, 24 CPU, 4TB, MAX 2 nodes
     "asia-south1": 2,
 
-    # Australia
+    # Australia: 2 nodes
     # 8 IP, 400 CPU, MAX 2 nodes
     "australia-southeast1": 2
 }

@@ -21,7 +21,7 @@ write_files:
         version: '2.2'
         services:
             core:
-                image: radixdlt/radixdlt-core:atom-pump-amd64
+                image: $CORE_DOCKER_IMAGE
                 init: true
                 restart: unless-stopped
                 ports:

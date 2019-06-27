@@ -113,6 +113,7 @@ if '--destroy-cores' in sys.argv:
     gcp.destroy_core_template(gce, config.CORE_MACHINE_BOOT_INSTANCE_TEMPLATE_NAME)
 # create cores
 else:
+    os.environ["CORE_DOCKER_IMAGE"] = config.CORE_DOCKER_IMAGE
 
     explorer = gcp.get_explorer(gce)
     attempts = 0
