@@ -55,16 +55,27 @@ public class DumpHelper {
         try {
             return dumpExecutor.submit(() -> {
                 // Ensure parent folder exists
-                path.toAbsolutePath().getParent().toFile().mkdirs();
-                Path tmpFilePath = path.getParent().resolve("tmp.txt").toAbsolutePath();
-                Path targetFilePath = path.toAbsolutePath();
+                Path destination = path.toAbsolutePath();
+                destination.getParent().toFile().mkdirs();
 
-                try (FileOutputStream fileOutputStream = new FileOutputStream(tmpFilePath.toString())) {
+                // TODO: Document the reason we're doing this complicated
+                //       file write procedure.
+                Path tmp = destination.resolveSibling(destination.getFileName() + ".txt");
+                if (Files.exists(destination)) {
+                    try {
+                        Files.move(destination, tmp, ATOMIC_MOVE, REPLACE_EXISTING);
+                    } catch (Exception e) {
+                        LOGGER.warn("Couldn't prepare file to dump to: " + tmp.toString(), e);
+                        return;
+                    }
+                }
+
+                try (FileOutputStream fileOutputStream = new FileOutputStream(tmp.toString(), true)) {
                     fileOutputStream.write(data);
                     fileOutputStream.flush();
                     fileOutputStream.getFD().sync();
                     fileOutputStream.close();
-                    Files.move(tmpFilePath, targetFilePath, ATOMIC_MOVE, REPLACE_EXISTING);
+                    Files.move(tmp, destination, ATOMIC_MOVE, REPLACE_EXISTING);
                 } catch (Exception e) {
                     LOGGER.info("Couldn't dump data to file: " + path.toString(), e);
                 }
