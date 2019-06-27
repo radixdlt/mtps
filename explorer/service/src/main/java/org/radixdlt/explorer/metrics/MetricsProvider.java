@@ -22,7 +22,6 @@ class MetricsProvider {
     private final CompositeDisposable disposables;
     private final Object calculationLock;
     private final DumpHelper dumpHelper;
-    private final Path metricsDumpPath;
     private final long maxShards;
 
     private TestState testState;
@@ -53,7 +52,6 @@ class MetricsProvider {
         this.averageTps = 0L;
         this.calculatedMetrics = null;
         this.testState = UNKNOWN;
-        this.metricsDumpPath = metricsDumpPath;
     }
 
     /**
@@ -90,7 +88,8 @@ class MetricsProvider {
             isStarted = true;
             disposables.add(testStateObserver.subscribe(this::maybeResetMetrics));
             disposables.add(systemInfoObserver.subscribe(this::calculateMetrics));
-            restoreMetrics();
+            String lastLine = dumpHelper.restoreData().blockingGet();
+            calculatedMetrics = Metrics.fromCSV(lastLine);
         }
     }
 
@@ -118,7 +117,7 @@ class MetricsProvider {
                 peakTps = 0L;
                 averageTps = 0L;
                 calculatedMetrics = null;
-                resetDumpFile();
+                dumpHelper.dumpData(Metrics.DATA_HEADLINE, true);
             }
         }
 
@@ -169,40 +168,10 @@ class MetricsProvider {
             averageTps = Math.round(progress / seconds);
             peakTps = Math.max(peakTps, tps);
             calculatedMetrics = new Metrics(tps, progress, averageTps, peakTps);
-            dumpCurrentMetrics();
+            dumpHelper.dumpData(calculatedMetrics.toString());
         }
 
         subject.onNext(calculatedMetrics);
-    }
-
-    /**
-     * Resets the metrics dump file to only contain a single header line,
-     * if a path to it has been set.
-     */
-    private void resetDumpFile() {
-        if (metricsDumpPath != null) {
-            dumpHelper.dumpData(Metrics.DATA_HEADLINE);
-        }
-    }
-
-    /**
-     * Dumps the current metrics to a file, if a path to it has been set.
-     */
-    private void dumpCurrentMetrics() {
-        if (metricsDumpPath != null) {
-            dumpHelper.dumpData(calculatedMetrics.toString());
-        }
-    }
-
-    /**
-     * Restores the current metrics from the last dumped data, if a path
-     * to the dump file has been set.
-     */
-    private void restoreMetrics() {
-        if (metricsDumpPath != null) {
-            String lastLine = dumpHelper.restoreData().blockingGet();
-            calculatedMetrics = Metrics.fromCSV(lastLine);
-        }
     }
 
 }

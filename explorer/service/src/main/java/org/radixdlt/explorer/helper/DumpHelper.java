@@ -63,13 +63,26 @@ public class DumpHelper {
     }
 
     /**
-     * Submits an atomic dump-to-file task of the provided string.
+     * Submits an atomic dump-to-file task, appending the provided string
+     * to any previously dumped data.
      *
      * @param string The data to dump.
      * @return A handle to the dump task that the caller can use to detect
      * when the task has been finished and the success state of it.
      */
-    public Completable dumpData(final String string) {
+    public Completable dumpData(String string) {
+        return dumpData(string, false);
+    }
+
+    /**
+     * Submits an atomic dump-to-file task of the provided string.
+     *
+     * @param string           The data to dump.
+     * @param clearBeforeWrite Whether to clear any existing data.
+     * @return A handle to the dump task that the caller can use to detect
+     * when the task has been finished and the success state of it.
+     */
+    public Completable dumpData(String string, boolean clearBeforeWrite) {
         if (dumpFilePath == null || string == null || string.isEmpty()) {
             return Completable.complete();
         }
@@ -78,7 +91,7 @@ public class DumpHelper {
             // Ensure trailing new-line
             String line = string.endsWith("\n") ? string : (string + "\n");
             byte[] data = line.getBytes(UTF_8);
-            DumpTask task = new DumpTask(dumpFilePath, data);
+            DumpTask task = new DumpTask(dumpFilePath, data, clearBeforeWrite);
             Future<?> future = dumpExecutor.submit(task);
             return Completable.fromFuture(future);
         } catch (RejectedExecutionException e) {
@@ -108,6 +121,7 @@ public class DumpHelper {
         }
     }
 
+
     /**
      * Encapsulates the work that needs to be done when dumping data to
      * the dump file.
@@ -115,10 +129,12 @@ public class DumpHelper {
     private static final class DumpTask implements Callable<Void> {
         private final Path path;
         private final byte[] data;
+        private final boolean clear;
 
-        private DumpTask(Path path, byte[] data) {
+        private DumpTask(Path path, byte[] data, boolean clear) {
             this.path = path;
             this.data = data;
+            this.clear = clear;
         }
 
         @Override
@@ -135,7 +151,7 @@ public class DumpHelper {
             // is flushed to the file sink and synchronized with the
             // file system. Once we're sure all bytes exist on disk,
             // we're ready to (atomically) update the persisted file.
-            try (FileOutputStream fileOutputStream = new FileOutputStream(tmp.toString(), true)) {
+            try (FileOutputStream fileOutputStream = new FileOutputStream(tmp.toString(), !clear)) {
                 fileOutputStream.write(data);
                 fileOutputStream.flush();
                 fileOutputStream.getFD().sync();
@@ -191,6 +207,5 @@ public class DumpHelper {
             }
         }
     }
-
 
 }

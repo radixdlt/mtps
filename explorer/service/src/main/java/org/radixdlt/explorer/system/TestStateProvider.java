@@ -26,7 +26,6 @@ class TestStateProvider {
     private final DumpHelper dumpHelper;
     private final Object systemInfoLock;
     private final Object nodeInfoLock;
-    private final Path stateDumpPath;
     private final int measuringThreshold;
     private final float maxNodeDeclineFraction;
 
@@ -49,7 +48,6 @@ class TestStateProvider {
     TestStateProvider(int measuringTpsThreshold, float nodeDeclineThreshold, Path stateDumpPath) {
         this.subject = PublishSubject.create();
         this.disposables = new CompositeDisposable();
-        this.stateDumpPath = stateDumpPath;
         this.systemInfoLock = new Object();
         this.nodeInfoLock = new Object();
         this.systemInfo = new ConcurrentHashMap<>();
@@ -94,14 +92,10 @@ class TestStateProvider {
     synchronized void start(Observable<Collection<NodeInfo>> nodesObserver, Observable<Map<String, SystemInfo>> systemInfoObserver) {
         if (!isStarted) {
             isStarted = true;
-            if (stateDumpPath != null) {
-                // Ensure the full directory structure to the dump file
-                // exists before we attempt to write to it.
-                stateDumpPath.toAbsolutePath().getParent().toFile().mkdirs();
-            }
             disposables.add(systemInfoObserver.subscribe(this::updateSystemInfo));
             disposables.add(nodesObserver.subscribe(this::updateNodeInfo));
-            restoreTestState();
+            String lastLine = dumpHelper.restoreData().blockingGet();
+            currentState = TestState.fromCSV(lastLine);
         }
     }
 
@@ -172,11 +166,12 @@ class TestStateProvider {
     private void validateTestState() {
         TestState testState = currentState.validate(hasNodeInfo(), isMeasuring());
         if (testState != currentState) {
-            currentState = testState;
             if (testState == STARTED) {
-                resetDumpFile();
+                dumpHelper.dumpData(TestState.DATA_HEADLINE, true);
             }
-            dumpCurrentTestState();
+
+            currentState = testState;
+            dumpHelper.dumpData(currentState.toString());
             subject.onNext(currentState);
         }
     }
@@ -221,38 +216,6 @@ class TestStateProvider {
                 }
             }
             return false;
-        }
-    }
-
-    /**
-     * Resets the test state dump file to only contain a single header
-     * line, if a path to it has been set.
-     */
-    private void resetDumpFile() {
-        if (stateDumpPath != null) {
-            dumpHelper.dumpData(TestState.DATA_HEADLINE);
-        }
-    }
-
-    /**
-     * Dumps the current test state to a file if a path to it has been
-     * set.
-     */
-    private void dumpCurrentTestState() {
-        if (stateDumpPath != null) {
-            dumpHelper.dumpData(currentState.toString());
-        }
-    }
-
-    /**
-     * Restores the last test state from a file if a path to it has been
-     * set. This file should in practice only be called once during the
-     * Explorer life span (and again on restart).
-     */
-    private void restoreTestState() {
-        if (stateDumpPath != null) {
-            String lastLine = dumpHelper.restoreData().blockingGet();
-            currentState = TestState.fromCSV(lastLine);
         }
     }
 
