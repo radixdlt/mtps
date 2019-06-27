@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.radixdlt.explorer.system.TestState.STARTED;
 import static org.radixdlt.explorer.system.TestState.TERMINATED;
 
 /**
@@ -53,7 +53,7 @@ class TestStateProvider {
         this.systemInfoLock = new Object();
         this.nodeInfoLock = new Object();
         this.systemInfo = new ConcurrentHashMap<>();
-        this.dumpHelper = new DumpHelper();
+        this.dumpHelper = new DumpHelper(stateDumpPath);
         this.nodeInfo = ConcurrentHashMap.newKeySet();
         this.currentState = TERMINATED;
         this.isStarted = false;
@@ -113,7 +113,7 @@ class TestStateProvider {
             isStarted = false;
             disposables.clear();
             subject.onComplete();
-            dumpHelper.stopDumpExecutor();
+            dumpHelper.stop();
         }
     }
 
@@ -173,6 +173,9 @@ class TestStateProvider {
         TestState testState = currentState.validate(hasNodeInfo(), isMeasuring());
         if (testState != currentState) {
             currentState = testState;
+            if (testState == STARTED) {
+                resetDumpFile();
+            }
             dumpCurrentTestState();
             subject.onNext(currentState);
         }
@@ -222,13 +225,22 @@ class TestStateProvider {
     }
 
     /**
+     * Resets the test state dump file to only contain a single header
+     * line, if a path to it has been set.
+     */
+    private void resetDumpFile() {
+        if (stateDumpPath != null) {
+            dumpHelper.dumpData(TestState.DATA_HEADLINE);
+        }
+    }
+
+    /**
      * Dumps the current test state to a file if a path to it has been
      * set.
      */
     private void dumpCurrentTestState() {
         if (stateDumpPath != null) {
-            byte[] data = currentState.toString().getBytes(UTF_8);
-            dumpHelper.dumpData(data, stateDumpPath);
+            dumpHelper.dumpData(currentState.toString());
         }
     }
 
@@ -239,7 +251,7 @@ class TestStateProvider {
      */
     private void restoreTestState() {
         if (stateDumpPath != null) {
-            String lastLine = dumpHelper.restoreLastDumpedData(stateDumpPath);
+            String lastLine = dumpHelper.restoreData().blockingGet();
             currentState = TestState.fromCSV(lastLine);
         }
     }

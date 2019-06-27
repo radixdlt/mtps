@@ -11,7 +11,6 @@ import org.radixdlt.explorer.system.model.SystemInfo;
 import java.nio.file.Path;
 import java.util.Map;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.radixdlt.explorer.system.TestState.STARTED;
 import static org.radixdlt.explorer.system.TestState.UNKNOWN;
 
@@ -47,7 +46,7 @@ class MetricsProvider {
         this.subject = PublishSubject.create();
         this.disposables = new CompositeDisposable();
         this.calculationLock = new Object();
-        this.dumpHelper = new DumpHelper();
+        this.dumpHelper = new DumpHelper(metricsDumpPath);
         this.maxShards = maxShards;
         this.isStarted = false;
         this.peakTps = 0L;
@@ -103,7 +102,7 @@ class MetricsProvider {
             isStarted = false;
             disposables.clear();
             subject.onComplete();
-            dumpHelper.stopDumpExecutor();
+            dumpHelper.stop();
         }
     }
 
@@ -182,8 +181,7 @@ class MetricsProvider {
      */
     private void resetDumpFile() {
         if (metricsDumpPath != null) {
-            byte[] data = Metrics.DATA_HEADLINE.getBytes(UTF_8);
-            dumpHelper.dumpData(data, metricsDumpPath);
+            dumpHelper.dumpData(Metrics.DATA_HEADLINE);
         }
     }
 
@@ -192,9 +190,7 @@ class MetricsProvider {
      */
     private void dumpCurrentMetrics() {
         if (metricsDumpPath != null) {
-            String line = calculatedMetrics.toString();
-            byte[] data = line.getBytes(UTF_8);
-            dumpHelper.dumpData(data, metricsDumpPath);
+            dumpHelper.dumpData(calculatedMetrics.toString());
         }
     }
 
@@ -204,7 +200,7 @@ class MetricsProvider {
      */
     private void restoreMetrics() {
         if (metricsDumpPath != null) {
-            String lastLine = dumpHelper.restoreLastDumpedData(metricsDumpPath);
+            String lastLine = dumpHelper.restoreData().blockingGet();
             calculatedMetrics = Metrics.fromCSV(lastLine);
         }
     }

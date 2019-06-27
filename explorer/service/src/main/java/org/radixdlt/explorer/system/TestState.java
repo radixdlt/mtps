@@ -33,6 +33,7 @@ public enum TestState {
      */
     UNKNOWN;
 
+    public static final String DATA_HEADLINE = "Timestamp,State,Start,Stop\n";
     private static final Logger LOGGER = LoggerFactory.getLogger("org.radixdlt.explorer");
 
     private long start = 0L;
@@ -43,15 +44,15 @@ public enum TestState {
             return UNKNOWN;
         }
 
-        String[] components = line.split(",", 4);
-        if (components.length < 3) {
+        String[] components = line.split(",", 5);
+        if (components.length < 4) {
             return UNKNOWN;
         }
 
         try {
-            TestState state = TestState.valueOf(components[0]);
-            state.start = Long.valueOf(components[1]);
-            state.stop = Long.valueOf(components[2]);
+            TestState state = TestState.valueOf(components[1]);
+            state.start = Long.valueOf(components[2]);
+            state.stop = Long.valueOf(components[3]);
             return state;
         } catch (NumberFormatException e) {
             LOGGER.info("Couldn't parse test state CSV: " + line, e);
@@ -118,6 +119,6 @@ public enum TestState {
 
     @Override
     public String toString() {
-        return name() + "," + start + "," + stop;
+        return String.format("%s,%s,%s,%s\n", System.currentTimeMillis(), name(), start, stop);
     }
 }
