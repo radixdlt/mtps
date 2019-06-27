@@ -6,7 +6,6 @@ import io.reactivex.schedulers.Schedulers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
@@ -176,8 +175,11 @@ public class DumpHelper {
 
         @Override
         public String call() throws Exception {
-            File file = path.toFile();
-            try (RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r")) {
+            if (!Files.exists(path)) {
+                return "";
+            }
+
+            try (RandomAccessFile randomAccessFile = new RandomAccessFile(path.toFile(), "r")) {
                 long filePointer = randomAccessFile.length();
                 long fileLength = filePointer - 1;
                 StringBuilder sb = new StringBuilder();
