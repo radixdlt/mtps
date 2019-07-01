@@ -90,6 +90,7 @@ http {
                 deny all;
             }
             # https://www.nadeau.tv/nginx-proxy_pass-dns-cache/
+            # PQL: sum(radixdlt_core_ledger{job="nodes",key="stored_per_shard"})*(2^44/(sum(radixdlt_core_shards{key="high"})-sum(radixdlt_core_shards{key="low"})))
             set ${DOLLAR}backend "http://prometheus:9090/prometheus/api/v1/query?query=sum%28radixdlt_core_ledger%7Bjob%3D%22nodes%22%2Ckey%3D%22stored_per_shard%22%7D%29%2A%282%5E44%2F%28sum%28radixdlt_core_shards%7Bkey%3D%22high%22%7D%29-sum%28radixdlt_core_shards%7Bkey%3D%22low%22%7D%29%29%29";
             proxy_pass ${DOLLAR}backend;
             include conf.d/enable-proxy.conf;
@@ -104,6 +105,7 @@ http {
                 deny all;
             }
             # https://www.nadeau.tv/nginx-proxy_pass-dns-cache/
+            # PQL: sum(radixdlt_core_ledger{job="nodes",key="storing_per_shard"})*(2^44/(sum(radixdlt_core_shards{key="high"})-sum(radixdlt_core_shards{key="low"})))
             set ${DOLLAR}backend "http://prometheus:9090/prometheus/api/v1/query?query=sum%28radixdlt_core_ledger%7Bjob%3D%22nodes%22%2Ckey%3D%22storing_per_shard%22%7D%29%2A%282%5E44%2F%28sum%28radixdlt_core_shards%7Bkey%3D%22high%22%7D%29-sum%28radixdlt_core_shards%7Bkey%3D%22low%22%7D%29%29%29";
             proxy_pass ${DOLLAR}backend;
             include conf.d/enable-proxy.conf;
