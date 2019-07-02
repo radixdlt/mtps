@@ -18,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.nio.file.StandardOpenOption.CREATE;
 import static java.nio.file.StandardOpenOption.WRITE;
-import static org.radixdlt.explorer.system.TestState.UNKNOWN;
+import static org.radixdlt.explorer.system.TestState.TERMINATED;
 
 /**
  * Enables means of getting information on the current test state.
@@ -56,7 +56,7 @@ class TestStateProvider {
         this.nodeInfoLock = new Object();
         this.systemInfo = new ConcurrentHashMap<>();
         this.nodeInfo = ConcurrentHashMap.newKeySet();
-        this.currentState = UNKNOWN;
+        this.currentState = TERMINATED;
         this.isStarted = false;
         this.measuringThreshold = measuringTpsThreshold;
     }
@@ -235,7 +235,7 @@ class TestStateProvider {
                 currentState = TestState.fromCSV(lastLine);
             } catch (Exception e) {
                 LOGGER.info("Couldn't restore test state, falling back to default", e);
-                currentState = UNKNOWN;
+                currentState = TERMINATED;
                 dumpCurrentTestState();
             }
         }
