@@ -15,8 +15,8 @@ public class TestStateService implements Service {
     private static final Logger LOGGER = LoggerFactory.getLogger("org.radixdlt.explorer");
     private final TestStateProvider testStateProvider;
 
-    public TestStateService(int runningTpsThreshold, Path stateDumpFile) {
-        testStateProvider = new TestStateProvider(runningTpsThreshold, stateDumpFile);
+    public TestStateService(int runningTpsThreshold, float nodesDeclineFraction, Path stateDumpFile) {
+        testStateProvider = new TestStateProvider(runningTpsThreshold, nodesDeclineFraction, stateDumpFile);
     }
 
     @Override

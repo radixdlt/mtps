@@ -34,10 +34,12 @@ class TestStateProvider {
     private final Object nodeInfoLock;
     private final Path stateDumpPath;
     private final int measuringThreshold;
+    private final float maxNodeDeclineFraction;
 
 
     private TestState currentState;
     private boolean isStarted;
+    private int highNodeCount;
 
     /**
      * Creates a new instance of this provider.
@@ -45,10 +47,12 @@ class TestStateProvider {
      * @param stateDumpPath         Optional path to the file where the
      *                              last calculated test run state is
      *                              persisted.
+     * @param nodeDeclineThreshold  The fraction of dropped nodes required
+     *                              to finish.
      * @param measuringTpsThreshold The minimum TPS value that must be reached
      *                              in order to consider the test RUNNING.
      */
-    TestStateProvider(int measuringTpsThreshold, Path stateDumpPath) {
+    TestStateProvider(int measuringTpsThreshold, float nodeDeclineThreshold, Path stateDumpPath) {
         this.subject = PublishSubject.create();
         this.disposables = new CompositeDisposable();
         this.stateDumpPath = stateDumpPath;
@@ -59,6 +63,8 @@ class TestStateProvider {
         this.currentState = TERMINATED;
         this.isStarted = false;
         this.measuringThreshold = measuringTpsThreshold;
+        this.maxNodeDeclineFraction = nodeDeclineThreshold;
+        this.highNodeCount = Integer.MIN_VALUE;
     }
 
     /**
@@ -123,8 +129,27 @@ class TestStateProvider {
      */
     private void updateNodeInfo(Collection<NodeInfo> newNodeInfo) {
         synchronized (nodeInfoLock) {
+            int size = newNodeInfo.size();
+            if (size > highNodeCount) {
+                highNodeCount = size;
+            }
+
             nodeInfo.clear();
-            nodeInfo.addAll(newNodeInfo);
+
+            if (size <= 1) {
+                // We've hit rock bottom, reset our
+                // extreme values and bail out.
+                highNodeCount = Integer.MIN_VALUE;
+                return;
+            }
+
+            // Check we have enough nodes to continue
+            // running the test.
+            float s = (float) size;
+            float threshold = highNodeCount * (1f - maxNodeDeclineFraction);
+            if (s > threshold) {
+                nodeInfo.addAll(newNodeInfo);
+            }
         }
 
         validateTestState();
@@ -182,16 +207,6 @@ class TestStateProvider {
         // We can't be measuring if there is no network to measure on.
         if (!hasNodeInfo()) {
             return false;
-        }
-
-        // The storingPerShard works well for detecting when test is about to start
-        // but sucks for detecting when test is finished.
-        //
-        // TODO: Piers wants to transition to FINISHED state when >=90% of the data has been
-        // validated (storedPerShard). Problem is that systemInfo is not normalised like in
-        // MetricsProvide.calculateMetrics.      
-        if (currentState == TestState.STARTED) {
-            return (currentState.getStartTimestamp() + 60 * 60 * 1000) > System.currentTimeMillis();
         }
 
         // sum(radixdlt_core_ledger{key="storing_per_shard"})
