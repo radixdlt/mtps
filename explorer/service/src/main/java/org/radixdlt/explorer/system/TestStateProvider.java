@@ -3,36 +3,29 @@ package org.radixdlt.explorer.system;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.subjects.PublishSubject;
+import org.radixdlt.explorer.helper.DumpHelper;
 import org.radixdlt.explorer.nodes.model.NodeInfo;
 import org.radixdlt.explorer.system.model.SystemInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.nio.file.StandardOpenOption.CREATE;
-import static java.nio.file.StandardOpenOption.WRITE;
+import static org.radixdlt.explorer.system.TestState.STARTED;
 import static org.radixdlt.explorer.system.TestState.TERMINATED;
 
 /**
  * Enables means of getting information on the current test state.
  */
 class TestStateProvider {
-    private static final Logger LOGGER = LoggerFactory.getLogger("org.radixdlt.explorer");
-
     private final PublishSubject<TestState> subject;
     private final CompositeDisposable disposables;
     private final Map<String, SystemInfo> systemInfo;
     private final Collection<NodeInfo> nodeInfo;
+    private final DumpHelper dumpHelper;
     private final Object systemInfoLock;
     private final Object nodeInfoLock;
-    private final Path stateDumpPath;
     private final int measuringThreshold;
     private final float maxNodeDeclineFraction;
 
@@ -55,10 +48,10 @@ class TestStateProvider {
     TestStateProvider(int measuringTpsThreshold, float nodeDeclineThreshold, Path stateDumpPath) {
         this.subject = PublishSubject.create();
         this.disposables = new CompositeDisposable();
-        this.stateDumpPath = stateDumpPath;
         this.systemInfoLock = new Object();
         this.nodeInfoLock = new Object();
         this.systemInfo = new ConcurrentHashMap<>();
+        this.dumpHelper = new DumpHelper(stateDumpPath);
         this.nodeInfo = ConcurrentHashMap.newKeySet();
         this.currentState = TERMINATED;
         this.isStarted = false;
@@ -99,14 +92,10 @@ class TestStateProvider {
     synchronized void start(Observable<Collection<NodeInfo>> nodesObserver, Observable<Map<String, SystemInfo>> systemInfoObserver) {
         if (!isStarted) {
             isStarted = true;
-            if (stateDumpPath != null) {
-                // Ensure the full directory structure to the dump file
-                // exists before we attempt to write to it.
-                stateDumpPath.toAbsolutePath().getParent().toFile().mkdirs();
-            }
             disposables.add(systemInfoObserver.subscribe(this::updateSystemInfo));
             disposables.add(nodesObserver.subscribe(this::updateNodeInfo));
-            restoreTestState();
+            String lastLine = dumpHelper.restoreData().blockingGet();
+            currentState = TestState.fromCSV(lastLine);
         }
     }
 
@@ -118,6 +107,7 @@ class TestStateProvider {
             isStarted = false;
             disposables.clear();
             subject.onComplete();
+            dumpHelper.stop();
         }
     }
 
@@ -176,8 +166,12 @@ class TestStateProvider {
     private void validateTestState() {
         TestState testState = currentState.validate(hasNodeInfo(), isMeasuring());
         if (testState != currentState) {
+            if (testState == STARTED) {
+                dumpHelper.dumpData(TestState.DATA_HEADLINE, true);
+            }
+
             currentState = testState;
-            dumpCurrentTestState();
+            dumpHelper.dumpData(currentState.toString());
             subject.onNext(currentState);
         }
     }
@@ -222,37 +216,6 @@ class TestStateProvider {
                 }
             }
             return false;
-        }
-    }
-
-    /**
-     * Dumps the current test state to a file if a path to it has been set.
-     */
-    private void dumpCurrentTestState() {
-        if (stateDumpPath != null) {
-            try {
-                byte[] data = currentState.toString().getBytes(UTF_8);
-                Files.write(stateDumpPath, data, CREATE, WRITE);
-            } catch (Exception e) {
-                LOGGER.info("Couldn't persist current state: " + currentState, e);
-            }
-        }
-    }
-
-    /**
-     * Restores the last test state from a file if a path to it has been set.
-     */
-    private void restoreTestState() {
-        if (stateDumpPath != null) {
-            try {
-                List<String> lines = Files.readAllLines(stateDumpPath, UTF_8);
-                String lastLine = lines.get(lines.size() - 1);
-                currentState = TestState.fromCSV(lastLine);
-            } catch (Exception e) {
-                LOGGER.info("Couldn't restore test state, falling back to default", e);
-                currentState = TERMINATED;
-                dumpCurrentTestState();
-            }
         }
     }
 

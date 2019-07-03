@@ -2,6 +2,7 @@ package org.radixdlt.explorer.system;
 
 import io.reactivex.subjects.PublishSubject;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.radixdlt.explorer.nodes.model.NodeInfo;
 import org.radixdlt.explorer.system.model.SystemInfo;
@@ -28,6 +29,11 @@ import static org.radixdlt.explorer.system.TestState.TERMINATED;
 public class TestStateProviderTest {
     private static final Path TEST_DUMP_FILE_PATH = Paths.get("test_state_provider_test.csv").toAbsolutePath();
 
+    @Before
+    public void beforeTest() throws Exception {
+        Files.deleteIfExists(TEST_DUMP_FILE_PATH);
+    }
+
     @After
     public void afterTest() throws Exception {
         Files.deleteIfExists(TEST_DUMP_FILE_PATH);
@@ -36,7 +42,7 @@ public class TestStateProviderTest {
 
     @Test
     public void when_starting_metrics_provider__previous_metrics_value_is_restored() throws IOException {
-        String line = TERMINATED.name() + ",0,1";
+        String line = "0," + TERMINATED.name() + ",0,1";
         byte[] data = line.getBytes(UTF_8);
         Files.write(TEST_DUMP_FILE_PATH, data, CREATE, WRITE);
 
@@ -52,7 +58,7 @@ public class TestStateProviderTest {
     @Test
     public void when_node_count_drops_below_threshold__finished_state_is_reported_back() throws IOException {
         // Define a known initial state
-        String line = TERMINATED.name() + ",0,0";
+        String line = "0," + TERMINATED.name() + ",0,0";
         byte[] data = line.getBytes(UTF_8);
         Files.write(TEST_DUMP_FILE_PATH, data, CREATE, WRITE);
 
@@ -76,7 +82,7 @@ public class TestStateProviderTest {
     @Test
     public void when_node_count_stays_above_threshold__state_is_not_changed() throws IOException {
         // Define a known initial state
-        String line = TERMINATED.name() + ",0,0";
+        String line = "0," + TERMINATED.name() + ",0,0";
         byte[] data = line.getBytes(UTF_8);
         Files.write(TEST_DUMP_FILE_PATH, data, CREATE, WRITE);
 
