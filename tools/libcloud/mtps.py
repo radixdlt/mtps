@@ -2,6 +2,7 @@ import os
 import sys
 import logging
 import time
+import random
 
 import config
 import gcp
@@ -13,21 +14,6 @@ from libcloud.compute.providers import get_driver
 import secrets
 import string
 
-# show test variables
-logging.info(
-    "Configuration: \n\temail: '%s'\n\tcreadentials file: '%s'\n\tproject: '%s'\n\tatom file: "
-    "'%s'\n\tshard count: '%s'\n\tshard overlap: '%s'",
-    os.getenv('RADIX_MTPS_CLOUD_EMAIL', config.DEFAULT_EMAIL),
-    os.getenv('RADIX_MTPS_CLOUD_CREDENTIALS', config.DEFAULT_CREDS),
-    os.getenv('RADIX_MTPS_CLOUD_PROJECT', 'fast-gateway-233909'),
-    os.environ.get("RADIX_MTPS_NETWORK_ATOMS_FILE", config.DEFAULT_NETWORK_ATOMS_FILE),
-    os.environ.get("RADIX_MTPS_SHARD_COUNT", config.DEFAULT_NETWORK_SHARD_COUNT),
-    os.environ.get("RADIX_MTPS_SHARD_OVERLAP", config.DEFAULT_NETWORK_SHARD_OVERLAP))
-
-# credentials
-ComputeEngine = get_driver(Provider.GCE)
-gce = gcp.login_gcp(ComputeEngine)
-
 
 def generate_password():
     alphabet = string.ascii_letters + string.digits
@@ -36,8 +22,12 @@ def generate_password():
 
 def pretty_time(date_epoch):
     """Parses the give time string (compatible with the date CLI)"""
-    parsed_time = float(date_epoch[1:])
-    return time.asctime(time.localtime(parsed_time))
+    try:
+        parsed_time = float(date_epoch[1:])
+        return time.asctime(time.localtime(parsed_time))
+    except ValueError:
+        logging.error("couldn't parse: '{0}' value to time".format(date_epoch))
+    return "none"
 
 
 def wait_for_public_ip(node):
@@ -47,6 +37,42 @@ def wait_for_public_ip(node):
         time.sleep(5)
         node = gce.ex_get_node(node.name)
 
+
+def random_string(string_length=4):
+    """Generate a random string of fixed length """
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(string_length))
+
+
+# count nodes
+core_nodes_num = 0
+extra_nodes_num = 0
+if "CORE_REGIONS" in config.STORAGE:
+    for region, size in config.STORAGE["CORE_REGIONS"].items():
+        core_nodes_num += size
+if "EXTRA_REGIONS" in config.STORAGE:
+    for region, size in config.STORAGE["EXTRA_REGIONS"].items():
+        extra_nodes_num += size
+
+
+# show test variables
+logging.info(
+    "Configuration: \n\temail: '%s'\n\tcreadentials file: '%s'\n\tproject: '%s'\n\tatom file: "
+    "'%s'\n\tshard count: '%s'\n\tshard overlap: '%s'\n\ttotal core nodes with boot_node: '%s'\n\ttotal extra nodes: '%s'\n\tenvironment test starts: '%s'",
+    os.getenv('RADIX_MTPS_CLOUD_EMAIL', config.STORAGE["DEFAULT_CLOUD_EMAIL"]),
+    os.getenv('RADIX_MTPS_CLOUD_CREDENTIALS', config.STORAGE["DEFAULT_CLOUD_CREDENTIALS"]),
+    os.getenv('RADIX_MTPS_CLOUD_PROJECT', config.STORAGE["DEFAULT_CLOUD_PROJECT"]),
+    os.environ.get("RADIX_MTPS_NETWORK_ATOMS_FILE", config.STORAGE["DEFAULT_NETWORK_ATOMS_FILE"]),
+    os.environ.get("RADIX_MTPS_SHARD_COUNT", config.STORAGE["DEFAULT_NETWORK_SHARD_COUNT"]),
+    os.environ.get("RADIX_MTPS_SHARD_OVERLAP", config.STORAGE["DEFAULT_NETWORK_SHARD_OVERLAP"]),
+    core_nodes_num + 1,
+    extra_nodes_num,
+    pretty_time(os.environ.get("RADIX_MTPS_NETWORK_START_PUMP", ""))
+)
+
+# credentials
+ComputeEngine = get_driver(Provider.GCE)
+gce = gcp.login_gcp(ComputeEngine)
 
 # firewall rules
 if '--destroying-firewall-rules' in sys.argv:
@@ -61,20 +87,20 @@ if '--create-test-prepper' in sys.argv:
     if not gcp.test_prepper_exists(gce):
         logging.info("Creating dataset preparator...")
 
-        rendered_file = gcp.render_template(config.TEST_PREPPER_CLOUD_INIT)
+        rendered_file = gcp.render_template(config.STORAGE["TEST_PREPPER_CLOUD_INIT"])
         test_prepper_rendered_file = open(rendered_file, 'r')
         gcp.create_test_prepper(gce, test_prepper_rendered_file)
 # destroy test prepper
 elif '--destroy-test-prepper' in sys.argv:
     if gcp.test_prepper_exists(gce):
         logging.info("Destroying dataset preparator...")
-        gcp.destroy_node(gce, config.TEST_PREPPER_MACHINE_INSTANCE_NAME)
+        gcp.destroy_node(gce, config.STORAGE["TEST_PREPPER_MACHINE_INSTANCE_NAME"])
 
 # destroy explorer
 if '--destroy-explorer' in sys.argv:
     if gcp.explorer_exists(gce):
         logging.info("Destroying explorer node...")
-        gcp.destroy_node(gce, config.EXPLORER_MACHINE_INSTANCE_NAME)
+        gcp.destroy_node(gce, config.STORAGE["EXPLORER_MACHINE_INSTANCE_NAME"])
 
 # create explorer
 else:
@@ -91,7 +117,7 @@ else:
             os.environ["RADIX_MTPS_NGINX_ACCESS"] = "SUCCESS"
 
         # render file
-        rendered_file = gcp.render_template(config.EXPLORER_CLOUD_INIT)
+        rendered_file = gcp.render_template(config.STORAGE["EXPLORER_CLOUD_INIT"])
         explorer_rendered_file = open(rendered_file, 'r')
         explorer = gcp.create_explorer(gce, explorer_rendered_file)
         logging.info("- Explorer: https://%s", explorer.public_ips[0])
@@ -109,11 +135,12 @@ if '--destroy-cores' in sys.argv:
         time.sleep(10)
     # delete templates
     logging.debug("Destroying templates...")
-    gcp.destroy_core_template(gce, config.CORE_MACHINE_INSTANCE_TEMPLATE_NAME)
-    gcp.destroy_core_template(gce, config.CORE_MACHINE_BOOT_INSTANCE_TEMPLATE_NAME)
+    gcp.destroy_core_template(gce, config.STORAGE["CORE_MACHINE_INSTANCE_TEMPLATE_NAME"])
+    gcp.destroy_core_template(gce, config.STORAGE["CORE_MACHINE_BOOT_INSTANCE_TEMPLATE_NAME"])
+    gcp.destroy_core_template(gce, config.STORAGE["EXTRA_INSTANCE_TEMPLATE_NAME"])
 # create cores
 else:
-    os.environ["CORE_DOCKER_IMAGE"] = config.CORE_DOCKER_IMAGE
+    os.environ["CORE_DOCKER_IMAGE"] = config.STORAGE["CORE_DOCKER_IMAGE"]
 
     explorer = gcp.get_explorer(gce)
     attempts = 0
@@ -123,7 +150,7 @@ else:
         try:
             os.environ["RADIX_MTPS_NETWORK_EXPLORER_IP"] = explorer.public_ips[0]
             os.environ["RADIX_MTPS_NETWORK_ATOMS_FILE"] = os.environ.get("RADIX_MTPS_NETWORK_ATOMS_FILE",
-                                                                         config.DEFAULT_NETWORK_ATOMS_FILE)
+                                                                         config.STORAGE["DEFAULT_NETWORK_ATOMS_FILE"])
             os.environ["RADIX_MTPS_NETWORK_PASSWORD"] = ssh.get_admin_password(explorer.public_ips[0])
             attempts = 3
         except Exception:
@@ -138,11 +165,11 @@ else:
         os.environ["RADIX_MTPS_NETWORK_UNIVERSE"] = ssh.get_test_universe(boot_node.public_ips[0])
     else:
         # reconfigure shard allocator
-        shard_count = os.environ.get("RADIX_MTPS_SHARD_COUNT", config.DEFAULT_NETWORK_SHARD_COUNT)
+        shard_count = os.environ.get("RADIX_MTPS_SHARD_COUNT", config.STORAGE["DEFAULT_NETWORK_SHARD_COUNT"])
         ssh.update_shard_count(
             explorer.public_ips[0],
-            os.environ.get("RADIX_MTPS_SHARD_COUNT", config.DEFAULT_NETWORK_SHARD_COUNT),
-            os.environ.get("RADIX_MTPS_SHARD_OVERLAP", config.DEFAULT_NETWORK_SHARD_OVERLAP))
+            os.environ.get("RADIX_MTPS_SHARD_COUNT", config.STORAGE["DEFAULT_NETWORK_SHARD_COUNT"]),
+            os.environ.get("RADIX_MTPS_SHARD_OVERLAP", config.STORAGE["DEFAULT_NETWORK_SHARD_OVERLAP"]))
 
         # generate a new universe
         if "RADIX_MTPS_NETWORK_UNIVERSE" not in os.environ:
@@ -164,16 +191,18 @@ else:
 
         # schedule test
         if "RADIX_MTPS_NETWORK_START_PUMP" not in os.environ:
-            testtime = round(time.time() + config.DEFAULT_NETWORK_START_PUMPING * 60)
+            testtime = round(time.time() + config.STORAGE["DEFAULT_NETWORK_START_PUMPING"] * 60)
             os.environ["RADIX_MTPS_NETWORK_START_PUMP"] = '@' + str(testtime)
 
         # boot node
         logging.info("Creating boot node...")
 
-        rendered_file = gcp.render_template(config.CORE_CLOUD_INIT)
-        region = gce.ex_get_region(config.CORE_MACHINE_BOOT_NODE_LOCATION)
-        gcp.create_core_template(gce, config.CORE_MACHINE_BOOT_INSTANCE_TEMPLATE_NAME, open(rendered_file, "r"))
-        gcp.create_core_group(gce, region, 1, config.CORE_MACHINE_BOOT_INSTANCE_TEMPLATE_NAME, prefix="core-boot")
+        rendered_file = gcp.render_template(config.STORAGE["CORE_CLOUD_INIT"])
+        region = gce.ex_get_region(config.STORAGE["CORE_MACHINE_BOOT_NODE_LOCATION"])
+        gcp.create_core_template(gce, config.STORAGE["CORE_MACHINE_BOOT_INSTANCE_TEMPLATE_NAME"],
+                                 open(rendered_file, "r"))
+        gcp.create_core_group(gce, region, 1, config.STORAGE["CORE_MACHINE_BOOT_INSTANCE_TEMPLATE_NAME"],
+                              prefix="core-boot")
         boot_node = gcp.wait_boot_node(gce)
         wait_for_public_ip(boot_node)
 
@@ -184,16 +213,35 @@ else:
     logging.info("Test will run at: %s", pretty_time(os.environ["RADIX_MTPS_NETWORK_START_PUMP"]))
 
     os.environ["RADIX_MTPS_NETWORK_SEEDS"] = boot_node.public_ips[0]
-    rendered_file = gcp.render_template(config.CORE_CLOUD_INIT)
-    gcp.create_core_template(gce, config.CORE_MACHINE_INSTANCE_TEMPLATE_NAME, open(rendered_file, "r"))
 
-    for region, size in config.CORE_REGIONS.items():
+    # create core node machine template
+    rendered_file = gcp.render_template(config.STORAGE["CORE_CLOUD_INIT"])
+    gcp.create_core_template(gce, config.STORAGE["CORE_MACHINE_INSTANCE_TEMPLATE_NAME"], open(rendered_file, "r"))
+
+    for region, size in config.STORAGE["CORE_REGIONS"].items():
         region = gce.ex_get_region(region)
         count = gcp.count_core_nodes(gce, region)
         if count == 0:
             logging.info("Creating %d Core node in %s...", size, region.name)
-            gcp.create_core_group(gce, region, size, config.CORE_MACHINE_INSTANCE_TEMPLATE_NAME, prefix="cores")
+            gcp.create_core_group(gce, region, size, config.STORAGE["CORE_MACHINE_INSTANCE_TEMPLATE_NAME"])
         elif count < size:
-            logging.warn("Not enough Core nodes in %s than requested: %d < %d", region.name, count, size)
+            logging.warning("Not enough Core nodes in %s than requested: %d < %d", region.name, count, size)
         else:
             logging.info("Core nodes in %s are already up and running", region.name)
+
+    # create extra nodes
+    if "EXTRA_REGIONS" in config.STORAGE:
+        rendered_file = gcp.render_template(config.STORAGE["CORE_CLOUD_EXTRA"])
+        gcp.create_core_template(gce, name=config.STORAGE["EXTRA_INSTANCE_TEMPLATE_NAME"], cloud_init=open(rendered_file, "r"))
+
+        for region, size in config.STORAGE["EXTRA_REGIONS"].items():
+            region = gce.ex_get_region(region)
+            count = gcp.count_core_nodes(gce, region, "extra")
+            if count == 0:
+                logging.info("Creating %d extra node in %s...", size, region.name)
+                gcp.create_core_group(gce, region, size, config.STORAGE["EXTRA_INSTANCE_TEMPLATE_NAME"],
+                                      prefix="extra")
+            elif count < size:
+                logging.warning("Not enough Malicious nodes in %s than requested: %d < %d", region.name, count, size)
+            else:
+                logging.info("Malicious nodes in %s are already up and running", region.name)

@@ -1,0 +1,9 @@
+{
+  "DEFAULT_NETWORK_ATOMS_FILE": "/radix/atoms_v4_6m.zst",
+
+  "CORE_DOCKER_IMAGE": "radixdlt/radixdlt-core:atom-pump-amd64",
+  "CORE_REGIONS": {
+    "europe-north1": 1,
+    "europe-west4": 1
+  }
+}

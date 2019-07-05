@@ -19,7 +19,7 @@ def ssh_client(host):
         client.close()
 
 
-def ssh_exec(host, command, retries=1):
+def ssh_exec(host, command, retries=10):
     """
     Executes command on the ssh server
 
@@ -51,6 +51,7 @@ def ssh_exec(host, command, retries=1):
                 time.sleep(10)
             else:
                 lines = stdout.readlines()
+                logging.debug("Command: '{0}'\n...success with the output: '{1}'\n...exitStatus:{2}".format(command, '\' '.join(lines), exit_status))
         current_try += 1
     if exit_status != 0:
         raise Exception(return_message)
@@ -61,7 +62,7 @@ def ssh_exec(host, command, retries=1):
 def generate_universe(host):
     entrypoint = "/opt/radixdlt/bin/generate_universes"
     command = "docker pull {0} && docker run --rm --entrypoint {1} {0} --dev.planck 3600 --universe.timestamp 1231006505".format(
-        config.CORE_DOCKER_IMAGE, entrypoint)
+        config.STORAGE["CORE_DOCKER_IMAGE"], entrypoint)
     magic = "UNIVERSE - TEST: "
 
     output_lines = ssh_exec(host, command)
