@@ -156,11 +156,14 @@ else:
         except Exception:
             attempts += 1
             time.sleep(15)
+
+    # start pumping URL
+    if not os.environ.get("RADIX_MTPS_NETWORK_START_PUMP_URL"):
+            os.environ["RADIX_MTPS_NETWORK_START_PUMP_URL"] = config.DEFAULT_NETWORK_START_URL
+
     boot_node = gcp.get_boot_node(gce)
     if boot_node:
         logging.info("A boot node seems to be up and running.")
-        # extract the configured test time from host
-        os.environ["RADIX_MTPS_NETWORK_START_PUMP"] = ssh.get_test_time(boot_node.public_ips[0])
         # extract the universe from host
         os.environ["RADIX_MTPS_NETWORK_UNIVERSE"] = ssh.get_test_universe(boot_node.public_ips[0])
     else:

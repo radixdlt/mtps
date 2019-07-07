@@ -35,9 +35,10 @@ write_files:
                     CORE_NETWORK_SEEDS: "$RADIX_MTPS_NETWORK_SEEDS"
                     CORE_EXPLORER_IP: "$RADIX_MTPS_NETWORK_EXPLORER_IP"
                     CORE_PUMP_ATOMS_URL: "$RADIX_MTPS_NETWORK_ATOMS_FILE"
+                    CORE_PUMP_START_URL: "$RADIX_MTPS_NETWORK_START_PUMP_URL"
                     CORE_SECURE_RANDOM_SOURCE: /dev/urandom
                     CORE_UNIVERSE: "$RADIX_MTPS_NETWORK_UNIVERSE"
-                    TIMETORUNTEST: "$RADIX_MTPS_NETWORK_START_PUMP" # e.g. "17.00" or "now+5min"
+                    # TIMETORUNTEST: "$RADIX_MTPS_NETWORK_START_PUMP" # e.g. "17.00" or "now+5min"
                     JAVA_OPTS: "-server -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9009 -XX:+HeapDumpOnOutOfMemoryError -Dcom.sun.management.jmxremote.port=9010 -Dcom.sun.management.jmxremote.rmi.port=9010 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost"
                 volumes:
                     - "core_ledger:/opt/radixdlt/RADIXDB"
