@@ -121,7 +121,7 @@ def destroy_all_core_groups(gce):
                     pass
 
 
-def create_core_template(gce, name, cloud_init, machine_image=""):
+def create_core_template(gce, name, cloud_init):
     try:
         gce.ex_create_instancetemplate(
             name=name,
