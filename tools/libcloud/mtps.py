@@ -192,11 +192,6 @@ else:
                     time.sleep(15)
             os.environ["RADIX_MTPS_NETWORK_UNIVERSE"] = universe
 
-        # schedule test
-        if "RADIX_MTPS_NETWORK_START_PUMP" not in os.environ:
-            testtime = round(time.time() + config.STORAGE["DEFAULT_NETWORK_START_PUMPING"] * 60)
-            os.environ["RADIX_MTPS_NETWORK_START_PUMP"] = '@' + str(testtime)
-
         # boot node
         logging.info("Creating boot node...")
 
@@ -213,7 +208,7 @@ else:
         logging.info("Updating node finder...")
         ssh.update_node_finder(explorer.public_ips[0], boot_node.public_ips[0])
     logging.debug("Test universe: %s", os.environ["RADIX_MTPS_NETWORK_UNIVERSE"])
-    logging.info("Test will run at: %s", pretty_time(os.environ["RADIX_MTPS_NETWORK_START_PUMP"]))
+    logging.info("Test will run at: (go to %s)", os.environ["RADIX_MTPS_NETWORK_START_PUMP_URL"])
 
     os.environ["RADIX_MTPS_NETWORK_SEEDS"] = boot_node.public_ips[0]
 
