@@ -1,4 +1,5 @@
 #cloud-config
+#These extra nodes will be used for the purpose of testing. This file fill be used to define specific difference from regular core node
 users:
   - name: radix
     sudo: ALL=(ALL) NOPASSWD:ALL
