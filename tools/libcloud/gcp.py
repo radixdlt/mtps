@@ -195,11 +195,11 @@ def wait_boot_node(gce):
     raise RuntimeError("boot node did not start in 600 seconds")
 
 
-def count_core_nodes(gce, region, prefix_txt="cores-"):
+def count_core_nodes(gce, region, prefix="cores-"):
     nodes = gce.list_nodes()
     count = 0
     for node in nodes:
-        if node.name.startswith((prefix_txt + ("{0}-")).format(region.name)):
+        if node.name.startswith((prefix + ("{0}-")).format(region.name)):
             count += 1
     return count
 
