@@ -1,0 +1,5 @@
+{
+  "DEFAULT_CLOUD_EMAIL": "libcloud@fast-gateway-233909.iam.gserviceaccount.com",
+  "DEFAULT_CLOUD_CREDENTIALS": "~/.gcloud.json",
+  "DEFAULT_CLOUD_PROJECT": "fast-gateway-233909"
+}

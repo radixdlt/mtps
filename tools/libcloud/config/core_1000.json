@@ -1,0 +1,22 @@
+{
+  "DEFAULT_NETWORK_SHARD_COUNT": "1000",
+  "CORE_REGIONS": {
+    "europe-north1": 125,
+    "europe-west1": 4,
+    "europe-west2": 2,
+    "europe-west3": 2,
+    "europe-west4": 110,
+    "europe-west6": 2,
+    "us-central1": 115,
+    "us-west1": 110,
+    "us-east1": 110,
+    "us-east4": 12,
+    "us-west2": 2,
+    "northamerica-northeast1": 99,
+    "southamerica-east1": 2,
+    "asia-northeast1": 102,
+    "asia-southeast1": 100,
+    "asia-east1": 100,
+    "australia-southeast1": 2
+  }
+}
