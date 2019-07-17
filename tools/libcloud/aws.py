@@ -1,8 +1,17 @@
 import logging
 
-from libcloud.common.google import ResourceNotFoundError
+import config
+
 from libcloud.common.google import ResourceExistsError
-from libcloud.common.google import InvalidRequestError
+
+
+# login AWS
+def login_gcp(ComputeEngine):
+    aws_e = ComputeEngine(
+        config.get("AWS_KEY_ID"),
+        config.get("AWS_SECRET")
+    )
+    return aws_e
 
 def create_ingress_rules(ec2e):
     core_ports = [

@@ -2,6 +2,8 @@ import os
 import logging
 import argparse
 import json
+import csv
+from os.path import expanduser
 
 STORAGE = {
     # cloudinit
@@ -175,3 +177,10 @@ if args.config is not None:
 STORAGE["CLOUD_PROJECT"] = os.getenv('RADIX_MTPS_CLOUD_PROJECT', STORAGE["DEFAULT_CLOUD_PROJECT"])
 STORAGE["CLOUD_CREDENTIALS"] = os.getenv('RADIX_MTPS_CLOUD_CREDENTIALS', STORAGE["DEFAULT_CLOUD_CREDENTIALS"])
 STORAGE["CLOUD_EMAIL"] = os.getenv('RADIX_MTPS_CLOUD_CLOUD_EMAIL', STORAGE["DEFAULT_CLOUD_EMAIL"])
+
+# read aws credentials csv
+with open(expanduser(STORAGE["AWS_CLOUD_CREDENTIALS"])) as csvfile:
+    reader = csv.DictReader(csvfile)
+    for row in reader:
+        STORAGE["AWS_KEY_ID"] = row['Access key ID']
+        STORAGE["AWS_SECRET"] = row['Secret access key']

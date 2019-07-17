@@ -7,7 +7,7 @@ import random
 import config
 import gcp
 import ssh
-import ec2
+import aws
 
 from libcloud.compute.types import Provider
 from libcloud.compute.providers import get_driver
@@ -73,11 +73,8 @@ logging.info(
 
 # credentials
 ComputeEngine = get_driver(Provider.EC2)
+awse = aws.login_gcp(ComputeEngine)
 
-ec2e = ComputeEngine(
-    config.get("CLOUD_EMAIL"),
-    config.get("CLOUD_CREDENTIALS"),
-    project=config.get("CLOUD_PROJECT"))
 
 # ComputeEngine = get_driver(Provider.GCE)
 # gce = gcp.login_gcp(ComputeEngine)
@@ -88,7 +85,7 @@ if '--destroying-firewall-rules' in sys.argv:
     gcp.destroy_ingress_rules(gce)
 else:
     logging.info("Checking if firewall rules are created...")
-    ec2.create_ingress_rules(ec2e)
+    aws.create_ingress_rules(awse)
 
 # firewall rules
 if '--destroying-firewall-rules' in sys.argv:

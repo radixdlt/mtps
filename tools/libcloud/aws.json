@@ -1,5 +1,0 @@
-{
-  "DEFAULT_CLOUD_EMAIL": "mtps",
-  "DEFAULT_CLOUD_CREDENTIALS": "~/.ec2AccessKeys.csv",
-  "DEFAULT_CLOUD_PROJECT": ""
-}
