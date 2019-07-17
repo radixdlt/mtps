@@ -1,5 +1,5 @@
 {
-  "CORE_DOCKER_IMAGE": "radixdlt/radixdlt-core:atom-pump-amd64",
+  "DEFAULT_NETWORK_SHARD_COUNT": "1100",
   "CORE_REGIONS": {
     "europe-north1": 125,
     "europe-west1": 104,

@@ -162,7 +162,7 @@ args = get_arguments(argparse.ArgumentParser())
 if args.config is not None:
     for file_name in args.config.split(","):
         logging.info("importing '{0}'".format(file_name))
-        file = os.path.join(os.path.dirname(os.path.realpath(__file__)), file_name)
+        file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "config/", file_name)
         if not os.path.isfile(file):
             logging.error("Path '{0}' doesn't point to a file".format(file))
             raise OSError
