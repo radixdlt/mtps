@@ -159,7 +159,7 @@ else:
 
     # start pumping URL
     if not os.environ.get("RADIX_MTPS_NETWORK_START_PUMP_URL"):
-            os.environ["RADIX_MTPS_NETWORK_START_PUMP_URL"] = config.DEFAULT_NETWORK_START_URL
+            os.environ["RADIX_MTPS_NETWORK_START_PUMP_URL"] = config.STORAGE["DEFAULT_NETWORK_START_URL"]
 
     boot_node = gcp.get_boot_node(gce)
     if boot_node:
