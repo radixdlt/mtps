@@ -15,9 +15,9 @@ STORAGE = {
     "CORE_DOCKER_IMAGE": "radixdlt/radixdlt-core:atom-pump-amd64",
 
     # default credentials
-    "DEFAULT_CLOUD_EMAIL": "libcloud@fast-gateway-233909.iam.gserviceaccount.com",
-    "DEFAULT_CLOUD_CREDENTIALS": "~/.gcloud.json",
-    "DEFAULT_CLOUD_PROJECT": "fast-gateway-233909",
+    "DEFAULT_CLOUD_EMAIL": "libcloud@m-tps-test-2.iam.gserviceaccount.com",
+    "DEFAULT_CLOUD_CREDENTIALS": "~/.gcloud-m-tps-test2.json",
+    "DEFAULT_CLOUD_PROJECT": "m-tps-test-2",
 
     # network config
     "DEFAULT_NETWORK_UNIVERSE": "",

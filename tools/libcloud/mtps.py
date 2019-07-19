@@ -71,21 +71,10 @@ logging.info(
     os.environ.get("RADIX_MTPS_NETWORK_START_PUMP_URL", config.STORAGE["DEFAULT_NETWORK_START_URL"])
 )
 
-# credentials
-ComputeEngine = get_driver(Provider.EC2)
-awse = aws.login_gcp(ComputeEngine)
-
-
-# ComputeEngine = get_driver(Provider.GCE)
-# gce = gcp.login_gcp(ComputeEngine)
-
-# firewall rules
-if '--destroying-firewall-rules' in sys.argv:
-    logging.info("Destroying firewall rules...")
-    gcp.destroy_ingress_rules(gce)
-else:
-    logging.info("Checking if firewall rules are created...")
-    aws.create_ingress_rules(awse)
+# drivers
+ComputeEngine = get_driver(Provider.GCE)
+gce = gcp.login_gcp(ComputeEngine)
+aws_e = aws.getEngines()
 
 # firewall rules
 if '--destroying-firewall-rules' in sys.argv:
@@ -94,6 +83,7 @@ if '--destroying-firewall-rules' in sys.argv:
 else:
     logging.info("Checking if firewall rules are created...")
     gcp.create_ingress_rules(gce)
+    aws.create_ingress_rules(aws_e)
 
 # create test prepper
 if '--create-test-prepper' in sys.argv:
