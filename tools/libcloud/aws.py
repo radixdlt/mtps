@@ -8,6 +8,17 @@ from libcloud.compute.types import Provider
 
 # login AWS
 def login_gcp(ec2_driver, region):
+
+    # read aws credentials csv
+    with open(expanduser(config.STORAGE["AWS_CLOUD_CREDENTIALS"])) as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            STORAGE["AWS_KEY_ID"] = row['Access key ID']
+            STORAGE["AWS_SECRET"] = row['Secret access key']
+            logging.info("AWS_KEY_ID {0}", STORAGE["AWS_KEY_ID"])
+            logging.info("AWS_SECRET {0}", STORAGE["AWS_SECRET"])
+            exit(0)
+
     aws_e = ec2_driver(
         config.get("AWS_KEY_ID"),
         config.get("AWS_SECRET"),

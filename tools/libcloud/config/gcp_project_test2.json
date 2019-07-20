@@ -1,4 +1,5 @@
 {
+  "DEFAULT_CLOUD_PLATFORM": "gcp",
   "DEFAULT_CLOUD_EMAIL": "libcloud@m-tps-test-2.iam.gserviceaccount.com",
   "DEFAULT_CLOUD_CREDENTIALS": "~/.gcloud-m-tps-test2.json",
   "DEFAULT_CLOUD_PROJECT": "m-tps-test-2",

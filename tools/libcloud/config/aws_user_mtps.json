@@ -1,0 +1,8 @@
+{
+  "DEFAULT_CLOUD_PLATFORM": "aws",
+  "AWS_CLOUD_CREDENTIALS": "~/.ec2_access_keys.csv",
+  "AWS_REGIONS": {
+    "us-west-1": 1,
+    "us-west-2": 1
+  }
+}

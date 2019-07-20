@@ -3,7 +3,13 @@ import logging
 import argparse
 import json
 import csv
+import secrets
+import string
+import time
 from os.path import expanduser
+
+PLATFORM_GCP = "gcp"
+PLATFORM_AWS = "aws"
 
 STORAGE = {
     # cloudinit
@@ -15,6 +21,7 @@ STORAGE = {
     "CORE_DOCKER_IMAGE": "radixdlt/radixdlt-core:atom-pump-amd64",
 
     # default credentials
+    "DEFAULT_CLOUD_PLATFORM": PLATFORM_GCP,
     "DEFAULT_CLOUD_EMAIL": "libcloud@m-tps-test-2.iam.gserviceaccount.com",
     "DEFAULT_CLOUD_CREDENTIALS": "~/.gcloud-m-tps-test2.json",
     "DEFAULT_CLOUD_PROJECT": "m-tps-test-2",
@@ -178,9 +185,43 @@ STORAGE["CLOUD_PROJECT"] = os.getenv('RADIX_MTPS_CLOUD_PROJECT', STORAGE["DEFAUL
 STORAGE["CLOUD_CREDENTIALS"] = os.getenv('RADIX_MTPS_CLOUD_CREDENTIALS', STORAGE["DEFAULT_CLOUD_CREDENTIALS"])
 STORAGE["CLOUD_EMAIL"] = os.getenv('RADIX_MTPS_CLOUD_CLOUD_EMAIL', STORAGE["DEFAULT_CLOUD_EMAIL"])
 
-# read aws credentials csv
-with open(expanduser(STORAGE["AWS_CLOUD_CREDENTIALS"])) as csvfile:
-    reader = csv.DictReader(csvfile)
-    for row in reader:
-        STORAGE["AWS_KEY_ID"] = row['Access key ID']
-        STORAGE["AWS_SECRET"] = row['Secret access key']
+def generate_password():
+    alphabet = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(alphabet) for i in range(30))  # for a 20-character password
+
+
+def pretty_time(date_epoch):
+    """Parses the give time string (compatible with the date CLI)"""
+    try:
+        parsed_time = float(date_epoch[1:])
+        return time.asctime(time.localtime(parsed_time))
+    except ValueError:
+        logging.error("couldn't parse: '{0}' value to time".format(date_epoch))
+    return "none"
+
+
+def print_config():
+
+    # count nodes
+    core_nodes_num = 0
+    extra_nodes_num = 0
+    if "CORE_REGIONS" in STORAGE:
+        for region, size in STORAGE["CORE_REGIONS"].items():
+            core_nodes_num += size
+    if "EXTRA_REGIONS" in STORAGE:
+        for region, size in STORAGE["EXTRA_REGIONS"].items():
+            extra_nodes_num += size
+
+    logging.info(
+        "Configuration: \n\temail: '%s'\n\tcreadentials file: '%s'\n\tproject: '%s'\n\tatom file: "
+        "'%s'\n\tshard count: '%s'\n\tshard overlap: '%s'\n\ttotal core nodes with boot_node: '%s'\n\ttotal extra nodes: '%s'\n\tenvironment test starts: '%s'",
+        os.getenv('RADIX_MTPS_CLOUD_EMAIL', STORAGE["DEFAULT_CLOUD_EMAIL"]),
+        os.getenv('RADIX_MTPS_CLOUD_CREDENTIALS', STORAGE["DEFAULT_CLOUD_CREDENTIALS"]),
+        os.getenv('RADIX_MTPS_CLOUD_PROJECT', STORAGE["DEFAULT_CLOUD_PROJECT"]),
+        os.environ.get("RADIX_MTPS_NETWORK_ATOMS_FILE", STORAGE["DEFAULT_NETWORK_ATOMS_FILE"]),
+        os.environ.get("RADIX_MTPS_SHARD_COUNT", STORAGE["DEFAULT_NETWORK_SHARD_COUNT"]),
+        os.environ.get("RADIX_MTPS_SHARD_OVERLAP", STORAGE["DEFAULT_NETWORK_SHARD_OVERLAP"]),
+        core_nodes_num + 1,
+        extra_nodes_num,
+        pretty_time(os.environ.get("RADIX_MTPS_NETWORK_START_PUMP", ""))
+    )
