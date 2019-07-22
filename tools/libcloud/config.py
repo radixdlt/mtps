@@ -2,11 +2,11 @@ import os
 import logging
 import argparse
 import json
-import csv
 import secrets
 import string
 import time
-from os.path import expanduser
+import re
+from tempfile import NamedTemporaryFile
 
 PLATFORM_GCP = "gcp"
 PLATFORM_AWS = "aws"
@@ -125,7 +125,7 @@ STORAGE["TEST_PREPPER_CLOUD_INIT"] = os.path.join(STORAGE["BASE_CLOUD_INIT_PATH"
 # logging
 logging.basicConfig(
     format="%(message)s",
-    level=os.environ.get('LOGLEVEL', 'INFO').upper())
+    level=os.environ.get('LOGLEVEL', logging.DEBUG))
 logging.getLogger("paramiko").setLevel(logging.WARNING)
 
 
@@ -225,3 +225,23 @@ def print_config():
         extra_nodes_num,
         pretty_time(os.environ.get("RADIX_MTPS_NETWORK_START_PUMP", ""))
     )
+
+
+# envsubst variables
+def render_template(path):
+    temp_file = NamedTemporaryFile(delete=False)
+    logging.debug("- Rendering %s to %s", path, temp_file.name)
+    with open(path) as original_file:
+        for line in original_file:
+            temp_file.write(expandvars(line).encode())
+    return temp_file.name
+
+
+# replace unset env variables with white space
+def expandvars(path, default=''):
+    def replace_var(m):
+        return os.environ.get(m.group(2) or m.group(1), '')
+
+    reVar = (r'(?<!\\)' '') + r'\$(\w+|\{([^}]*)\})'
+    return re.sub(reVar, replace_var, path)
+

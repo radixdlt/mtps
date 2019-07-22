@@ -1,5 +1,4 @@
 import logging
-import re
 import sys
 import config
 import time
@@ -13,7 +12,6 @@ from libcloud.compute.types import Provider
 from libcloud.common.google import ResourceNotFoundError
 from libcloud.common.google import ResourceExistsError
 from libcloud.common.google import InvalidRequestError
-from tempfile import NamedTemporaryFile
 
 
 # initialize test
@@ -22,7 +20,7 @@ def initialize_test():
     gce = login_gcp(ComputeEngine)
 
     # firewall rules
-    if '--destroying-firewall-rules' in sys.argv:
+    if '--destroy-firewall-rules' in sys.argv:
         logging.info("Destroying firewall rules...")
         destroy_ingress_rules(gce)
     else:
@@ -34,7 +32,7 @@ def initialize_test():
         if not test_prepper_exists(gce):
             logging.info("Creating dataset preparator...")
 
-            rendered_file = render_template(config.STORAGE["TEST_PREPPER_CLOUD_INIT"])
+            rendered_file = config.render_template(config.STORAGE["TEST_PREPPER_CLOUD_INIT"])
             test_prepper_rendered_file = open(rendered_file, 'r')
             create_test_prepper(gce, test_prepper_rendered_file)
     # destroy test prepper
@@ -64,7 +62,7 @@ def initialize_test():
                 os.environ["RADIX_MTPS_NGINX_ACCESS"] = "SUCCESS"
 
             # render file
-            rendered_file = render_template(config.STORAGE["EXPLORER_CLOUD_INIT"])
+            rendered_file = config.render_template(config.STORAGE["EXPLORER_CLOUD_INIT"])
             explorer_rendered_file = open(rendered_file, 'r')
             explorer = create_explorer(gce, explorer_rendered_file)
             logging.info("- Explorer: https://%s", explorer.public_ips[0])
@@ -142,7 +140,7 @@ def initialize_test():
             # boot node
             logging.info("Creating boot node...")
 
-            rendered_file = render_template(config.STORAGE["CORE_CLOUD_INIT"])
+            rendered_file = config.render_template(config.STORAGE["CORE_CLOUD_INIT"])
             region = gce.ex_get_region(config.STORAGE["CORE_MACHINE_BOOT_NODE_LOCATION"])
             create_core_template(gce, config.STORAGE["CORE_MACHINE_BOOT_INSTANCE_TEMPLATE_NAME"],
                                     open(rendered_file, "r"))
@@ -160,7 +158,7 @@ def initialize_test():
         os.environ["RADIX_MTPS_NETWORK_SEEDS"] = boot_node.public_ips[0]
 
         # create core node machine template
-        rendered_file = render_template(config.STORAGE["CORE_CLOUD_INIT"])
+        rendered_file = config.render_template(config.STORAGE["CORE_CLOUD_INIT"])
         create_core_template(gce, config.STORAGE["CORE_MACHINE_INSTANCE_TEMPLATE_NAME"], open(rendered_file, "r"))
 
         for region, size in config.STORAGE["CORE_REGIONS"].items():
@@ -176,7 +174,7 @@ def initialize_test():
 
         # create extra nodes
         if "EXTRA_REGIONS" in config.STORAGE:
-            rendered_file = render_template(config.STORAGE["CORE_CLOUD_EXTRA"])
+            rendered_file = config.render_template(config.STORAGE["CORE_CLOUD_EXTRA"])
             create_core_template(gce, name=config.STORAGE["EXTRA_INSTANCE_TEMPLATE_NAME"], cloud_init=open(rendered_file, "r"))
 
             for region, size in config.STORAGE["EXTRA_REGIONS"].items():
@@ -467,25 +465,6 @@ def create_test_prepper(gce, cloud_init):
         ]
     )
     return node
-
-
-# envsubst variables
-def render_template(path):
-    temp_file = NamedTemporaryFile(delete=False)
-    logging.debug("- Rendering %s to %s", path, temp_file.name)
-    with open(path) as original_file:
-        for line in original_file:
-            temp_file.write(expandvars(line).encode())
-    return temp_file.name
-
-
-# replace unset env variables with white space
-def expandvars(path, default=''):
-    def replace_var(m):
-        return os.environ.get(m.group(2) or m.group(1), '')
-
-    reVar = (r'(?<!\\)' '') + r'\$(\w+|\{([^}]*)\})'
-    return re.sub(reVar, replace_var, path)
 
 
 def wait_for_public_ip(gce, node):
