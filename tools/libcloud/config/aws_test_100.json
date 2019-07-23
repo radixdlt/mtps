@@ -1,16 +1,21 @@
 {
   "DEFAULT_CLOUD_PLATFORM": "aws",
+  "CORE_CLOUD_INIT": "core_aws",
+  "CORE_DOCKER_IMAGE": "radixdlt/radixdlt-core:atom-pump-amd64",
   "AWS_CLOUD_CREDENTIALS": "~/.ec2_access_keys.csv",
-  "AWS_SECURITY_GROUP_NAME": "mtps-security-group",
+  "AWS_SECURITY_GROUP_NAME": "default",
+  "AWS_CORE_REGIONS": {
+    "eu-west-1": 1
+  },
   "AWS_CORE_TEMPLATE_CONFIG": {
     "LaunchTemplateName": "core-template2",
     "VersionDescription": "Template for codes nodes of the mtps.",
-    "LaunchTemplateData.ImageId": "ami-06b41651a26fbba09",
-    "LaunchTemplateData.InstanceType": "t2.micro",
+    "LaunchTemplateData.ImageId": "ami-03746875d916becc0",
+    "LaunchTemplateData.InstanceType": "m5d.2xlarge",
     "LaunchTemplateData.NetworkInterface.1.DeviceIndex": 0,
-    "LaunchTemplateData.NetworkInterface.1.AssociatePublicIpAddress": "true"
-  },
-  "AWS_CORE_REGIONS": {
-    "eu-west-1": 1
+    "LaunchTemplateData.NetworkInterface.1.AssociatePublicIpAddress": "true",
+    "LaunchTemplateData.TagSpecification.1.ResourceType": "instance",
+    "LaunchTemplateData.TagSpecification.1.Tag.1.Key": "role",
+    "LaunchTemplateData.TagSpecification.1.Tag.1.Value": "core-node"
   }
 }

@@ -125,7 +125,7 @@ STORAGE["TEST_PREPPER_CLOUD_INIT"] = os.path.join(STORAGE["BASE_CLOUD_INIT_PATH"
 # logging
 logging.basicConfig(
     format="%(message)s",
-    level=os.environ.get('LOGLEVEL', logging.DEBUG))
+    level=os.environ.get('LOGLEVEL', logging.INFO))
 logging.getLogger("paramiko").setLevel(logging.WARNING)
 
 
