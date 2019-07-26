@@ -13,5 +13,5 @@ python3 mtps.py -c gcp_project_fastgateway.json,gcp_test_1000.json
 
 ### Run test on AWS
 ```
-python3 mtps.py -c gcp_project_fastgateway.json,gcp_test_1000.json
+python3 mtps.py -c aws_test_100.json
 ```
