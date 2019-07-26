@@ -1,5 +1,6 @@
 {
   "DEFAULT_CLOUD_EMAIL": "libcloud@fast-gateway-233909.iam.gserviceaccount.com",
   "DEFAULT_CLOUD_CREDENTIALS": "~/.gcloud.json",
-  "DEFAULT_CLOUD_PROJECT": "fast-gateway-233909"
+  "DEFAULT_CLOUD_PROJECT": "fast-gateway-233909",
+  "DEFAULT_NETWORK_START_URL": "https://1m.radixdlt.com/api/metrics"
 }

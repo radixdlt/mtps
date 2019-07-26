@@ -58,7 +58,7 @@ if "EXTRA_REGIONS" in config.STORAGE:
 # show test variables
 logging.info(
     "Configuration: \n\temail: '%s'\n\tcreadentials file: '%s'\n\tproject: '%s'\n\tatom file: "
-    "'%s'\n\tshard count: '%s'\n\tshard overlap: '%s'\n\ttotal core nodes with boot_node: '%s'\n\ttotal extra nodes: '%s'\n\tenvironment test starts: '%s'",
+    "'%s'\n\tshard count: '%s'\n\tshard overlap: '%s'\n\ttotal core nodes with boot_node: '%s'\n\ttotal extra nodes: '%s'\n\texplorer metrics URL: '%s'",
     os.getenv('RADIX_MTPS_CLOUD_EMAIL', config.STORAGE["DEFAULT_CLOUD_EMAIL"]),
     os.getenv('RADIX_MTPS_CLOUD_CREDENTIALS', config.STORAGE["DEFAULT_CLOUD_CREDENTIALS"]),
     os.getenv('RADIX_MTPS_CLOUD_PROJECT', config.STORAGE["DEFAULT_CLOUD_PROJECT"]),
@@ -67,7 +67,7 @@ logging.info(
     os.environ.get("RADIX_MTPS_SHARD_OVERLAP", config.STORAGE["DEFAULT_NETWORK_SHARD_OVERLAP"]),
     core_nodes_num + 1,
     extra_nodes_num,
-    pretty_time(os.environ.get("RADIX_MTPS_NETWORK_START_PUMP", ""))
+    os.environ.get("RADIX_MTPS_NETWORK_START_PUMP_URL", config.STORAGE["DEFAULT_NETWORK_START_URL"])
 )
 
 # credentials
