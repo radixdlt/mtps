@@ -38,7 +38,6 @@ write_files:
                     CORE_PUMP_START_URL: "$RADIX_MTPS_NETWORK_START_PUMP_URL"
                     CORE_SECURE_RANDOM_SOURCE: /dev/urandom
                     CORE_UNIVERSE: "$RADIX_MTPS_NETWORK_UNIVERSE"
-                    # TIMETORUNTEST: "$RADIX_MTPS_NETWORK_START_PUMP" # e.g. "17.00" or "now+5min"
                     JAVA_OPTS: "-server -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=9009 -XX:+HeapDumpOnOutOfMemoryError -Dcom.sun.management.jmxremote.port=9010 -Dcom.sun.management.jmxremote.rmi.port=9010 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Djava.rmi.server.hostname=localhost"
                 volumes:
                     - "core_ledger:/opt/radixdlt/RADIXDB"
@@ -50,7 +49,7 @@ write_files:
                 logging:
                     options:
                         max-size: "100m"
-                        max-file: "10"                
+                        max-file: "10"
             nginx:
                 image: radixdlt/radixdlt-nginx:alphanet2
                 restart: unless-stopped
@@ -94,8 +93,6 @@ write_files:
             core_config:
             nginx_secrets:
             prometheus_tsdb:
-mounts:
-  - [ sdb, /radix ]
 package_upgrade: true
 apt:
   preserve_sources_list: true
@@ -109,6 +106,9 @@ packages:
   - docker-ce
 runcmd:
   - set -ex
+  - mkdir /radix
+  - mount /dev/nvme1n1 /radix
+  - sed -i "s#CORE_UNIVERSE:\(.*\)*#CORE_UNIVERSE:\ $(curl -k ${AWS_CORE_FETCH_UNIVERSE_URL})#g" /etc/radixdlt/docker-compose.yml
   - curl -sS1fL https://github.com/docker/compose/releases/download/1.21.2/docker-compose-Linux-x86_64 -o /usr/local/bin/docker-compose
   - echo "8a11713e11ed73abcb3feb88cd8b5674b3320ba33b22b2ba37915b4ecffdf042 /usr/local/bin/docker-compose" | sha256sum -c
   - chmod +x /usr/local/bin/docker-compose

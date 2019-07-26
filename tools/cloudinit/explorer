@@ -82,6 +82,7 @@ write_files:
                 - "443:443"
               volumes:
                 - "nginx_secrets:/etc/nginx/secrets"
+                - "/etc/radixdlt/universe/:/etc/radix/"
               logging:
                 options:
                   max-size: "1m"

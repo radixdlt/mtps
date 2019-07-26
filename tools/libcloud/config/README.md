@@ -10,3 +10,8 @@ python3 mtps.py -c gcp_project_test2.json,gcp_test_small_atoms.json
 ```
 python3 mtps.py -c gcp_project_fastgateway.json,gcp_test_1000.json
 ```
+
+### Run test on AWS
+```
+python3 mtps.py -c gcp_project_fastgateway.json,gcp_test_1000.json
+```
