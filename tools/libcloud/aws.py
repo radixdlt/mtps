@@ -181,13 +181,22 @@ def initialize_test():
 
             # boot node
             logging.info("Creating boot node in %s", boot_node_region)
-            create_core_template(boot_node_driver[0], name=config.STORAGE["AWS_BOOT_NODE_NAME"])
+
+            atoms_snapshot = config.STORAGE['AWS_CORE_REGIONS'][boot_node_region]['atoms_snapshot']
+            ami = config.STORAGE['AWS_CORE_REGIONS'][boot_node_region]['ami']
+
+            create_core_template(
+                boot_node_driver[0],
+                name=config.STORAGE["AWS_BOOT_NODE_NAME"],
+                atoms_snapshot=atoms_snapshot,
+                ami=ami)
+
             create_core_group(
                 boot_node_driver[0],
                 boot_node_driver[1],
-                1,
-                boot_node_region,
-                config.STORAGE["AWS_BOOT_NODE_NAME"])
+                amount=1,
+                region=boot_node_region,
+                template=config.STORAGE["AWS_BOOT_NODE_NAME"])
             
             attempts = 0
             while attempts < 3:
@@ -235,10 +244,21 @@ def initialize_test():
             destroy_core_groups(driver, as_driver, region)
         else:
             logging.info("Checking if core nodes in %s are up", region)
-    
-            create_core_template(driver)
-            core_nodes = config.STORAGE["AWS_CORE_REGIONS"][region]
-            create_core_group(driver, as_driver, core_nodes, region)
+
+            core_nodes = config.STORAGE["AWS_CORE_REGIONS"][region]["amount"]
+            atoms_snapshot = config.STORAGE['AWS_CORE_REGIONS'][region]['atoms_snapshot']
+            ami = config.STORAGE['AWS_CORE_REGIONS'][region]['ami']
+            
+            # atoms snapshot
+            create_core_template(
+                driver,
+                atoms_snapshot=atoms_snapshot,
+                ami=ami)
+            create_core_group(
+                driver=driver,
+                as_driver=as_driver,
+                amount=core_nodes,
+                region=region)
 
 
 # get node from a driver
@@ -374,6 +394,7 @@ def create_core_group(driver, as_driver, amount, region, template=None):
     params["LaunchTemplate.LaunchTemplateName"] = template
     params["MinSize"] = amount
     params["MaxSize"] = amount
+
     try:
         # use auto scaling driver
         response = as_driver.connection.request("/", params=params)
@@ -403,16 +424,31 @@ def destroy_core_groups(driver, as_driver, region, name=None):
 
 
 # create core template
-def create_core_template(driver, name=None):
+def create_core_template(driver, name=None, atoms_snapshot=None, ami=None):
     params = config.STORAGE["AWS_CORE_TEMPLATE_CONFIG"].copy()
     params["Action"] = "CreateLaunchTemplate"
-
+    params["Action"] = "CreateLaunchTemplate"
+    
+    
     # override name
     if name != None:
         # make it easy to identify in the console 
         params["LaunchTemplateName"] = name
         params["LaunchTemplateData.TagSpecification.1.Tag.2.Value"] = name
 
+    # override atoms snapshot_id
+    if atoms_snapshot != None:
+        params['LaunchTemplateData.BlockDeviceMapping.2.Ebs.SnapshotId'] = \
+            atoms_snapshot
+    else:
+        logging.info("No snapshot provided for core template %s", params["LaunchTemplateName"])
+
+    # override ami
+    if ami != None:
+        params['LaunchTemplateData.ImageId'] = ami
+    else:
+        logging.info("No image AMI provided for core template %s", params["LaunchTemplateName"])
+        
     # cloud init
     cloud_init_file = os.path.join(
         config.STORAGE["BASE_CLOUD_INIT_PATH"],

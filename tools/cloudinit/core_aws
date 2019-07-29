@@ -105,12 +105,12 @@ packages:
   - python
   - docker-ce
 runcmd:
-  - set -ex
-  - mkdir /radix
-  - mount /dev/nvme1n1 /radix
-  - sed -i "s#CORE_UNIVERSE:\(.*\)*#CORE_UNIVERSE:\ $(curl -k ${AWS_CORE_FETCH_UNIVERSE_URL})#g" /etc/radixdlt/docker-compose.yml
-  - curl -sS1fL https://github.com/docker/compose/releases/download/1.21.2/docker-compose-Linux-x86_64 -o /usr/local/bin/docker-compose
-  - echo "8a11713e11ed73abcb3feb88cd8b5674b3320ba33b22b2ba37915b4ecffdf042 /usr/local/bin/docker-compose" | sha256sum -c
-  - chmod +x /usr/local/bin/docker-compose
-  - cd /etc/radixdlt/ && docker-compose up -d 
-  - sudo docker-compose -f /etc/radixdlt/docker-compose.yml up -d | true
+  - 'set -ex'
+  - 'mkdir /radix'
+  - 'mount /dev/$(lsblk | grep "nvme.*200G" | sed "s/ .*//") /radix'
+  - 'sed -i "s#CORE_UNIVERSE:\(.*\)*#CORE_UNIVERSE:\ $(curl -k ${AWS_CORE_FETCH_UNIVERSE_URL})#g" /etc/radixdlt/docker-compose.yml'
+  - 'curl -sS1fL https://github.com/docker/compose/releases/download/1.21.2/docker-compose-Linux-x86_64 -o /usr/local/bin/docker-compose'
+  - 'echo "8a11713e11ed73abcb3feb88cd8b5674b3320ba33b22b2ba37915b4ecffdf042 /usr/local/bin/docker-compose" | sha256sum -c'
+  - 'chmod +x /usr/local/bin/docker-compose'
+  - 'cd /etc/radixdlt/ && docker-compose up -d'
+  - 'sudo docker-compose -f /etc/radixdlt/docker-compose.yml up -d | true'

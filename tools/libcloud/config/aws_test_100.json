@@ -1,8 +1,8 @@
 {
   "DEFAULT_CLOUD_PLATFORM": "aws",
   "DEFAULT_NETWORK_START_URL": "https://1m-aws.radixdlt.com/api/metrics",
-  "DEFAULT_NETWORK_ATOMS_FILE": "/radix/atoms_v4_6m.zst",
-  "DEFAULT_NETWORK_SHARD_COUNT": "1",
+  "DEFAULT_NETWORK_ATOMS_FILE": "/radix/atoms_v4_51m.zst",
+  "DEFAULT_NETWORK_SHARD_COUNT": "100",
   "DEFAULT_NETWORK_SHARD_OVERLAP": "0.1",
   "CORE_CLOUD_INIT": "core_aws",
   "CORE_DOCKER_IMAGE": "radixdlt/radixdlt-core:atom-pump-amd64",
@@ -25,12 +25,21 @@
   "AWS_BOOT_NODE_NAME": "core-boot-node",
   "AWS_CORE_FETCH_UNIVERSE_URL": "https://1m-aws.radixdlt.com/universe.txt",
   "AWS_CORE_REGIONS": {
-    "eu-west-1": 1
+    "eu-west-1": {
+      "amount": 90,
+      "ami": "ami-03746875d916becc0",
+      "atoms_snapshot": "snap-07cc0666c5d1dd515"
+    },
+    "us-west-1": {
+      "amount": 10,
+      "ami": "ami-08fd8ae3806f09a08",
+      "atoms_snapshot": "snap-07407791a6731a5a3"
+    }
   },
   "AWS_CORE_TEMPLATE_CONFIG": {
     "LaunchTemplateName": "core-nodes",
     "VersionDescription": "Template for codes nodes of the mtps.",
-    "LaunchTemplateData.ImageId": "ami-03746875d916becc0",
+    "LaunchTemplateData.ImageId": "",
     "LaunchTemplateData.InstanceType": "m5d.2xlarge",
     "LaunchTemplateData.NetworkInterface.1.DeviceIndex": 0,
     "LaunchTemplateData.NetworkInterface.1.AssociatePublicIpAddress": "true",
@@ -47,7 +56,7 @@
     "LaunchTemplateData.BlockDeviceMapping.1.Ebs.VolumeType": "gp2",
 
     "LaunchTemplateData.BlockDeviceMapping.2.DeviceName": "/dev/sdf",
-    "LaunchTemplateData.BlockDeviceMapping.2.Ebs.SnapshotId": "snap-0a6799aef61198ef3",
+    "LaunchTemplateData.BlockDeviceMapping.2.Ebs.SnapshotId": "",
     "LaunchTemplateData.BlockDeviceMapping.2.Ebs.DeleteOnTermination": "true",
     "LaunchTemplateData.BlockDeviceMapping.2.Ebs.VolumeSize": "200",
     "LaunchTemplateData.BlockDeviceMapping.2.Ebs.VolumeType": "gp2"
