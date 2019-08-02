@@ -26,12 +26,12 @@
   "AWS_CORE_FETCH_UNIVERSE_URL": "https://1m-aws.radixdlt.com/universe.txt",
   "AWS_CORE_REGIONS": {
     "eu-west-1": {
-      "amount": 90,
+      "amount": 49,
       "ami": "ami-03746875d916becc0",
       "atoms_snapshot": "snap-07cc0666c5d1dd515"
     },
     "us-west-1": {
-      "amount": 10,
+      "amount": 50,
       "ami": "ami-08fd8ae3806f09a08",
       "atoms_snapshot": "snap-07407791a6731a5a3"
     }
