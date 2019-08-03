@@ -206,7 +206,6 @@ def initialize_test():
                     time.sleep(4)
                 else:
                     attempts = 3 
-            logging.info("Updating boot node universe")
             boot_node = get_node(boot_node_driver[0], config.STORAGE['AWS_BOOT_NODE_NAME'])
             boot_node_driver[0].wait_until_running(nodes=[boot_node], wait_period=1, timeout=30)
 
