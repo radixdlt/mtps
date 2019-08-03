@@ -39,7 +39,6 @@ write_files:
                 max-file: "10"
           millionaire-dataset-preparator:
             image: radixdlt/millionaire-dataset-preparator:latest
-            init: true
             ports:
               - 127.0.0.1:9009:9009
               - 127.0.0.1:9010:9010

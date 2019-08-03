@@ -117,3 +117,12 @@ def update_shard_count(host, shard_count, shard_overlap):
     )
     ssh_exec(host, command)
     return True
+
+
+def update_explorer_universe(host, universe):
+    command = '''
+            sudo sh -c 'echo "{0}" > /etc/radixdlt/universe/universe.txt'
+            '''.format(
+        universe
+    )
+    ssh_exec(host, command)

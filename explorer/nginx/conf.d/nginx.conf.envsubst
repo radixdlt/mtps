@@ -70,6 +70,19 @@ http {
             add_header Cache-Control "public, max-age=1";
             include conf.d/enable-cors.conf;
         }
+
+         # expose current universe for resources to fetch
+        location = /universe.txt {
+            auth_basic off;
+            limit_except GET {
+                deny all;
+            }
+            root /etc/radix/;
+            include conf.d/enable-proxy.conf;
+            add_header Cache-Control "public, max-age=1";
+            include conf.d/enable-cors.conf;
+        }
+
         # prometheus graph, queries, etc is password protected
         location /prometheus {
             auth_basic_user_file /etc/nginx/secrets/htpasswd.metrics;

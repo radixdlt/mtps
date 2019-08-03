@@ -2,6 +2,14 @@ import os
 import logging
 import argparse
 import json
+import secrets
+import string
+import time
+import re
+from tempfile import NamedTemporaryFile
+
+PLATFORM_GCP = "gcp"
+PLATFORM_AWS = "aws"
 
 STORAGE = {
     # cloudinit
@@ -13,9 +21,10 @@ STORAGE = {
     "CORE_DOCKER_IMAGE": "radixdlt/radixdlt-core:atom-pump-amd64",
 
     # default credentials
-    "DEFAULT_CLOUD_EMAIL": "libcloud@fast-gateway-233909.iam.gserviceaccount.com",
-    "DEFAULT_CLOUD_CREDENTIALS": "~/.gcloud.json",
-    "DEFAULT_CLOUD_PROJECT": "fast-gateway-233909",
+    "DEFAULT_CLOUD_PLATFORM": PLATFORM_GCP,
+    "DEFAULT_CLOUD_EMAIL": "libcloud@m-tps-test-2.iam.gserviceaccount.com",
+    "DEFAULT_CLOUD_CREDENTIALS": "~/.gcloud-m-tps-test2.json",
+    "DEFAULT_CLOUD_PROJECT": "m-tps-test-2",
 
     # network config
     "DEFAULT_NETWORK_UNIVERSE": "",
@@ -116,7 +125,7 @@ STORAGE["TEST_PREPPER_CLOUD_INIT"] = os.path.join(STORAGE["BASE_CLOUD_INIT_PATH"
 # logging
 logging.basicConfig(
     format="%(message)s",
-    level=os.environ.get('LOGLEVEL', 'INFO').upper())
+    level=os.environ.get('LOGLEVEL', logging.INFO))
 logging.getLogger("paramiko").setLevel(logging.WARNING)
 
 
@@ -175,3 +184,64 @@ if args.config is not None:
 STORAGE["CLOUD_PROJECT"] = os.getenv('RADIX_MTPS_CLOUD_PROJECT', STORAGE["DEFAULT_CLOUD_PROJECT"])
 STORAGE["CLOUD_CREDENTIALS"] = os.getenv('RADIX_MTPS_CLOUD_CREDENTIALS', STORAGE["DEFAULT_CLOUD_CREDENTIALS"])
 STORAGE["CLOUD_EMAIL"] = os.getenv('RADIX_MTPS_CLOUD_CLOUD_EMAIL', STORAGE["DEFAULT_CLOUD_EMAIL"])
+
+def generate_password():
+    alphabet = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(alphabet) for i in range(30))  # for a 20-character password
+
+
+def pretty_time(date_epoch):
+    """Parses the give time string (compatible with the date CLI)"""
+    try:
+        parsed_time = float(date_epoch[1:])
+        return time.asctime(time.localtime(parsed_time))
+    except ValueError:
+        logging.error("couldn't parse: '{0}' value to time".format(date_epoch))
+    return "none"
+
+
+def print_config():
+
+    # count nodes
+    core_nodes_num = 0
+    extra_nodes_num = 0
+    if "CORE_REGIONS" in STORAGE:
+        for region, size in STORAGE["CORE_REGIONS"].items():
+            core_nodes_num += size
+    if "EXTRA_REGIONS" in STORAGE:
+        for region, size in STORAGE["EXTRA_REGIONS"].items():
+            extra_nodes_num += size
+
+    logging.info(
+        "Configuration: \n\temail: '%s'\n\tcreadentials file: '%s'\n\tproject: '%s'\n\tatom file: "
+        "'%s'\n\tshard count: '%s'\n\tshard overlap: '%s'\n\ttotal core nodes with boot_node: '%s'\n\ttotal extra nodes: '%s'\n\tenvironment test starts: '%s'",
+        os.getenv('RADIX_MTPS_CLOUD_EMAIL', STORAGE["DEFAULT_CLOUD_EMAIL"]),
+        os.getenv('RADIX_MTPS_CLOUD_CREDENTIALS', STORAGE["DEFAULT_CLOUD_CREDENTIALS"]),
+        os.getenv('RADIX_MTPS_CLOUD_PROJECT', STORAGE["DEFAULT_CLOUD_PROJECT"]),
+        os.environ.get("RADIX_MTPS_NETWORK_ATOMS_FILE", STORAGE["DEFAULT_NETWORK_ATOMS_FILE"]),
+        os.environ.get("RADIX_MTPS_SHARD_COUNT", STORAGE["DEFAULT_NETWORK_SHARD_COUNT"]),
+        os.environ.get("RADIX_MTPS_SHARD_OVERLAP", STORAGE["DEFAULT_NETWORK_SHARD_OVERLAP"]),
+        core_nodes_num + 1,
+        extra_nodes_num,
+        pretty_time(os.environ.get("RADIX_MTPS_NETWORK_START_PUMP", ""))
+    )
+
+
+# envsubst variables
+def render_template(path):
+    temp_file = NamedTemporaryFile(delete=False)
+    logging.debug("- Rendering %s to %s", path, temp_file.name)
+    with open(path) as original_file:
+        for line in original_file:
+            temp_file.write(expandvars(line).encode())
+    return temp_file.name
+
+
+# replace unset env variables with white space
+def expandvars(path, default=''):
+    def replace_var(m):
+        return os.environ.get(m.group(2) or m.group(1), '')
+
+    reVar = (r'(?<!\\)' '') + r'\$(\w+|\{([^}]*)\})'
+    return re.sub(reVar, replace_var, path)
+

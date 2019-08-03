@@ -1,0 +1,64 @@
+{
+  "DEFAULT_CLOUD_PLATFORM": "aws",
+  "DEFAULT_NETWORK_START_URL": "https://1m-aws.radixdlt.com/api/metrics",
+  "DEFAULT_NETWORK_ATOMS_FILE": "/radix/atoms_v4_51m.zst",
+  "DEFAULT_NETWORK_SHARD_COUNT": "100",
+  "DEFAULT_NETWORK_SHARD_OVERLAP": "0.1",
+  "CORE_CLOUD_INIT": "core_aws",
+  "CORE_DOCKER_IMAGE": "radixdlt/radixdlt-core:atom-pump-amd64",
+  "AWS_CLOUD_CREDENTIALS": "~/.ec2_access_keys.csv",
+  "AWS_SECURITY_GROUP_NAME": "default",
+
+  "AWS_EXPLORER_REGION": "eu-west-1",
+  "AWS_EXPLORER_NAME": "explorer-2",
+  "AWS_EXPLORER_IMAGE_ID": "ami-03746875d916becc0",
+  "AWS_EXPLORER_INSTANCE_TYPE": "m5d.2xlarge",
+
+  "AWS_TEST_PREPPER_REGION": "eu-west-1",
+  "AWS_TEST_PREPPER_NAME": "test-preparator",
+  "AWS_TEST_PREPPER_IMAGE_ID": "ami-03746875d916becc0",
+  "AWS_TEST_PREPPER_INSTANCE_TYPE": "t2.xlarge",
+  "AWS_TEST_PREPPER_DISK_DIZE": "2048",
+  "AWS_TEST_PREPPER_EXTRA_DISK_DIZE": "200",
+
+  "AWS_BOOT_NODE_REGION": "eu-west-1",
+  "AWS_BOOT_NODE_NAME": "core-boot-node",
+  "AWS_CORE_FETCH_UNIVERSE_URL": "https://1m-aws.radixdlt.com/universe.txt",
+  "AWS_CORE_REGIONS": {
+    "eu-west-1": {
+      "amount": 49,
+      "ami": "ami-03746875d916becc0",
+      "atoms_snapshot": "snap-07cc0666c5d1dd515"
+    },
+    "us-west-1": {
+      "amount": 50,
+      "ami": "ami-08fd8ae3806f09a08",
+      "atoms_snapshot": "snap-07407791a6731a5a3"
+    }
+  },
+  "AWS_CORE_TEMPLATE_CONFIG": {
+    "LaunchTemplateName": "core-nodes",
+    "VersionDescription": "Template for codes nodes of the mtps.",
+    "LaunchTemplateData.ImageId": "",
+    "LaunchTemplateData.InstanceType": "m5d.2xlarge",
+    "LaunchTemplateData.NetworkInterface.1.DeviceIndex": 0,
+    "LaunchTemplateData.NetworkInterface.1.AssociatePublicIpAddress": "true",
+
+    "LaunchTemplateData.TagSpecification.1.ResourceType": "instance",
+    "LaunchTemplateData.TagSpecification.1.Tag.1.Key": "role",
+    "LaunchTemplateData.TagSpecification.1.Tag.1.Value": "core-node",
+    "LaunchTemplateData.TagSpecification.1.Tag.2.Key": "Name",
+    "LaunchTemplateData.TagSpecification.1.Tag.2.Value": "core-node",
+
+    "LaunchTemplateData.BlockDeviceMapping.1.DeviceName": "/dev/sda1",
+    "LaunchTemplateData.BlockDeviceMapping.1.Ebs.DeleteOnTermination": "true",
+    "LaunchTemplateData.BlockDeviceMapping.1.Ebs.VolumeSize": "100",
+    "LaunchTemplateData.BlockDeviceMapping.1.Ebs.VolumeType": "gp2",
+
+    "LaunchTemplateData.BlockDeviceMapping.2.DeviceName": "/dev/sdf",
+    "LaunchTemplateData.BlockDeviceMapping.2.Ebs.SnapshotId": "",
+    "LaunchTemplateData.BlockDeviceMapping.2.Ebs.DeleteOnTermination": "true",
+    "LaunchTemplateData.BlockDeviceMapping.2.Ebs.VolumeSize": "200",
+    "LaunchTemplateData.BlockDeviceMapping.2.Ebs.VolumeType": "gp2"
+  }
+}
