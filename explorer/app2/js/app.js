@@ -165,8 +165,7 @@ function updateTickers() {
 
 function updateStats() {
   $('.tps-spot').each(function() {
-    // $(this).text(beautifulNumber(getTps()));
-    $(this).text(beautifulNumber(1417786));
+    $(this).text(beautifulNumber(getTps()));
   });
   $('.tps-peak').each(function() {
     $(this).text(beautifulNumber(currentMetricsResult.peak));
